@@ -38,7 +38,7 @@
 <div class="card">
     <header class="card-header" on:click={toggle}>
         <p class="card-header-title">
-            {semesterName} (<DateRange interval={semester}/>) <IconForLevel level={level}/>
+            <IconForLevel level={level}/> {semesterName} (<DateRange interval={semester}/>)
         </p>
         <button class="card-header-icon" aria-label="more options">
             <AngleIndicator {opened}/>

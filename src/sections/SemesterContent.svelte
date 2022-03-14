@@ -58,12 +58,12 @@
                     <dl>
                         <dt>Zeitraum</dt>
                         <dd>
-                            <DateRange interval={Interval.fromStrings(cashAudit.dateStart, cashAudit.dateEnd)}/>
                             {#if cashAudit.checked}
                                 <Checkmark/>
                             {:else}
                                 <Questionmark/>
                             {/if}
+                            <DateRange interval={Interval.fromStrings(cashAudit.dateStart, cashAudit.dateEnd)}/>
                         </dd>
                         <dt>Wahl der Kassenprüfer*innen</dt>
                         <dd>
@@ -97,6 +97,8 @@
 <style>
     ul {
         margin-top: 0;
+        margin-left: 0;
+        list-style: none !important;
     }
 
     dt {

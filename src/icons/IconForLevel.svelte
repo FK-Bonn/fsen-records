@@ -11,7 +11,7 @@
 
 {#if level === AnnotationLevel.Ok}
     <Checkmark/>
-{:else if level === AnnotationLevel.Missing}
+{:else if level === AnnotationLevel.Unchecked}
     <Questionmark/>
 {:else if level === AnnotationLevel.Info}
     <Info/>

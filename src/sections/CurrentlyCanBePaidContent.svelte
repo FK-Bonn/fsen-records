@@ -21,31 +21,38 @@
             <dt>Letzte Wahl</dt>
             <dd>
                 {#if mostRecentElection}
-                    <DateRange
-                            interval={Interval.fromStrings(mostRecentElection.dateStart, mostRecentElection.dateEnd)}/>
-                    {#if calculator.isMostRecentElectionYoungerThanOneYear()}
-                        <Checkmark/>
-                    {:else}
-                        <Cross/>
-                    {/if}
+                    <ul>
+                        <li>
+                            {#if calculator.isMostRecentElectionYoungerThanOneYear()}
+                                <Checkmark/>
+                            {:else}
+                                <Cross/>
+                            {/if}
+                            <DateRange
+                                    interval={Interval.fromStrings(mostRecentElection.dateStart, mostRecentElection.dateEnd)}/>
+                        </li>
+                        <li>
+                            <SingleDocument document={mostRecentElection}/>
+                        </li>
+                    </ul>
                 {:else}
-                    Fehlt!
                     <Cross/>
+                    Fehlt!
                 {/if}
             </dd>
             <dt>Letzte konstituierende Sitzung</dt>
             <dd>
                 {#if mostRecentInauguralMeetingProceedings}
-                    <DateRange
-                            interval={Interval.fromStrings(mostRecentInauguralMeetingProceedings.dateStart, mostRecentInauguralMeetingProceedings.dateStart)}/>
                     {#if mostRecentInauguralMeetingProceedings.checked}
                         <Checkmark/>
                     {:else}
                         <Questionmark/>
                     {/if}
+                    <DateRange
+                            interval={Interval.fromStrings(mostRecentInauguralMeetingProceedings.dateStart, mostRecentInauguralMeetingProceedings.dateStart)}/>
                 {:else}
-                    Fehlt!
                     <Cross/>
+                    Fehlt!
                 {/if}
             </dd>
             <dt>Aktueller Haushaltsplan</dt>
@@ -67,8 +74,8 @@
 
                     </dl>
                 {:else}
-                    Fehlt!
                     <Cross/>
+                    Fehlt!
                 {/each}
             </dd>
             <dt>Haushaltsplan des vorherigen Haushaltsjahres</dt>
@@ -90,8 +97,8 @@
 
                     </dl>
                 {:else}
-                    Fehlt!
                     <Cross/>
+                    Fehlt!
                 {/each}
             </dd>
             <dt>Haushaltsrechnung des vorherigen Haushaltsjahres</dt>
@@ -115,12 +122,7 @@
                     <dl>
                         <dt>Zeitraum</dt>
                         <dd>
-                            <DateRange interval={Interval.fromStrings(cashAudit.dateStart, cashAudit.dateEnd)}/>
-                            {#if cashAudit.checked}
-                                <Checkmark/>
-                            {:else}
-                                <Questionmark/>
-                            {/if}
+                            <SingleDocumentWithoutReferences document={cashAudit}/>
                         </dd>
                         <dt>Wahl der Kassenprüfer*innen</dt>
                         <dd>
@@ -132,8 +134,8 @@
                         </dd>
                     </dl>
                 {:else}
-                    Fehlt!
                     <Cross/>
+                    Fehlt!
                 {/each}
             </dd>
         </dl>
@@ -143,6 +145,8 @@
 <style>
     ul {
         margin-top: 0;
+        margin-left: 0;
+        list-style: none !important;
     }
 
     dt {

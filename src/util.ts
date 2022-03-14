@@ -1,4 +1,4 @@
-import {AnnotationLevel, IAnnotatedDocument} from "./Interfaces";
+import {AnnotationLevel, IAnnotatedDocument, IAnnotation} from "./Interfaces";
 
 export const stringToDate = (input: string) => {
     const output = new Date(input);
@@ -9,35 +9,56 @@ export const stringToDate = (input: string) => {
     return output;
 }
 
-export const getDocumentsWithoutIssues = (documents: IAnnotatedDocument[]): IAnnotatedDocument[] => {
+export const getWorstDocumentAnnotationLevel = (annotations: IAnnotation[]): AnnotationLevel => {
+    const levels = annotations.map(annotation => annotation.level);
+    return getWorstAnnotationLevel(levels);
+}
+
+export const getWorstAnnotationLevel = (levels: AnnotationLevel[]): AnnotationLevel => {
+    for (let level of [AnnotationLevel.Error, AnnotationLevel.Unchecked, AnnotationLevel.Warning]) {
+        if (levels.some(value => value === level)) {
+            return level
+        }
+    }
+    return AnnotationLevel.Ok;
+}
+
+export const getDocumentAnnotationLevel = (document: IAnnotatedDocument): AnnotationLevel => {
+    let worstDocumentLevel = getWorstDocumentAnnotationLevel(document.annotations);
+    if (!document.checked) {
+        worstDocumentLevel = AnnotationLevel.Unchecked;
+    }
+    const referenceLevels = [];
+    if (document.resolvedReferences) {
+        for (let reference of document.resolvedReferences) {
+            let worstReferenceLevel = getWorstDocumentAnnotationLevel(reference.annotations);
+            if (!reference.checked) {
+                worstReferenceLevel = AnnotationLevel.Unchecked;
+            }
+            referenceLevels.push(worstReferenceLevel);
+        }
+    }
+    return getWorstAnnotationLevel([...referenceLevels, worstDocumentLevel]);
+}
+
+export const getCheckedDocumentsWithoutIssues = (documents: IAnnotatedDocument[], requireResolvedReference = false): IAnnotatedDocument[] => {
     const withoutIssues = [];
     for (let document of documents) {
-        if(!document.checked){
+        const level = getDocumentAnnotationLevel(document);
+        const isMissingReference = requireResolvedReference && document.resolvedReferences.length === 0;
+        if (![AnnotationLevel.Error, AnnotationLevel.Unchecked].includes(level) && !isMissingReference) {
             withoutIssues.push(document);
-            continue;
         }
-        let include = true;
-        for (let annotation of document.annotations) {
-            if(annotation.level == AnnotationLevel.Error){
-                include = false;
-                break;
-            }
-        }
-        for (let reference of document.resolvedReferences) {
-            if(reference.filename.startsWith('Prot-')){
-                if(!reference.checked){
-                    include = false;
-                    break;
-                }
-                for (let annotation of reference.annotations) {
-                    if(annotation.level == AnnotationLevel.Error){
-                        include = false;
-                        break;
-                    }
-                }
-            }
-        }
-        if(include){
+    }
+    return withoutIssues;
+}
+
+export const getDocumentsWithoutIssues = (documents: IAnnotatedDocument[], requireResolvedReference = false): IAnnotatedDocument[] => {
+    const withoutIssues = [];
+    for (let document of documents) {
+        const level = getDocumentAnnotationLevel(document);
+        const isMissingReference = requireResolvedReference && document.resolvedReferences.length === 0;
+        if (![AnnotationLevel.Error].includes(level) && !isMissingReference) {
             withoutIssues.push(document);
         }
     }

@@ -23,7 +23,7 @@
 <div class="card">
     <header class="card-header" on:click={toggle}>
         <p class="card-header-title">
-            Auszahlungsfähigkeit <IconForLevel level={level}/>
+            <IconForLevel level={level}/> Auszahlungsfähigkeit
         </p>
         <button class="card-header-icon" aria-label="more options">
             <AngleIndicator {opened}/>

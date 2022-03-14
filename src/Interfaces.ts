@@ -2,7 +2,7 @@ export enum AnnotationLevel {
     Error= "Error",
     Warning = "Warning",
     Info = "Info",
-    Missing = "Missing",
+    Unchecked = "Unchecked",
     Ok = "Ok",
 }
 
