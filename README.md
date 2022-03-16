@@ -5,5 +5,5 @@ Nachweisübersicht für AFSG/BSFG
 
 ```
 npm run build
-rsync -avzP --exclude data public/* hscmi:~/fsen
+rsync -avzP --exclude data --exclude dataupdate public/* hscmi:~/fsen
 ```
