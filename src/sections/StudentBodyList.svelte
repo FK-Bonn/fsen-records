@@ -4,6 +4,8 @@
     import {onMount} from 'svelte';
 
     export let studentBodies: Map<string, IStudentBody>
+    export let timestamp: number
+    $: lastUpdate = new Date(timestamp * 1000).toLocaleString();
 
     const scrollToHashIfPresent = () => {
         if (window.location.hash) {
@@ -18,6 +20,12 @@
         scrollToHashIfPresent();
     });
 </script>
+
+<div class="message is-info">
+    <div class="message-body">
+        Letzte Aktualisierung: {lastUpdate}
+    </div>
+</div>
 
 <ul>
     {#each [...studentBodies] as [key, studentBody]}

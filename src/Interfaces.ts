@@ -34,4 +34,5 @@ export interface IStudentBody {
 
 export interface IData {
     studentBodies: Map<string, IStudentBody>
+    timestamp: number
 }

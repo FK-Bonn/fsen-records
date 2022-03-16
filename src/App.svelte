@@ -54,7 +54,7 @@
     {:then data}
         <section class="section">
             <div class="container">
-                <StudentBodyList studentBodies={data.studentBodies}/>
+                <StudentBodyList studentBodies={data.studentBodies} timestamp="{data.timestamp}"/>
             </div>
         </section>
     {:catch error}
