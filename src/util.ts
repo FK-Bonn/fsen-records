@@ -53,12 +53,11 @@ export const getCheckedDocumentsWithoutIssues = (documents: IAnnotatedDocument[]
     return withoutIssues;
 }
 
-export const getDocumentsWithoutIssues = (documents: IAnnotatedDocument[], requireResolvedReference = false): IAnnotatedDocument[] => {
+export const getDocumentsWithoutIssues = (documents: IAnnotatedDocument[]): IAnnotatedDocument[] => {
     const withoutIssues = [];
     for (let document of documents) {
         const level = getDocumentAnnotationLevel(document);
-        const isMissingReference = requireResolvedReference && document.resolvedReferences.length === 0;
-        if (![AnnotationLevel.Error].includes(level) && !isMissingReference) {
+        if (![AnnotationLevel.Error].includes(level)) {
             withoutIssues.push(document);
         }
     }

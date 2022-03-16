@@ -7,6 +7,7 @@
     import Cross from "../icons/Cross.svelte";
     import SingleDocument from "../components/SingleDocument.svelte";
     import SingleDocumentWithoutReferences from "../components/SingleDocumentWithoutReferences.svelte";
+    import IconForLevel from "../icons/IconForLevel.svelte";
 
     export let studentBody: IStudentBody;
     export let semester: Interval;
@@ -18,7 +19,10 @@
 <div class="card-content">
     <div class="content">
         <dl>
-            <dt>Haushaltspläne</dt>
+            <dt>
+                <IconForLevel level={calculator.getBudgetLevel()}/>
+                Haushaltspläne
+            </dt>
             <dd>
                 {#each calculator.getRelevantBudgets() as budget}
                     <dl>
@@ -41,18 +45,28 @@
                 {/each}
             </dd>
 
-            <dt>Haushaltsrechnungen</dt>
+            <dt>
+                <IconForLevel level={calculator.getBalanceLevel()}/>
+                Haushaltsrechnungen
+            </dt>
             <dd>
                 <ul>
-                {#each calculator.getRelevantBalances() as balance}
-                    <li><SingleDocument document={balance}/></li>
-                {:else}
-                    <li>Fehlt! <Cross/></li>
-                {/each}
+                    {#each calculator.getRelevantBalances() as balance}
+                        <li>
+                            <SingleDocument document={balance}/>
+                        </li>
+                    {:else}
+                        <li>Fehlt!
+                            <Cross/>
+                        </li>
+                    {/each}
                 </ul>
             </dd>
 
-            <dt>Kassenprüfungen</dt>
+            <dt>
+                <IconForLevel level={calculator.getCashAuditLevel()}/>
+                Kassenprüfungen
+            </dt>
             <dd>
                 {#each calculator.getRelevantCashAudits() as cashAudit}
                     <dl>
@@ -80,7 +94,10 @@
                 {/each}
             </dd>
 
-            <dt>Wahlergebnis</dt>
+            <dt>
+                <IconForLevel level={calculator.getElectionLevel()}/>
+                Wahlergebnis
+            </dt>
             <dd>
                 {#if mostRecentElection}
                     <SingleDocument document={mostRecentElection}/>

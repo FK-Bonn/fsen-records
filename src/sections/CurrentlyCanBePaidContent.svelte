@@ -7,6 +7,7 @@
     import Cross from "../icons/Cross.svelte";
     import SingleDocument from "../components/SingleDocument.svelte";
     import SingleDocumentWithoutReferences from "../components/SingleDocumentWithoutReferences.svelte";
+    import IconForLevel from "../icons/IconForLevel.svelte";
 
     export let studentBody: IStudentBody;
     $: calculator = new CurrentlyCanBePaidCalculator(studentBody);
@@ -18,7 +19,10 @@
 <div class="card-content">
     <div class="content">
         <dl>
-            <dt>Letzte Wahl</dt>
+            <dt>
+                <IconForLevel level={calculator.getElectionLevel()}/>
+                Letzte Wahl
+            </dt>
             <dd>
                 {#if mostRecentElection}
                     <ul>
@@ -40,22 +44,22 @@
                     Fehlt!
                 {/if}
             </dd>
-            <dt>Letzte konstituierende Sitzung</dt>
+            <dt>
+                <IconForLevel level={calculator.getProceedingsOfLastInauguralMeetingLevel()}/>
+                Letzte konstituierende Sitzung
+            </dt>
             <dd>
                 {#if mostRecentInauguralMeetingProceedings}
-                    {#if mostRecentInauguralMeetingProceedings.checked}
-                        <Checkmark/>
-                    {:else}
-                        <Questionmark/>
-                    {/if}
-                    <DateRange
-                            interval={Interval.fromStrings(mostRecentInauguralMeetingProceedings.dateStart, mostRecentInauguralMeetingProceedings.dateStart)}/>
+                    <SingleDocument document={mostRecentInauguralMeetingProceedings}/>
                 {:else}
                     <Cross/>
                     Fehlt!
                 {/if}
             </dd>
-            <dt>Aktueller Haushaltsplan</dt>
+            <dt>
+                <IconForLevel level={calculator.getCurrentFinancialYearBudgetLevel()}/>
+                Aktueller Haushaltsplan
+            </dt>
             <dd>
                 {#each calculator.getRelevantBudgetsForCurrentFinancialYear() as budget}
                     <dl>
@@ -78,7 +82,10 @@
                     Fehlt!
                 {/each}
             </dd>
-            <dt>Haushaltsplan des vorherigen Haushaltsjahres</dt>
+            <dt>
+                <IconForLevel level={calculator.getPreviousFinancialYearBudgetLevel()}/>
+                Haushaltsplan des vorherigen Haushaltsjahres
+            </dt>
             <dd>
                 {#each calculator.getRelevantBudgetsForPreviousFinancialYear() as budget}
                     <dl>
@@ -101,7 +108,10 @@
                     Fehlt!
                 {/each}
             </dd>
-            <dt>Haushaltsrechnung des vorherigen Haushaltsjahres</dt>
+            <dt>
+                <IconForLevel level={calculator.getBalanceLevel()}/>
+                Haushaltsrechnung des vorherigen Haushaltsjahres
+            </dt>
             <dd>
                 <ul>
                     {#each calculator.getRelevantBalancesForPreviousFinancialYear() as balance}
@@ -116,7 +126,10 @@
                     {/each}
                 </ul>
             </dd>
-            <dt>Kassenprüfungen</dt>
+            <dt>
+                <IconForLevel level={calculator.getCashAuditLevel()}/>
+                Kassenprüfungen
+            </dt>
             <dd>
                 {#each calculator.getRelevantCashAuditsForPreviousFinancialYear() as cashAudit}
                     <dl>
