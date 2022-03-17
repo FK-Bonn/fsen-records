@@ -72,12 +72,7 @@
                     <dl>
                         <dt>Zeitraum</dt>
                         <dd>
-                            {#if cashAudit.checked}
-                                <Checkmark/>
-                            {:else}
-                                <Questionmark/>
-                            {/if}
-                            <DateRange interval={Interval.fromStrings(cashAudit.dateStart, cashAudit.dateEnd)}/>
+                            <SingleDocumentWithoutReferences document={cashAudit}/>
                         </dd>
                         <dt>Wahl der Kassenprüfer*innen</dt>
                         <dd>
