@@ -2,10 +2,14 @@
     import type {IStudentBody} from "../Interfaces";
     import StudentBody from "./StudentBody.svelte";
     import {onMount} from 'svelte';
+    import Legend from "../components/Legend.svelte";
+    import {AnnotationLevel} from "../Interfaces";
+    import IconForLevel from "../icons/IconForLevel.svelte";
 
     export let studentBodies: Map<string, IStudentBody>
     export let timestamp: number
     $: lastUpdate = new Date(timestamp * 1000).toLocaleString();
+    $: lastUpdateLevel = (Date.now() / 1000 - timestamp) > 3600 ? AnnotationLevel.Warning : AnnotationLevel.Ok;
 
     const scrollToHashIfPresent = () => {
         if (window.location.hash) {
@@ -23,7 +27,9 @@
 
 <div class="message is-info">
     <div class="message-body">
-        Letzte Aktualisierung: {lastUpdate}
+        <p>Letzte Aktualisierung: <IconForLevel level={lastUpdateLevel}/> {lastUpdate}</p>
+
+        <Legend/>
     </div>
 </div>
 
