@@ -1,12 +1,6 @@
 import type {IAnnotatedDocument, IAnnotation, IStudentBody} from "./Interfaces";
 import {AnnotationLevel} from "./Interfaces";
-import {
-    getCheckedDocumentsWithoutIssues,
-    getDocumentAnnotationLevel,
-    getDocumentsWithoutIssues,
-    getWorstAnnotationLevel, getWorstDocumentAnnotationLevel,
-    stringToDate
-} from "./util";
+import {getDocumentAnnotationLevel, getDocumentsWithLevels, getWorstAnnotationLevel, stringToDate} from "./util";
 
 export class Interval {
     start: Date
@@ -119,13 +113,23 @@ export class CurrentlyCanBePaidCalculator {
         if (!proceedings) {
             levels.push(AnnotationLevel.Error);
         } else {
-            levels.push(getWorstDocumentAnnotationLevel(proceedings.annotations));
-            const election = this.getMostRecentElection();
-            if (election && election.dateEnd > proceedings.dateStart) {
-                levels.push(AnnotationLevel.Error);
-            }
+            levels.push(getDocumentAnnotationLevel(proceedings));
+            levels.push(this.areProceedingsOfLastInauguralMeetingYoungerThanLastElectionLevel(proceedings));
         }
         return getWorstAnnotationLevel(levels);
+    }
+
+    private areProceedingsOfLastInauguralMeetingYoungerThanLastElectionLevel(proceedings: IAnnotatedDocument): AnnotationLevel {
+        const election = this.getMostRecentElection();
+        if (election) {
+            if (election.dateEnd > proceedings.dateStart) {
+                return AnnotationLevel.Error;
+            } else {
+                return AnnotationLevel.Ok;
+            }
+        } else {
+            return AnnotationLevel.Unchecked;
+        }
     }
 
     public getPreviousFinancialYearBudgetLevel() {
@@ -136,42 +140,29 @@ export class CurrentlyCanBePaidCalculator {
         return this.getBudgetLevel(this.getCurrentFinancialYear());
     }
 
+
     private getBudgetLevel(interval: Interval): AnnotationLevel {
-        const levels = [];
-        const budgets = getDocumentsWithoutIssues(this.studentBody.budgets);
-        const checkedBudgets = getCheckedDocumentsWithoutIssues(this.studentBody.budgets, true);
-        if (!interval.isCoveredBy(budgets)) {
-            levels.push(AnnotationLevel.Error);
-        } else if (!interval.isCoveredBy(checkedBudgets)) {
-            levels.push(AnnotationLevel.Unchecked);
-        }
-        return getWorstAnnotationLevel(levels);
+        return this.getLevelForDocuments(interval, this.studentBody.budgets, true);
     }
 
     public getBalanceLevel(): AnnotationLevel {
-        const levels = [];
-        let balances = getDocumentsWithoutIssues(this.studentBody.balances);
-        let checkedBalances = getCheckedDocumentsWithoutIssues(this.studentBody.balances);
-        let interval = this.getPreviousFinancialYear();
-        if (!interval.isCoveredBy(balances)) {
-            levels.push(AnnotationLevel.Error);
-        } else if (!interval.isCoveredBy(checkedBalances)) {
-            levels.push(AnnotationLevel.Unchecked);
-        }
-        return getWorstAnnotationLevel(levels);
+        return this.getLevelForDocuments(this.getPreviousFinancialYear(), this.studentBody.balances);
     }
 
     public getCashAuditLevel(): AnnotationLevel {
-        const levels = [];
-        let cashAudits = getDocumentsWithoutIssues(this.studentBody.cashAudits);
-        let checkedCashAudits = getCheckedDocumentsWithoutIssues(this.studentBody.cashAudits, true);
-        let interval = this.getPreviousFinancialYear();
-        if (!interval.isCoveredBy(cashAudits)) {
-            levels.push(AnnotationLevel.Error);
-        } else if (!interval.isCoveredBy(checkedCashAudits)) {
-            levels.push(AnnotationLevel.Unchecked);
+        return this.getLevelForDocuments(this.getPreviousFinancialYear(), this.studentBody.cashAudits, true);
+    }
+
+    private getLevelForDocuments(interval: Interval, documents: IAnnotatedDocument[], requireResolvedReference: boolean = false): AnnotationLevel {
+        const allowedLevels = [];
+        for (let level of [AnnotationLevel.Ok, AnnotationLevel.Warning, AnnotationLevel.Unchecked]) {
+            allowedLevels.push(level);
+            const budgets = interval.getOverlapping(getDocumentsWithLevels(documents, allowedLevels));
+            if (interval.isCoveredBy(budgets)) {
+                return level;
+            }
         }
-        return getWorstAnnotationLevel(levels);
+        return AnnotationLevel.Error;
     }
 
     public getProceedingsOfMostRecentInauguralMeeting(): IAnnotatedDocument | null {
@@ -311,39 +302,27 @@ export class SemesterCalculator {
     }
 
     public getBudgetLevel(): AnnotationLevel {
-        const levels = [];
-        const budgets = this.semester.getOverlapping(getDocumentsWithoutIssues(this.studentBody.budgets));
-        const checkedBudgets = this.semester.getOverlapping(getCheckedDocumentsWithoutIssues(this.studentBody.budgets, true));
-        if (!this.semester.isCoveredBy(budgets)) {
-            levels.push(AnnotationLevel.Error);
-        } else if (!this.semester.isCoveredBy(checkedBudgets)) {
-            levels.push(AnnotationLevel.Unchecked);
-        }
-        return getWorstAnnotationLevel(levels);
+        return this.getLevelForDocuments(this.studentBody.budgets, true);
     }
 
     public getBalanceLevel(): AnnotationLevel {
-        const levels = [];
-        const balances = this.semester.getOverlapping(getDocumentsWithoutIssues(this.studentBody.balances));
-        const checkedBalances = this.semester.getOverlapping(getCheckedDocumentsWithoutIssues(this.studentBody.balances));
-        if (!this.semester.isCoveredBy(balances)) {
-            levels.push(AnnotationLevel.Error);
-        } else if (!this.semester.isCoveredBy(checkedBalances)) {
-            levels.push(AnnotationLevel.Unchecked);
-        }
-        return getWorstAnnotationLevel(levels);
+        return this.getLevelForDocuments(this.studentBody.balances);
     }
 
     public getCashAuditLevel(): AnnotationLevel {
-        const levels = [];
-        const cashAudits = this.semester.getOverlapping(getDocumentsWithoutIssues(this.studentBody.cashAudits));
-        const checkedCashAudits = this.semester.getOverlapping(getCheckedDocumentsWithoutIssues(this.studentBody.cashAudits, true));
-        if (!this.semester.isCoveredBy(cashAudits)) {
-            levels.push(AnnotationLevel.Error);
-        } else if (!this.semester.isCoveredBy(checkedCashAudits)) {
-            levels.push(AnnotationLevel.Unchecked);
+        return this.getLevelForDocuments(this.studentBody.cashAudits, true);
+    }
+
+    private getLevelForDocuments(documents: IAnnotatedDocument[], requireResolvedReference: boolean = false): AnnotationLevel {
+        const allowedLevels = [];
+        for (let level of [AnnotationLevel.Ok, AnnotationLevel.Warning, AnnotationLevel.Unchecked]) {
+            allowedLevels.push(level);
+            const budgets = this.semester.getOverlapping(getDocumentsWithLevels(documents, allowedLevels));
+            if (this.semester.isCoveredBy(budgets)) {
+                return level;
+            }
         }
-        return getWorstAnnotationLevel(levels);
+        return AnnotationLevel.Error;
     }
 
     public getMostRecentElection(): IAnnotatedDocument | null {

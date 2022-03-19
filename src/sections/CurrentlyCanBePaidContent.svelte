@@ -50,7 +50,20 @@
             </dt>
             <dd>
                 {#if mostRecentInauguralMeetingProceedings}
-                    <SingleDocument document={mostRecentInauguralMeetingProceedings}/>
+                    <ul>
+                        <li>
+                            {#if calculator.areProceedingsOfLastInauguralMeetingYoungerThanLastElectionLevel(mostRecentInauguralMeetingProceedings)}
+                                <Checkmark/>
+                            {:else}
+                                <Cross/>
+                            {/if}
+                            <DateRange
+                                    interval={Interval.fromStrings(mostRecentInauguralMeetingProceedings.dateStart, mostRecentInauguralMeetingProceedings.dateStart)}/>
+                        </li>
+                        <li>
+                            <SingleDocument document={mostRecentInauguralMeetingProceedings}/>
+                        </li>
+                    </ul>
                 {:else}
                     <Cross/>
                     Fehlt!

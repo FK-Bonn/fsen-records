@@ -23,11 +23,14 @@ export const getWorstAnnotationLevel = (levels: AnnotationLevel[]): AnnotationLe
     return AnnotationLevel.Ok;
 }
 
-export const getDocumentAnnotationLevel = (document: IAnnotatedDocument): AnnotationLevel => {
-    let worstDocumentLevel = getWorstDocumentAnnotationLevel(document.annotations);
+export const getDocumentAnnotationLevel = (document: IAnnotatedDocument, requireResolvedReference: boolean = false): AnnotationLevel => {
     if (!document.checked) {
-        worstDocumentLevel = AnnotationLevel.Unchecked;
+        return AnnotationLevel.Unchecked;
     }
+    if (requireResolvedReference && (!document.resolvedReferences || document.resolvedReferences.length === 0)) {
+        return AnnotationLevel.Error;
+    }
+    const worstDocumentLevel = getWorstDocumentAnnotationLevel(document.annotations);
     const referenceLevels = [];
     if (document.resolvedReferences) {
         for (let reference of document.resolvedReferences) {
@@ -41,25 +44,13 @@ export const getDocumentAnnotationLevel = (document: IAnnotatedDocument): Annota
     return getWorstAnnotationLevel([...referenceLevels, worstDocumentLevel]);
 }
 
-export const getCheckedDocumentsWithoutIssues = (documents: IAnnotatedDocument[], requireResolvedReference = false): IAnnotatedDocument[] => {
-    const withoutIssues = [];
+export const getDocumentsWithLevels = (documents: IAnnotatedDocument[], allowedLevels: AnnotationLevel[], requireResolvedReference = false): IAnnotatedDocument[] => {
+    const documentsWithLevels = [];
     for (let document of documents) {
-        const level = getDocumentAnnotationLevel(document);
-        const isMissingReference = requireResolvedReference && document.resolvedReferences.length === 0;
-        if (![AnnotationLevel.Error, AnnotationLevel.Unchecked].includes(level) && !isMissingReference) {
-            withoutIssues.push(document);
+        const level = getDocumentAnnotationLevel(document, requireResolvedReference);
+        if (allowedLevels.includes(level)) {
+            documentsWithLevels.push(document);
         }
     }
-    return withoutIssues;
-}
-
-export const getDocumentsWithoutIssues = (documents: IAnnotatedDocument[]): IAnnotatedDocument[] => {
-    const withoutIssues = [];
-    for (let document of documents) {
-        const level = getDocumentAnnotationLevel(document);
-        if (![AnnotationLevel.Error].includes(level)) {
-            withoutIssues.push(document);
-        }
-    }
-    return withoutIssues;
+    return documentsWithLevels;
 }
