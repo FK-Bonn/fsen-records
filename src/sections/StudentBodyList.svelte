@@ -5,6 +5,8 @@
     import {onMount} from 'svelte';
     import Legend from "../components/Legend.svelte";
     import IconForLevel from "../icons/IconForLevel.svelte";
+    import Filters from "../components/Filters.svelte";
+    import ToggleableStudentBody from "./ToggleableStudentBody.svelte";
 
     export let data: IData
     $: lastUpdate = new Date(data.timestamp * 1000).toLocaleString();
@@ -29,11 +31,12 @@
         <p class="is-pulled-right">Letzte Aktualisierung: <IconForLevel level={lastUpdateLevel}/> {lastUpdate}</p>
 
         <Legend/>
+        <Filters/>
     </div>
 </div>
 
 <ul>
     {#each [...data.studentBodies] as [key, studentBody] (key)}
-        <StudentBody {studentBody} payoutRequests={data.payoutRequests.get(key)}/>
+        <ToggleableStudentBody {studentBody} payoutRequests={data.payoutRequests.get(key)}/>
     {/each}
 </ul>

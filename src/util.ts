@@ -1,4 +1,4 @@
-import {AnnotationLevel, IAnnotatedDocument, IAnnotation} from "./Interfaces";
+import {AnnotationLevel, IAnnotatedDocument, IAnnotation, IPayoutRequestData} from "./Interfaces";
 
 export const stringToDate = (input: string) => {
     const output = new Date(input);
@@ -62,4 +62,15 @@ export const euro = (value: number): string => {
     });
 
     return formatter.format(value);
+}
+
+export const shouldDisplayStar = (level: AnnotationLevel, payoutRequest?: IPayoutRequestData): boolean => {
+    if (!payoutRequest) {
+        return false;
+    }
+    const completeLevels: AnnotationLevel[] = [AnnotationLevel.Ok, AnnotationLevel.Unchecked];
+    if (!completeLevels.includes(level)) {
+        return false;
+    }
+    return ['GESTELLT', 'IN BEARBEITUNG'].includes(payoutRequest.status);
 }

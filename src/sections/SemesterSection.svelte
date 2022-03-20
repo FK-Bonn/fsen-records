@@ -10,6 +10,8 @@
     import {IPayoutRequestData} from "../Interfaces";
     import PayoutRequest from "../components/PayoutRequest.svelte";
     import AttentionStar from "../components/AttentionStar.svelte";
+    import {showOnlySemestersWithPayoutRequests, showOnlySemestersWithStar} from "../stores";
+    import {shouldDisplayStar} from "../util";
 
     const calculateLevel = (studentBody: IStudentBody, semester: Interval) => {
         const calculator = new SemesterCalculator(studentBody, semester);
@@ -45,6 +47,7 @@
     $: semesterId = calculateSemesterId(semester);
     export let payoutRequests: Map<string, IPayoutRequestData> | undefined;
     $: payoutRequest = payoutRequests ? payoutRequests.get(semesterId) : null;
+    $: displayStar = shouldDisplayStar(level, payoutRequest);
     let opened: boolean = false;
 
     const toggle = () => {
@@ -52,12 +55,15 @@
     }
 </script>
 
+{#if (!$showOnlySemestersWithPayoutRequests && !$showOnlySemestersWithStar)
+|| (displayStar)
+|| (!$showOnlySemestersWithStar && $showOnlySemestersWithPayoutRequests && payoutRequest)}
 <div class="card">
     <header class="card-header" on:click={toggle}>
         <p class="card-header-title">
             <IconForLevel level={level}/> {semesterName} (<DateRange interval={semester}/>)
         </p>
-        <AttentionStar {level} {payoutRequest}/>
+        <AttentionStar display={displayStar}/>
         <PayoutRequest {payoutRequest}/>
         <button class="card-header-icon" aria-label="more options">
             <AngleIndicator {opened}/>
@@ -67,6 +73,7 @@
         <SemesterContent {studentBody} {semester}/>
     {/if}
 </div>
+{/if}
 
 <style>
     .card-header {
