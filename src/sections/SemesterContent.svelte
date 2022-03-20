@@ -40,8 +40,8 @@
                         </dd>
                     </dl>
                 {:else}
-                    Fehlt!
                     <Cross/>
+                    Fehlt!
                 {/each}
             </dd>
 
@@ -56,8 +56,9 @@
                             <SingleDocument document={balance}/>
                         </li>
                     {:else}
-                        <li>Fehlt!
+                        <li>
                             <Cross/>
+                            Fehlt!
                         </li>
                     {/each}
                 </ul>
@@ -84,8 +85,8 @@
                         </dd>
                     </dl>
                 {:else}
-                    Fehlt!
                     <Cross/>
+                    Fehlt!
                 {/each}
             </dd>
 
@@ -97,8 +98,8 @@
                 {#if mostRecentElection}
                     <SingleDocument document={mostRecentElection}/>
                 {:else}
-                    Fehlt!
                     <Cross/>
+                    Fehlt!
                 {/if}
             </dd>
 

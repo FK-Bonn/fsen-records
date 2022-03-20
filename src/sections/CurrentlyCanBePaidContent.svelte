@@ -130,8 +130,8 @@
                         </li>
                     {:else}
                         <li>
-                            Fehlt!
                             <Cross/>
+                            Fehlt!
                         </li>
                     {/each}
                 </ul>
