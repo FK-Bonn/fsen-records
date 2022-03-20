@@ -17,6 +17,10 @@
         if (response.ok) {
             const rawdata = await response.json();
             rawdata.studentBodies = new Map(Object.entries(rawdata.studentBodies));
+            rawdata.payoutRequests = new Map(Object.entries(rawdata.payoutRequests));
+            for (let fsId of rawdata.payoutRequests.keys()) {
+                rawdata.payoutRequests.set(fsId, new Map(Object.entries(rawdata.payoutRequests.get(fsId))));
+            }
             const data: IData = rawdata as IData;
             for (let studentBody of data.studentBodies.keys()) {
                 const proceedings = data.studentBodies.get(studentBody).proceedings;
@@ -41,7 +45,7 @@
             }
             return data;
         } else {
-            throw new Error("Fetching mods failed");
+            throw new Error("Fetching data failed");
         }
     };
 
@@ -54,7 +58,7 @@
     {:then data}
         <section class="section">
             <div class="container">
-                <StudentBodyList studentBodies={data.studentBodies} timestamp="{data.timestamp}"/>
+                <StudentBodyList {data}/>
             </div>
         </section>
     {:catch error}

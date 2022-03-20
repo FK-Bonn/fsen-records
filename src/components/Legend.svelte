@@ -3,6 +3,7 @@
     import Questionmark from "../icons/Questionmark.svelte";
     import Warning from "../icons/Warning.svelte";
     import Cross from "../icons/Cross.svelte";
+    import Star from "../icons/Star.svelte";
 </script>
 
 <h5 class="subtitle is-5">Legende</h5>
@@ -26,6 +27,11 @@
         <Cross/>
         Dokument / Information weist schwerwiegende Probleme auf, die das Dokument aktuell unbrauchbar machen
         bzw. dazu führen, dass Voraussetzungen nicht erfüllt sind
+    </li>
+    <li>
+        <Star/>
+        Dieser Antrag könnte eventuell als vollständig markiert werden
+        (ggf. abhängig von noch ungeprüften Dokumenten / Informationen)
     </li>
 </ul>
 

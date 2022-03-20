@@ -22,6 +22,7 @@ export interface IAnnotatedDocument {
 }
 
 export interface IStudentBody {
+    id: string
     name: string
     statutes: string
     financialYearStart: string
@@ -32,7 +33,14 @@ export interface IStudentBody {
     electionResults: IAnnotatedDocument[]
 }
 
+export interface IPayoutRequestData {
+    id: string
+    status: string
+    amount: number
+}
+
 export interface IData {
+    payoutRequests: Map<string, Map<string, Map<string, IPayoutRequestData>>>
     studentBodies: Map<string, IStudentBody>
     timestamp: number
 }

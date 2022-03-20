@@ -54,3 +54,12 @@ export const getDocumentsWithLevels = (documents: IAnnotatedDocument[], allowedL
     }
     return documentsWithLevels;
 }
+
+export const euro = (value: number): string => {
+    const formatter = new Intl.NumberFormat('de-DE', {
+        style: 'currency',
+        currency: 'EUR',
+    });
+
+    return formatter.format(value);
+}
