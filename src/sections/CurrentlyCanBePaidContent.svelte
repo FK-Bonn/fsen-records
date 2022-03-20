@@ -52,11 +52,8 @@
                 {#if mostRecentInauguralMeetingProceedings}
                     <ul>
                         <li>
-                            {#if calculator.areProceedingsOfLastInauguralMeetingYoungerThanLastElectionLevel(mostRecentInauguralMeetingProceedings)}
-                                <Checkmark/>
-                            {:else}
-                                <Cross/>
-                            {/if}
+                            <IconForLevel
+                                    level={calculator.areProceedingsOfLastInauguralMeetingYoungerThanLastElectionLevel(mostRecentInauguralMeetingProceedings)}/>
                             <DateRange
                                     interval={Interval.fromStrings(mostRecentInauguralMeetingProceedings.dateStart, mostRecentInauguralMeetingProceedings.dateStart)}/>
                         </li>

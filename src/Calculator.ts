@@ -119,7 +119,7 @@ export class CurrentlyCanBePaidCalculator {
         return getWorstAnnotationLevel(levels);
     }
 
-    private areProceedingsOfLastInauguralMeetingYoungerThanLastElectionLevel(proceedings: IAnnotatedDocument): AnnotationLevel {
+    public areProceedingsOfLastInauguralMeetingYoungerThanLastElectionLevel(proceedings: IAnnotatedDocument): AnnotationLevel {
         const election = this.getMostRecentElection();
         if (election) {
             if (election.dateEnd > proceedings.dateStart) {
