@@ -5,6 +5,7 @@
     import CurrentlyCanBePaidSection from "./CurrentlyCanBePaidSection.svelte";
     import DocumentsSection from "./DocumentsSection.svelte";
     import SemesterSection from "./SemesterSection.svelte";
+    import People from "../icons/People.svelte";
 
     export let payoutRequests: Map<string, IPayoutRequestData> | undefined;
     export let studentBody: IStudentBody;
@@ -14,7 +15,7 @@
 <li>
     <div class="box">
         <h2 class="title is-2" id="{studentBody.id}">
-            <a href="#{studentBody.id}"><span class="icon fsicon"><i class="fas fa-users" aria-hidden="true"></i></span></a>
+            <a href="#{studentBody.id}"><People/></a>
             {studentBody.name}
         </h2>
 
@@ -41,12 +42,6 @@
 </li>
 
 <style>
-    .fsicon {
-        padding-left: .8em;
-        padding-right: .5em;
-        vertical-align: -.15em;
-    }
-
     .box {
         margin-bottom: 1rem;
     }
