@@ -1,6 +1,7 @@
 <script lang="ts">
     import type {IAnnotatedDocument, IData} from "./Interfaces";
     import StudentBodyList from "./sections/StudentBodyList.svelte";
+    import ErrorList from "./components/ErrorList.svelte";
 
     const getProceeding = (proceedings: IAnnotatedDocument[], key: string): IAnnotatedDocument => {
         for (let proceeding of proceedings) {
@@ -49,10 +50,27 @@
         }
     };
 
+    const loadError = async (filename) => {
+        const response = await fetch(filename);
+        if (response.ok) {
+            return await response.json();
+        } else {
+            return [];
+        }
+    };
+
     let promise: Promise<IData> = init("/data/data.json");
+    let errorPromise: Promise<string[]> = loadError("/data/error.json");
 </script>
 
 <main>
+    {#await errorPromise}
+        <progress class="progress is-large is-info" max="100">60%</progress>
+    {:then errors}
+        {#if errors.length > 0}
+            <ErrorList {errors}/>
+        {/if}
+    {/await}
     {#await promise}
         <progress class="progress is-large is-info" max="100">60%</progress>
     {:then data}
