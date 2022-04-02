@@ -1,12 +1,13 @@
 <script type="ts">
     import {
+        compactMode,
         showOnlySemestersWithPayoutRequests,
         showOnlySemestersWithStar,
         showOnlyWhoCurrentlyCanBePaid
     } from "../stores";
 </script>
 
-<h5 class="subtitle is-5">Filter</h5>
+<h5 class="subtitle is-5">Filter und Einstellungen</h5>
 <ul>
     <li>
         <label class="checkbox">
@@ -16,14 +17,20 @@
     </li>
     <li>
         <label class="checkbox">
-            <input type="checkbox" bind:checked={$showOnlySemestersWithPayoutRequests}>
+            <input type="checkbox" bind:checked={$showOnlySemestersWithPayoutRequests} disabled={$compactMode}>
             Nur Semester mit Anträgen anzeigen
         </label>
     </li>
     <li>
         <label class="checkbox">
-            <input type="checkbox" bind:checked={$showOnlySemestersWithStar}>
+            <input type="checkbox" bind:checked={$showOnlySemestersWithStar} disabled={$compactMode}>
             Nur Semester anzeigen, die ggf. als vollständig markiert werden können
+        </label>
+    </li>
+    <li>
+        <label class="checkbox">
+            <input type="checkbox" bind:checked={$compactMode}>
+            Kompakte Ansicht
         </label>
     </li>
 </ul>

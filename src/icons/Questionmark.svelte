@@ -1,4 +1,8 @@
-<span class="icon">
+<script type="ts">
+    export let title: string = '';
+</script>
+
+<span class="icon" title={title}>
     <svg width="32" height="32" viewBox="0 0 8.4666661 8.466667">
   <g
           style="fill:#404040"

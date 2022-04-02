@@ -1,4 +1,5 @@
 import {AnnotationLevel, IAnnotatedDocument, IAnnotation, IPayoutRequestData} from "./Interfaces";
+import type {Interval} from "./Calculator";
 
 export const stringToDate = (input: string) => {
     const output = new Date(input);
@@ -73,4 +74,15 @@ export const shouldDisplayStar = (level: AnnotationLevel, payoutRequest?: IPayou
         return false;
     }
     return ['GESTELLT', 'IN BEARBEITUNG'].includes(payoutRequest.status);
+}
+
+export const calculateSemesterId = (interval?: Interval) => {
+    if (!interval) {
+        return undefined;
+    }
+    if (interval.start.getFullYear() === interval.end.getFullYear()) {
+        return '' + interval.start.getFullYear() + '-SoSe';
+    } else {
+        return '' + interval.start.getFullYear() + '-WiSe';
+    }
 }

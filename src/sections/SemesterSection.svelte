@@ -11,7 +11,7 @@
     import PayoutRequest from "../components/PayoutRequest.svelte";
     import AttentionStar from "../components/AttentionStar.svelte";
     import {showOnlySemestersWithPayoutRequests, showOnlySemestersWithStar} from "../stores";
-    import {shouldDisplayStar} from "../util";
+    import {calculateSemesterId, shouldDisplayStar} from "../util";
 
     const calculateLevel = (studentBody: IStudentBody, semester: Interval) => {
         const calculator = new SemesterCalculator(studentBody, semester);
@@ -26,17 +26,6 @@
             return 'Sommersemester ' + interval.start.getFullYear();
         } else {
             return 'Wintersemester ' + interval.start.getFullYear() + '/' + interval.end.getFullYear().toString().substring(2, 4);
-        }
-    }
-
-    const calculateSemesterId = (interval?: Interval) => {
-        if (!interval) {
-            return undefined;
-        }
-        if (interval.start.getFullYear() === interval.end.getFullYear()) {
-            return '' + interval.start.getFullYear() + '-SoSe';
-        } else {
-            return '' + interval.start.getFullYear() + '-WiSe';
         }
     }
 

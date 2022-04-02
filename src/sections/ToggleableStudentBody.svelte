@@ -3,7 +3,8 @@
     import type {IPayoutRequestData, IStudentBody} from "../Interfaces";
     import {AnnotationLevel} from "../Interfaces";
     import {CurrentlyCanBePaidCalculator} from "../Calculator";
-    import {showOnlyWhoCurrentlyCanBePaid} from "../stores";
+    import {compactMode, showOnlyWhoCurrentlyCanBePaid} from "../stores";
+    import CompactStudentBody from "./CompactStudentBody.svelte";
 
     export let payoutRequests: Map<string, IPayoutRequestData> | undefined;
     export let studentBody: IStudentBody;
@@ -12,5 +13,9 @@
 </script>
 
 {#if show}
-    <StudentBody {studentBody} {payoutRequests}/>
+    {#if $compactMode}
+        <CompactStudentBody {studentBody}/>
+    {:else}
+        <StudentBody {studentBody} {payoutRequests}/>
+    {/if}
 {/if}

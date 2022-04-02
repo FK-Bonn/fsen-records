@@ -1,7 +1,6 @@
 <script type="ts">
     import type {IData} from "../Interfaces";
     import {AnnotationLevel} from "../Interfaces";
-    import StudentBody from "./StudentBody.svelte";
     import {onMount} from 'svelte';
     import Legend from "../components/Legend.svelte";
     import IconForLevel from "../icons/IconForLevel.svelte";

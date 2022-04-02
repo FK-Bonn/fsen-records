@@ -7,18 +7,19 @@
     import Cross from "./Cross.svelte";
 
     export let level: AnnotationLevel;
+    export let title: string = '';
 </script>
 
 {#if level === AnnotationLevel.Ok}
-    <Checkmark/>
+    <Checkmark {title}/>
 {:else if level === AnnotationLevel.Unchecked}
-    <Questionmark/>
+    <Questionmark {title}/>
 {:else if level === AnnotationLevel.Info}
-    <Info/>
+    <Info {title}/>
 {:else if level === AnnotationLevel.Warning}
-    <Warning/>
+    <Warning {title}/>
 {:else if level === AnnotationLevel.Error}
-    <Cross/>
+    <Cross {title}/>
 {:else}
     ?
 {/if}
