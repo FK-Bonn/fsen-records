@@ -6,6 +6,7 @@
     import DocumentsSection from "./DocumentsSection.svelte";
     import SemesterSection from "./SemesterSection.svelte";
     import People from "../icons/People.svelte";
+    import Warning from "../icons/Warning.svelte";
 
     export let payoutRequests: Map<string, IPayoutRequestData> | undefined;
     export let studentBody: IStudentBody;
@@ -21,8 +22,14 @@
 
         <p class="box"><a href="{studentBody.statutes}">Fachschaftssatzung</a>
             · Beginn des Haushaltsjahrs: {studentBody.financialYearStart}<br/>
-            Aktuelles Haushaltsjahr: <DateRange interval={calculator.getCurrentFinancialYear()}/><br/>
-            Vergangenes Haushaltsjahr: <DateRange interval={calculator.getPreviousFinancialYear()}/>
+            Aktuelles Haushaltsjahr:
+            <DateRange interval={calculator.getCurrentFinancialYear()}/>
+            {#if calculator.getCurrentFinancialYear().end < new Date()}
+                <Warning/>
+            {/if}
+            <br/>
+            Vergangenes Haushaltsjahr:
+            <DateRange interval={calculator.getPreviousFinancialYear()}/>
         </p>
 
         <CurrentlyCanBePaidSection {studentBody}/>

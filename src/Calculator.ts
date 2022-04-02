@@ -245,6 +245,11 @@ export class CurrentlyCanBePaidCalculator {
         if (!this.studentBody) {
             return null;
         }
+        if (this.studentBody.financialYearOverride) {
+            const start = new Date(Date.parse(this.studentBody.financialYearOverride.current.dateStart));
+            const end = new Date(Date.parse(this.studentBody.financialYearOverride.current.dateEnd));
+            return new Interval(start, end);
+        }
         const startDay = parseInt(this.studentBody.financialYearStart.substring(0, 2));
         const startMonth = parseInt(this.studentBody.financialYearStart.substring(3, 5)) - 1;
         const now = new Date();
@@ -260,6 +265,11 @@ export class CurrentlyCanBePaidCalculator {
     public getPreviousFinancialYear(): Interval {
         if (!this.studentBody) {
             return null;
+        }
+        if (this.studentBody.financialYearOverride) {
+            const start = new Date(Date.parse(this.studentBody.financialYearOverride.previous.dateStart));
+            const end = new Date(Date.parse(this.studentBody.financialYearOverride.previous.dateEnd));
+            return new Interval(start, end);
         }
         const financialYear = this.getCurrentFinancialYear();
         financialYear.start.setFullYear(financialYear.start.getFullYear() - 1);
