@@ -1,5 +1,7 @@
 import {Interval} from "./Calculator";
 
+export const refreshIntervalMilliseconds = 60_000;
+
 export const semesters = [
     Interval.fromStrings('2021-10-01', '2022-03-31'),
     Interval.fromStrings('2021-04-01', '2021-09-30'),
