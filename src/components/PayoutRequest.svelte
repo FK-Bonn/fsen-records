@@ -1,9 +1,7 @@
 <script type="ts">
     import type {IPayoutRequestData} from "../Interfaces";
     import {euro} from "../util";
-
-    export let payoutRequest: IPayoutRequestData
-    $: tagClass = getTagClass(payoutRequest);
+    import CopyableTag from "./CopyableTag.svelte";
 
     const getTagClass = (payoutRequest: IPayoutRequestData): string => {
         if (!payoutRequest) {
@@ -24,12 +22,15 @@
         }
         return 'is-danger';
     }
+
+    export let payoutRequest: IPayoutRequestData
+    $: tagClass = getTagClass(payoutRequest);
 </script>
 {#if payoutRequest}
     <div class="tags card-header-icon">
         <span class="tag {tagClass}">{payoutRequest.status}</span>
-        <span class="tag is-light"><b>{payoutRequest.id}</b></span>
-        <span class="tag is-light">{euro(payoutRequest.amount)}</span>
+        <CopyableTag text={payoutRequest.id}/>
+        <CopyableTag text={euro(payoutRequest.amount)} bold={true}/>
     </div>
 {/if}
 
