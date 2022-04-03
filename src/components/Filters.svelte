@@ -1,6 +1,7 @@
 <script type="ts">
     import {
         compactMode,
+        showFilenames,
         showOnlySemestersWithPayoutRequests,
         showOnlySemestersWithStar,
         showOnlyWhoCurrentlyCanBePaid
@@ -31,6 +32,12 @@
         <label class="checkbox">
             <input type="checkbox" bind:checked={$compactMode}>
             Kompakte Ansicht
+        </label>
+    </li>
+    <li>
+        <label class="checkbox">
+            <input type="checkbox" bind:checked={$showFilenames}>
+            Dateinamen anzeigen
         </label>
     </li>
 </ul>
