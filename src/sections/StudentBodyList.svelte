@@ -6,10 +6,12 @@
     import IconForLevel from "../icons/IconForLevel.svelte";
     import Filters from "../components/Filters.svelte";
     import ToggleableStudentBody from "./ToggleableStudentBody.svelte";
+    import {Interval} from "../Calculator";
 
     export let data: IData
     $: lastUpdate = new Date(data.timestamp * 1000).toLocaleString();
     $: lastUpdateLevel = (Date.now() / 1000 - data.timestamp) > 3600 ? AnnotationLevel.Warning : AnnotationLevel.Ok;
+    $: semesters = data.semesters.map(value => Interval.fromStrings(value.start, value.end))
 
     const scrollToHashIfPresent = () => {
         if (window.location.hash) {
@@ -36,6 +38,6 @@
 
 <ul>
     {#each [...data.studentBodies] as [key, studentBody] (key)}
-        <ToggleableStudentBody {studentBody} payoutRequests={data.payoutRequests.get(key)}/>
+        <ToggleableStudentBody {studentBody} payoutRequests={data.payoutRequests.get(key)} {semesters}/>
     {/each}
 </ul>

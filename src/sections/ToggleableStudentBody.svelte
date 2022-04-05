@@ -2,11 +2,12 @@
     import StudentBody from "./StudentBody.svelte";
     import type {IPayoutRequestData, IStudentBody} from "../Interfaces";
     import {AnnotationLevel} from "../Interfaces";
-    import {CurrentlyCanBePaidCalculator} from "../Calculator";
+    import {CurrentlyCanBePaidCalculator, Interval} from "../Calculator";
     import {compactMode, showOnlyWhoCurrentlyCanBePaid} from "../stores";
     import CompactStudentBody from "./CompactStudentBody.svelte";
 
     export let payoutRequests: Map<string, IPayoutRequestData> | undefined;
+    export let semesters: Interval[];
     export let studentBody: IStudentBody;
     $: calculator = new CurrentlyCanBePaidCalculator(studentBody);
     $: show = !$showOnlyWhoCurrentlyCanBePaid || !(AnnotationLevel.Error === calculator.calculateOverallLevel());
@@ -14,8 +15,8 @@
 
 {#if show}
     {#if $compactMode}
-        <CompactStudentBody {studentBody}/>
+        <CompactStudentBody {studentBody} {semesters}/>
     {:else}
-        <StudentBody {studentBody} {payoutRequests}/>
+        <StudentBody {studentBody} {payoutRequests} {semesters}/>
     {/if}
 {/if}

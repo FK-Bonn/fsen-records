@@ -40,8 +40,14 @@ export interface IPayoutRequestData {
     amount: number
 }
 
+export interface ISemester {
+    start: string
+    end: string
+}
+
 export interface IData {
     payoutRequests: Map<string, Map<string, Map<string, IPayoutRequestData>>>
+    semesters: ISemester[]
     studentBodies: Map<string, IStudentBody>
     timestamp: number
 }

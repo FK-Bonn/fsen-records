@@ -1,11 +1,11 @@
 <script type="ts">
     import type {IStudentBody} from "../Interfaces";
-    import {CurrentlyCanBePaidCalculator, SemesterCalculator} from "../Calculator";
+    import {CurrentlyCanBePaidCalculator, Interval, SemesterCalculator} from "../Calculator";
     import People from "../icons/People.svelte";
-    import {semesters} from "../settings";
     import IconForLevel from "../icons/IconForLevel.svelte";
     import {calculateSemesterId} from "../util";
 
+    export let semesters: Interval[];
     export let studentBody: IStudentBody;
     $: calculator = new CurrentlyCanBePaidCalculator(studentBody);
 </script>

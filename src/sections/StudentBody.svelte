@@ -7,9 +7,9 @@
     import SemesterSection from "./SemesterSection.svelte";
     import People from "../icons/People.svelte";
     import Warning from "../icons/Warning.svelte";
-    import {semesters} from "../settings";
 
     export let payoutRequests: Map<string, IPayoutRequestData> | undefined;
+    export let semesters: Interval[];
     export let studentBody: IStudentBody;
     $: calculator = new CurrentlyCanBePaidCalculator(studentBody);
 </script>
