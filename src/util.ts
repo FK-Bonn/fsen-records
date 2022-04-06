@@ -56,7 +56,10 @@ export const getDocumentsWithLevels = (documents: IAnnotatedDocument[], allowedL
     return documentsWithLevels;
 }
 
-export const euro = (value: number): string => {
+export const euro = (value: number | undefined): string => {
+    if (!value) {
+        value = 0;
+    }
     const formatter = new Intl.NumberFormat('de-DE', {
         style: 'currency',
         currency: 'EUR',

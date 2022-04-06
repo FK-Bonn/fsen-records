@@ -4,6 +4,7 @@
     import ErrorList from "./components/ErrorList.svelte";
     import {onDestroy, onMount} from "svelte";
     import {refreshIntervalMilliseconds} from "./settings";
+    import PayoutRequestStatistics from "./sections/PayoutRequestStatistics.svelte";
 
     const getProceeding = (proceedings: IAnnotatedDocument[], key: string): IAnnotatedDocument => {
         for (let proceeding of proceedings) {
@@ -99,6 +100,11 @@
         <section class="section">
             <div class="container">
                 <StudentBodyList data={fetchedData}/>
+            </div>
+        </section>
+        <section class="section">
+            <div class="container">
+                <PayoutRequestStatistics data={fetchedData}/>
             </div>
         </section>
     {:else}
