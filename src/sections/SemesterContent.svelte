@@ -8,6 +8,7 @@
     import SingleDocument from "../components/SingleDocument.svelte";
     import SingleDocumentWithoutReferences from "../components/SingleDocumentWithoutReferences.svelte";
     import IconForLevel from "../icons/IconForLevel.svelte";
+    import RelevantDocumentsWithProceedings from "../components/RelevantDocumentsWithProceedings.svelte";
 
     export let studentBody: IStudentBody;
     export let semester: Interval;
@@ -18,107 +19,60 @@
 
 <div class="card-content">
     <div class="content">
-        <dl>
-            <dt>
-                <IconForLevel level={calculator.getBudgetLevel()}/>
-                Haushaltspläne
-            </dt>
-            <dd>
-                {#each calculator.getRelevantBudgets() as budget}
-                    <dl>
-                        <dt>Dateiname</dt>
-                        <dd>
-                            <SingleDocumentWithoutReferences document={budget}/>
-                        </dd>
-                        <dt>beschlossen am</dt>
-                        <dd>
-                            {#each budget.resolvedReferences as reference}
-                                <SingleDocument document={reference}/>
-                            {:else}
-                                ?
-                            {/each}
-                        </dd>
-                    </dl>
-                {:else}
+        <RelevantDocumentsWithProceedings
+                title="Haushaltspläne"
+                proceedingsTitle="Beschluss"
+                overallLevel={calculator.getBudgetLevel()}
+                documents={calculator.getRelevantBudgets()}/>
+
+        <h5 class="title is-5">
+            <IconForLevel level={calculator.getBalanceLevel()}/>
+            Haushaltsrechnungen
+        </h5>
+        <ul>
+            {#each calculator.getRelevantBalances() as balance}
+                <li>
+                    <SingleDocument document={balance}/>
+                </li>
+            {:else}
+                <li>
                     <Cross/>
                     Fehlt!
-                {/each}
-            </dd>
+                </li>
+            {/each}
+        </ul>
 
-            <dt>
-                <IconForLevel level={calculator.getBalanceLevel()}/>
-                Haushaltsrechnungen
-            </dt>
-            <dd>
-                <ul>
-                    {#each calculator.getRelevantBalances() as balance}
-                        <li>
-                            <SingleDocument document={balance}/>
-                        </li>
-                    {:else}
-                        <li>
-                            <Cross/>
-                            Fehlt!
-                        </li>
-                    {/each}
-                </ul>
-            </dd>
+        <RelevantDocumentsWithProceedings
+                title="Kassenprüfungen"
+                proceedingsTitle="Wahl der Kassenprüfer*innen"
+                overallLevel={calculator.getCashAuditLevel()}
+                documents={calculator.getRelevantCashAudits()}/>
 
-            <dt>
-                <IconForLevel level={calculator.getCashAuditLevel()}/>
-                Kassenprüfungen
-            </dt>
-            <dd>
-                {#each calculator.getRelevantCashAudits() as cashAudit}
-                    <dl>
-                        <dt>Zeitraum</dt>
-                        <dd>
-                            <SingleDocumentWithoutReferences document={cashAudit}/>
-                        </dd>
-                        <dt>Wahl der Kassenprüfer*innen</dt>
-                        <dd>
-                            {#each cashAudit.resolvedReferences as reference}
-                                <SingleDocument document={reference}/>
-                            {:else}
-                                ?
-                            {/each}
-                        </dd>
-                    </dl>
-                {:else}
-                    <Cross/>
-                    Fehlt!
-                {/each}
-            </dd>
-
-            <dt>
-                <IconForLevel level={calculator.getElectionLevel()}/>
-                Wahlergebnis
-            </dt>
-            <dd>
-                {#if mostRecentElection}
-                    <SingleDocument document={mostRecentElection}/>
-                {:else}
-                    <Cross/>
-                    Fehlt!
-                {/if}
-            </dd>
-
-        </dl>
+        <h5 class="title is-5">
+            <IconForLevel level={calculator.getElectionLevel()}/>
+            Wahlergebnis
+        </h5>
+        {#if mostRecentElection}
+            <SingleDocument document={mostRecentElection}/>
+        {:else}
+            <Cross/>
+            Fehlt!
+        {/if}
     </div>
 </div>
 
 <style>
-    ul {
+    h5.title {
+        border-bottom: 1px solid #ccc;
+        border-image: linear-gradient(90deg, #ccc, #fff) 1;
+        padding-bottom: .2em;
+        padding-top: .3em;
+        margin: 0 0 .5em 0;
+    }
+
+    ul, ul:not(:last-child) {
         margin-top: 0;
         margin-left: 0;
         list-style: none !important;
-    }
-
-    dt {
-        font-weight: bold;
-    }
-
-    .content dl dl:not(:last-child) {
-        margin-bottom: .5em;
     }
 </style>

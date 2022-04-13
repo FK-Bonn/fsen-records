@@ -8,6 +8,7 @@
     import SingleDocument from "../components/SingleDocument.svelte";
     import SingleDocumentWithoutReferences from "../components/SingleDocumentWithoutReferences.svelte";
     import IconForLevel from "../icons/IconForLevel.svelte";
+    import RelevantDocumentsWithProceedings from "../components/RelevantDocumentsWithProceedings.svelte";
 
     export let studentBody: IStudentBody;
     $: calculator = new CurrentlyCanBePaidCalculator(studentBody);
@@ -18,165 +19,101 @@
 
 <div class="card-content">
     <div class="content">
-        <dl>
-            <dt>
-                <IconForLevel level={calculator.getElectionLevel()}/>
-                Letzte Wahl
-            </dt>
-            <dd>
-                {#if mostRecentElection}
-                    <ul>
-                        <li>
-                            {#if calculator.isMostRecentElectionYoungerThanOneYear()}
-                                <Checkmark/>
-                            {:else}
-                                <Cross/>
-                            {/if}
-                            <DateRange
-                                    interval={Interval.fromStrings(mostRecentElection.dateStart, mostRecentElection.dateEnd)}/>
-                        </li>
-                        <li>
-                            <SingleDocument document={mostRecentElection}/>
-                        </li>
-                    </ul>
-                {:else}
-                    <Cross/>
-                    Fehlt!
-                {/if}
-            </dd>
-            <dt>
-                <IconForLevel level={calculator.getProceedingsOfLastInauguralMeetingLevel()}/>
-                Letzte konstituierende Sitzung
-            </dt>
-            <dd>
-                {#if mostRecentInauguralMeetingProceedings}
-                    <ul>
-                        <li>
-                            <IconForLevel
-                                    level={calculator.areProceedingsOfLastInauguralMeetingYoungerThanLastElectionLevel(mostRecentInauguralMeetingProceedings)}/>
-                            <DateRange
-                                    interval={Interval.fromStrings(mostRecentInauguralMeetingProceedings.dateStart, mostRecentInauguralMeetingProceedings.dateStart)}/>
-                        </li>
-                        <li>
-                            <SingleDocument document={mostRecentInauguralMeetingProceedings}/>
-                        </li>
-                    </ul>
-                {:else}
-                    <Cross/>
-                    Fehlt!
-                {/if}
-            </dd>
-            <dt>
-                <IconForLevel level={calculator.getCurrentFinancialYearBudgetLevel()}/>
-                Aktueller Haushaltsplan
-            </dt>
-            <dd>
-                {#each calculator.getRelevantBudgetsForCurrentFinancialYear() as budget}
-                    <dl>
-                        <dt>Dateiname</dt>
-                        <dd>
-                            <SingleDocumentWithoutReferences document={budget}/>
-                        </dd>
-                        <dt>beschlossen am</dt>
-                        <dd>
-                            {#each budget.resolvedReferences as reference}
-                                <SingleDocument document={reference}/>
-                            {:else}
-                                ?
-                            {/each}
-                        </dd>
-
-                    </dl>
-                {:else}
-                    <Cross/>
-                    Fehlt!
-                {/each}
-            </dd>
-            <dt>
-                <IconForLevel level={calculator.getPreviousFinancialYearBudgetLevel()}/>
-                Haushaltsplan des vorherigen Haushaltsjahres
-            </dt>
-            <dd>
-                {#each calculator.getRelevantBudgetsForPreviousFinancialYear() as budget}
-                    <dl>
-                        <dt>Dateiname</dt>
-                        <dd>
-                            <SingleDocumentWithoutReferences document={budget}/>
-                        </dd>
-                        <dt>beschlossen am</dt>
-                        <dd>
-                            {#each budget.resolvedReferences as reference}
-                                <SingleDocument document={reference}/>
-                            {:else}
-                                ?
-                            {/each}
-                        </dd>
-
-                    </dl>
-                {:else}
-                    <Cross/>
-                    Fehlt!
-                {/each}
-            </dd>
-            <dt>
-                <IconForLevel level={calculator.getBalanceLevel()}/>
-                Haushaltsrechnung des vorherigen Haushaltsjahres
-            </dt>
-            <dd>
-                <ul>
-                    {#each calculator.getRelevantBalancesForPreviousFinancialYear() as balance}
-                        <li>
-                            <SingleDocument document={balance}/>
-                        </li>
+        <h5 class="title is-5">
+            <IconForLevel level={calculator.getElectionLevel()}/>
+            Letzte Wahl
+        </h5>
+        {#if mostRecentElection}
+            <ul>
+                <li>
+                    {#if calculator.isMostRecentElectionYoungerThanOneYear()}
+                        <Checkmark/>
+                        Innerhalb der letzten 12 Monate
                     {:else}
-                        <li>
-                            <Cross/>
-                            Fehlt!
-                        </li>
-                    {/each}
-                </ul>
-            </dd>
-            <dt>
-                <IconForLevel level={calculator.getCashAuditLevel()}/>
-                Kassenprüfungen
-            </dt>
-            <dd>
-                {#each calculator.getRelevantCashAuditsForPreviousFinancialYear() as cashAudit}
-                    <dl>
-                        <dt>Zeitraum</dt>
-                        <dd>
-                            <SingleDocumentWithoutReferences document={cashAudit}/>
-                        </dd>
-                        <dt>Wahl der Kassenprüfer*innen</dt>
-                        <dd>
-                            {#each cashAudit.resolvedReferences as reference}
-                                <SingleDocument document={reference}/>
-                            {:else}
-                                ?
-                            {/each}
-                        </dd>
-                    </dl>
-                {:else}
+                        <Cross/>
+                        Nicht innerhalb der letzten 12 Monate
+                    {/if}
+                </li>
+                <li>
+                    <SingleDocument document={mostRecentElection}/>
+                </li>
+            </ul>
+        {:else}
+            <Cross/>
+            Fehlt!
+        {/if}
+
+        <h5 class="title is-5">
+            <IconForLevel level={calculator.getProceedingsOfLastInauguralMeetingLevel()}/>
+            Letzte konstituierende Sitzung
+        </h5>
+        {#if mostRecentInauguralMeetingProceedings}
+            <ul>
+                <li>
+                    <IconForLevel
+                            level={calculator.areProceedingsOfLastInauguralMeetingYoungerThanLastElectionLevel(mostRecentInauguralMeetingProceedings)}/>
+                    <DateRange
+                            interval={Interval.fromStrings(mostRecentInauguralMeetingProceedings.dateStart, mostRecentInauguralMeetingProceedings.dateStart)}/>
+                    nach letzter Wahl?
+                </li>
+                <li>
+                    <SingleDocument document={mostRecentInauguralMeetingProceedings}/>
+                </li>
+            </ul>
+        {:else}
+            <Cross/>
+            Fehlt!
+        {/if}
+
+        <RelevantDocumentsWithProceedings
+                title="Aktueller Haushaltsplan"
+                proceedingsTitle="Beschluss"
+                overallLevel={calculator.getCurrentFinancialYearBudgetLevel()}
+                documents={calculator.getRelevantBudgetsForCurrentFinancialYear()}/>
+
+        <RelevantDocumentsWithProceedings
+                title="Haushaltsplan des vorherigen Haushaltsjahres"
+                proceedingsTitle="Beschluss"
+                overallLevel={calculator.getPreviousFinancialYearBudgetLevel()}
+                documents={calculator.getRelevantBudgetsForPreviousFinancialYear()}/>
+
+        <h5 class="title is-5">
+            <IconForLevel level={calculator.getBalanceLevel()}/>
+            Haushaltsrechnung des vorherigen Haushaltsjahres
+        </h5>
+        <ul>
+            {#each calculator.getRelevantBalancesForPreviousFinancialYear() as balance}
+                <li>
+                    <SingleDocument document={balance}/>
+                </li>
+            {:else}
+                <li>
                     <Cross/>
                     Fehlt!
-                {/each}
-            </dd>
-        </dl>
+                </li>
+            {/each}
+        </ul>
+
+        <RelevantDocumentsWithProceedings
+                title="Kassenprüfungen"
+                proceedingsTitle="Wahl der Kassenprüfer*innen:"
+                overallLevel={calculator.getCashAuditLevel()}
+                documents={calculator.getRelevantCashAuditsForPreviousFinancialYear()}/>
     </div>
 </div>
 
 <style>
-    ul {
+    h5.title {
+        border-bottom: 1px solid #ccc;
+        border-image: linear-gradient(90deg, #ccc, #fff) 1;
+        padding-bottom: .2em;
+        padding-top: .3em;
+        margin: 0 0 .5em 0;
+    }
+
+    ul, ul:not(:last-child) {
         margin-top: 0;
         margin-left: 0;
         list-style: none !important;
-    }
-
-    dt {
-        font-weight: bold;
-    }
-
-    .content dl dl:not(:last-child) {
-        margin-bottom: .5em;
     }
 </style>

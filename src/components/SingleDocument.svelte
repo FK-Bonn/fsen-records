@@ -45,7 +45,9 @@
 {/if}
 
 <style>
-    ul {
+    ul, ul:not(:last-child) {
         list-style: none !important;
+        margin-top: .2em !important;
+        margin-bottom: .1em;
     }
 </style>
