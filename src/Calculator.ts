@@ -157,7 +157,7 @@ export class CurrentlyCanBePaidCalculator {
         const allowedLevels = [];
         for (let level of [AnnotationLevel.Ok, AnnotationLevel.Warning, AnnotationLevel.Unchecked]) {
             allowedLevels.push(level);
-            const budgets = interval.getOverlapping(getDocumentsWithLevels(documents, allowedLevels));
+            const budgets = interval.getOverlapping(getDocumentsWithLevels(documents, allowedLevels, requireResolvedReference));
             if (interval.isCoveredBy(budgets)) {
                 return level;
             }
@@ -327,7 +327,7 @@ export class SemesterCalculator {
         const allowedLevels = [];
         for (let level of [AnnotationLevel.Ok, AnnotationLevel.Warning, AnnotationLevel.Unchecked]) {
             allowedLevels.push(level);
-            const budgets = this.semester.getOverlapping(getDocumentsWithLevels(documents, allowedLevels));
+            const budgets = this.semester.getOverlapping(getDocumentsWithLevels(documents, allowedLevels, requireResolvedReference));
             if (this.semester.isCoveredBy(budgets)) {
                 return level;
             }
