@@ -1,5 +1,5 @@
 export enum AnnotationLevel {
-    Error= "Error",
+    Error = "Error",
     Warning = "Warning",
     Info = "Info",
     Unchecked = "Unchecked",
@@ -26,7 +26,7 @@ export interface IStudentBody {
     name: string
     statutes: string
     financialYearStart: string
-    financialYearOverride: null | {current: {dateStart: string, dateEnd: string}, previous: {dateStart: string, dateEnd: string}}
+    financialYearOverride: null | { current: { dateStart: string, dateEnd: string }, previous: { dateStart: string, dateEnd: string } }
     budgets: IAnnotatedDocument[]
     balances: IAnnotatedDocument[]
     cashAudits: IAnnotatedDocument[]
@@ -50,4 +50,10 @@ export interface IData {
     semesters: ISemester[]
     studentBodies: Map<string, IStudentBody>
     timestamp: number
+}
+
+export interface IUserWithPermissions {
+    username: string
+    admin: boolean
+    permissions: string[]
 }

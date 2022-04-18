@@ -1,8 +1,9 @@
 <script type="ts">
-    import type {IAnnotatedDocument} from "../Interfaces";
+    import type {IAnnotatedDocument, IStudentBody} from "../Interfaces";
     import SingleDocument from "./SingleDocument.svelte";
 
     export let document: IAnnotatedDocument;
+    export let studentBody: IStudentBody;
 </script>
 
-<SingleDocument {document} withReferences={false}/>
+<SingleDocument {document} {studentBody} withReferences={false}/>

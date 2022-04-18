@@ -35,7 +35,7 @@
                     {/if}
                 </li>
                 <li>
-                    <SingleDocument document={mostRecentElection}/>
+                    <SingleDocument document={mostRecentElection} {studentBody}/>
                 </li>
             </ul>
         {:else}
@@ -57,7 +57,7 @@
                     nach letzter Wahl?
                 </li>
                 <li>
-                    <SingleDocument document={mostRecentInauguralMeetingProceedings}/>
+                    <SingleDocument document={mostRecentInauguralMeetingProceedings} {studentBody}/>
                 </li>
             </ul>
         {:else}
@@ -69,13 +69,15 @@
                 title="Aktueller Haushaltsplan"
                 proceedingsTitle="Beschluss"
                 overallLevel={calculator.getCurrentFinancialYearBudgetLevel()}
-                documents={calculator.getRelevantBudgetsForCurrentFinancialYear()}/>
+                documents={calculator.getRelevantBudgetsForCurrentFinancialYear()}
+                {studentBody}/>
 
         <RelevantDocumentsWithProceedings
                 title="Haushaltsplan des vorherigen Haushaltsjahres"
                 proceedingsTitle="Beschluss"
                 overallLevel={calculator.getPreviousFinancialYearBudgetLevel()}
-                documents={calculator.getRelevantBudgetsForPreviousFinancialYear()}/>
+                documents={calculator.getRelevantBudgetsForPreviousFinancialYear()}
+                {studentBody}/>
 
         <h5 class="title is-5">
             <IconForLevel level={calculator.getBalanceLevel()}/>
@@ -84,7 +86,7 @@
         <ul>
             {#each calculator.getRelevantBalancesForPreviousFinancialYear() as balance}
                 <li>
-                    <SingleDocument document={balance}/>
+                    <SingleDocument document={balance} {studentBody}/>
                 </li>
             {:else}
                 <li>
@@ -98,7 +100,8 @@
                 title="Kassenprüfungen"
                 proceedingsTitle="Wahl der Kassenprüfer*innen:"
                 overallLevel={calculator.getCashAuditLevel()}
-                documents={calculator.getRelevantCashAuditsForPreviousFinancialYear()}/>
+                documents={calculator.getRelevantCashAuditsForPreviousFinancialYear()}
+                {studentBody}/>
     </div>
 </div>
 

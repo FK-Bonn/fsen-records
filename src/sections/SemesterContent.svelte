@@ -23,7 +23,8 @@
                 title="Haushaltspläne"
                 proceedingsTitle="Beschluss"
                 overallLevel={calculator.getBudgetLevel()}
-                documents={calculator.getRelevantBudgets()}/>
+                documents={calculator.getRelevantBudgets()}
+                {studentBody}/>
 
         <h5 class="title is-5">
             <IconForLevel level={calculator.getBalanceLevel()}/>
@@ -32,7 +33,7 @@
         <ul>
             {#each calculator.getRelevantBalances() as balance}
                 <li>
-                    <SingleDocument document={balance}/>
+                    <SingleDocument document={balance} {studentBody}/>
                 </li>
             {:else}
                 <li>
@@ -46,14 +47,15 @@
                 title="Kassenprüfungen"
                 proceedingsTitle="Wahl der Kassenprüfer*innen"
                 overallLevel={calculator.getCashAuditLevel()}
-                documents={calculator.getRelevantCashAudits()}/>
+                documents={calculator.getRelevantCashAudits()}
+                {studentBody}/>
 
         <h5 class="title is-5">
             <IconForLevel level={calculator.getElectionLevel()}/>
             Wahlergebnis
         </h5>
         {#if mostRecentElection}
-            <SingleDocument document={mostRecentElection}/>
+            <SingleDocument document={mostRecentElection} {studentBody}/>
         {:else}
             <Cross/>
             Fehlt!

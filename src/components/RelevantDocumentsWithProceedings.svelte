@@ -1,5 +1,5 @@
 <script type="ts">
-    import {AnnotationLevel, IAnnotatedDocument} from "../Interfaces";
+    import {AnnotationLevel, IAnnotatedDocument, IStudentBody} from "../Interfaces";
     import IconForLevel from "../icons/IconForLevel.svelte";
     import SingleDocumentWithoutReferences from "./SingleDocumentWithoutReferences.svelte";
     import SingleDocument from "./SingleDocument.svelte";
@@ -9,6 +9,7 @@
     export let documents: IAnnotatedDocument[];
     export let title: string;
     export let proceedingsTitle: string;
+    export let studentBody: IStudentBody;
 </script>
 
 <h5 class="title is-5">
@@ -16,12 +17,12 @@
     {title}
 </h5>
 {#each documents as document}
-    <SingleDocumentWithoutReferences {document}/>
+    <SingleDocumentWithoutReferences {document} {studentBody}/>
     <ul class="prots">
         {#each document.resolvedReferences as reference}
             <li>
                 <b>{proceedingsTitle}:</b><br>
-                <SingleDocument document={reference}/>
+                <SingleDocument document={reference} {studentBody}/>
             </li>
         {:else}
             <li>

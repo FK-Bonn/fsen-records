@@ -44,6 +44,12 @@ export default {
 			compilerOptions: {
 				// enable run-time checks when not in production
 				dev: !production
+			},
+			onwarn: (warning, handler) => {
+				if (warning.code === 'a11y-missing-attribute'){ return; }
+
+				// let Rollup handle all other warnings normally
+				handler(warning)
 			}
 		}),
 		// we'll extract any component CSS out into

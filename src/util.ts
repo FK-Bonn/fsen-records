@@ -1,5 +1,7 @@
-import {AnnotationLevel, IAnnotatedDocument, IAnnotation, IPayoutRequestData} from "./Interfaces";
+import {AnnotationLevel, IAnnotatedDocument, IAnnotation, IPayoutRequestData, IUserWithPermissions} from "./Interfaces";
 import type {Interval} from "./Calculator";
+import {backendPrefix} from "./settings";
+import {loggedInUser, token} from "./stores";
 
 export const stringToDate = (input: string) => {
     const output = new Date(input);
@@ -96,3 +98,111 @@ export const copyToClipboard = (str: string) => {
     }
     return Promise.reject('The Clipboard API is not available.');
 };
+
+export const loadLoggedInUser = async (token: string): Promise<IUserWithPermissions | null> => {
+    return fetch(backendPrefix + '/user/me', {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                Promise.reject('An error occured');
+            }
+        })
+        .then(json => {
+            return json;
+        })
+        .catch(() => {
+            return null
+        });
+}
+
+export const loadUsersList = async (token: string): Promise<Map<string, IUserWithPermissions> | null> => {
+    return fetch(backendPrefix + '/user', {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                Promise.reject('An error occured');
+            }
+        })
+        .then(json => {
+            return new Map(Object.entries(json));
+        })
+        .catch(() => {
+            return null
+        });
+}
+
+export const createAccount = async (username: string, password: string, admin: boolean, permissions: string[], token: string): Promise<{ user: IUserWithPermissions | null, message: string | null }> => {
+    return fetch(backendPrefix + '/user/create',
+        {
+            method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+            body: JSON.stringify({username, password, admin, permissions})
+        })
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else if (resp.status == 409) {
+                return Promise.reject('Account existiert bereits.');
+            } else {
+                return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
+            }
+        })
+        .then(json => {
+            return {user: json, message: 'Account erstellt.'};
+        }, reason => {
+            return {user: null, message: reason};
+        });
+}
+
+export const editPermissions = async (username: string, admin: boolean, permissions: string[], token: string): Promise<{ user: IUserWithPermissions | null, message: string | null }> => {
+    return fetch(backendPrefix + '/user/permissions',
+        {
+            method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+            body: JSON.stringify({username, admin, permissions})
+        })
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
+            }
+        })
+        .then(json => {
+            return {user: json, message: 'Rechte aktualisiert.'};
+        }, reason => {
+            return {user: null, message: reason};
+        });
+}
+
+export const resetPassword = async (username: string, password: string, token: string): Promise<string> => {
+    return fetch(backendPrefix + '/user/password/'+username,
+        {
+            method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+            body: JSON.stringify({new_password: password})
+        })
+        .then(resp => {
+            if (resp.ok) {
+                return 'Passwort geändert.';
+            } else {
+                return 'Ein Problem ist aufgetreten (' + resp.status + ')';
+            }
+        });
+}
+
+export const changePassword = async (current_password: string, new_password: string, token: string): Promise<string> => {
+    return fetch(backendPrefix + '/user/password',
+        {
+            method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+            body: JSON.stringify({current_password, new_password})
+        })
+        .then(resp => {
+            if (resp.ok) {
+                return 'Passwort geändert.';
+            } else if(resp.status === 401){
+                return 'Falsches aktuelles Passwort.';
+            } else {
+                return 'Ein Problem ist aufgetreten (' + resp.status + ')';
+            }
+        });
+}

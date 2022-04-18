@@ -5,6 +5,8 @@
     import {onDestroy, onMount} from "svelte";
     import {refreshIntervalMilliseconds} from "./settings";
     import PayoutRequestStatistics from "./sections/PayoutRequestStatistics.svelte";
+    import {fsen} from "./stores";
+    import UserMenu from "./sections/UserMenu.svelte";
 
     const getProceeding = (proceedings: IAnnotatedDocument[], key: string): IAnnotatedDocument => {
         for (let proceeding of proceedings) {
@@ -52,6 +54,7 @@
                     }
                     fetchedData = data;
                     fetchDataError = null;
+                    $fsen = [...data.studentBodies.keys()].sort();
                 } catch (err) {
                     fetchDataError = err.message;
                 }
@@ -88,6 +91,8 @@
 </script>
 
 <main>
+    <UserMenu/>
+
     {#if errors.length > 0}
         <ErrorList {errors}/>
     {/if}

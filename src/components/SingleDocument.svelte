@@ -1,14 +1,17 @@
 <script type="ts">
-    import type {IAnnotatedDocument} from "../Interfaces";
+    import type {IAnnotatedDocument, IStudentBody} from "../Interfaces";
     import Questionmark from "../icons/Questionmark.svelte";
     import {Interval, VerdictCalculator} from "../Calculator";
     import IconForLevel from "../icons/IconForLevel.svelte";
     import DateRange from "./DateRange.svelte";
-    import {showFilenames} from "../stores";
+    import {loggedInUser, showFilenames} from "../stores";
     import DocumentName from "./DocumentName.svelte";
+    import DownloadButton from "./DownloadButton.svelte";
 
     export let document: IAnnotatedDocument;
     export let withReferences: boolean = true;
+    export let studentBody: IStudentBody;
+    let displayDownloadButton = $loggedInUser && studentBody && ($loggedInUser.admin || $loggedInUser.permissions.includes(studentBody.id));
 </script>
 
 {#if document.checked}
@@ -23,6 +26,9 @@
     )
 {:else}
     <DocumentName {document}/>
+{/if}
+{#if displayDownloadButton}
+    <DownloadButton {studentBody} filename={document.filename}/>
 {/if}
 {#if withReferences}
     {#each document.references as reference}
