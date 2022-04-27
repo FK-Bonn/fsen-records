@@ -98,7 +98,7 @@
 
         <RelevantDocumentsWithProceedings
                 title="Kassenprüfungen"
-                proceedingsTitle="Wahl der Kassenprüfer*innen:"
+                proceedingsTitle="Wahl der Kassenprüfer*innen"
                 overallLevel={calculator.getCashAuditLevel()}
                 documents={calculator.getRelevantCashAuditsForPreviousFinancialYear()}
                 {studentBody}/>
