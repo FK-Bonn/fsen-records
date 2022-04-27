@@ -1,7 +1,6 @@
 import {AnnotationLevel, IAnnotatedDocument, IAnnotation, IPayoutRequestData, IUserWithPermissions} from "./Interfaces";
 import type {Interval} from "./Calculator";
 import {backendPrefix} from "./settings";
-import {loggedInUser, token} from "./stores";
 
 export const stringToDate = (input: string) => {
     const output = new Date(input);
@@ -74,7 +73,7 @@ export const shouldDisplayStar = (level: AnnotationLevel, payoutRequest?: IPayou
     if (!payoutRequest) {
         return false;
     }
-    const completeLevels: AnnotationLevel[] = [AnnotationLevel.Ok, AnnotationLevel.Unchecked];
+    const completeLevels: AnnotationLevel[] = [AnnotationLevel.Ok, AnnotationLevel.Unchecked, AnnotationLevel.Warning];
     if (!completeLevels.includes(level)) {
         return false;
     }
