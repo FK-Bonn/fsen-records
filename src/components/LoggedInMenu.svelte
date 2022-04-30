@@ -2,6 +2,7 @@
     import {loggedInUser, token} from "../stores";
     import AdminMenu from "./AdminMenu.svelte";
     import ChangePasswordMenu from "./ChangePasswordMenu.svelte";
+    import AdminMenuWrapper from "./AdminMenuWrapper.svelte";
 
     const logout = () => {
         $token = '';
@@ -46,10 +47,10 @@
                 <div class="navbar-item">
                     <span class="tag is-info">Admin</span>
                 </div>
-                <a class="navbar-item" on:click={toggleAdminMenu}>
-                    Verwaltung
-                </a>
             {/if}
+            <a class="navbar-item" on:click={toggleAdminMenu}>
+                Verwaltung
+            </a>
             <a class="navbar-item" on:click={toggleChangePasswordMenu}>
                 Passwort ändern
             </a>
@@ -69,9 +70,9 @@
     </div>
 </nav>
 
-{#if $loggedInUser.admin && showAdminMenu}
+{#if showAdminMenu}
     <div class="box">
-        <AdminMenu/>
+        <AdminMenuWrapper isAdmin="{$loggedInUser.admin}"/>
     </div>
 {/if}
 {#if showChangePasswordMenu}
