@@ -26,6 +26,7 @@ export interface IStudentBody {
     name: string
     statutes: string
     financialYearStart: string
+    financialYearAnnotation: string
     financialYearOverride: null | { current: { dateStart: string, dateEnd: string }, previous: { dateStart: string, dateEnd: string } }
     budgets: IAnnotatedDocument[]
     balances: IAnnotatedDocument[]

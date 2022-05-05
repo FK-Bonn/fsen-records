@@ -17,12 +17,23 @@
 <li>
     <div class="box">
         <h2 class="title is-2" id="{studentBody.id}">
-            <a href="#{studentBody.id}"><People/></a>
+            <a href="#{studentBody.id}">
+                <People/>
+            </a>
             {studentBody.name}
         </h2>
 
-        <p class="box"><a href="{studentBody.statutes}">Fachschaftssatzung</a>
-            · Beginn des Haushaltsjahrs: {studentBody.financialYearStart}<br/>
+        <p class="box">
+            {#if studentBody.statutes.startsWith('https://')}
+                <a href="{studentBody.statutes}">Fachschaftssatzung</a> ·
+            {:else}
+                <span class="has-text-danger">{studentBody.statutes}</span><br/>
+            {/if}
+            Beginn des Haushaltsjahrs: {studentBody.financialYearStart}
+            {#if studentBody.financialYearAnnotation}
+                <span class="has-text-danger">{studentBody.financialYearAnnotation}</span>
+            {/if}
+            <br/>
             Aktuelles Haushaltsjahr:
             <DateRange interval={calculator.getCurrentFinancialYear()}/>
             {#if calculator.getCurrentFinancialYear().end < new Date()}
