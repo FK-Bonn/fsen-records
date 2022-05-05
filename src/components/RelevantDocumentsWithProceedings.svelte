@@ -4,6 +4,7 @@
     import SingleDocumentWithoutReferences from "./SingleDocumentWithoutReferences.svelte";
     import SingleDocument from "./SingleDocument.svelte";
     import Cross from "../icons/Cross.svelte";
+    import Questionmark from "../icons/Questionmark.svelte";
 
     export let overallLevel: AnnotationLevel;
     export let documents: IAnnotatedDocument[];
@@ -27,7 +28,11 @@
         {:else}
             <li>
                 <b>{proceedingsTitle}:</b>
-                <Cross/>
+                {#if document.checked}
+                    <Cross/>
+                {:else}
+                    <Questionmark/>
+                {/if}
                 ?
             </li>
         {/each}
