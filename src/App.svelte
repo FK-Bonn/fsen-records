@@ -3,7 +3,7 @@
     import StudentBodyList from "./sections/StudentBodyList.svelte";
     import ErrorList from "./components/ErrorList.svelte";
     import {onDestroy, onMount} from "svelte";
-    import {refreshIntervalMilliseconds} from "./settings";
+    import {backendPrefix, refreshIntervalMilliseconds, siteTitle} from "./settings";
     import PayoutRequestStatistics from "./sections/PayoutRequestStatistics.svelte";
     import {fsen} from "./stores";
     import UserMenu from "./sections/UserMenu.svelte";
@@ -90,6 +90,10 @@
     onDestroy(() => clearInterval(interval));
 </script>
 
+<svelte:head>
+    <title>{siteTitle}</title>
+</svelte:head>
+
 <main>
     <UserMenu/>
 
@@ -117,3 +121,13 @@
     {/if}
 
 </main>
+<footer class="footer">
+    <div class="content has-text-centered">
+        <p>
+            <strong>{siteTitle}</strong> ist freie Software.
+            <a href="{backendPrefix}/docs">API-Dokumentation</a> ·
+            <a href="https://github.com/FK-Bonn/fsen-records">Frontend</a> ·
+            <a href="https://github.com/FK-Bonn/fsen-records-backend">Backend</a>
+        </p>
+    </div>
+</footer>
