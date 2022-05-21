@@ -12,6 +12,7 @@
     import AttentionStar from "../components/AttentionStar.svelte";
     import {showOnlySemestersWithPayoutRequests, showOnlySemestersWithStar} from "../stores";
     import {calculateSemesterId, shouldDisplayStar} from "../util";
+    import DeadlineIcon from "../components/DeadlineIcon.svelte";
 
     const calculateLevel = (studentBody: IStudentBody, semester: Interval) => {
         const calculator = new SemesterCalculator(studentBody, semester);
@@ -50,7 +51,10 @@
 <div class="card">
     <header class="card-header" on:click={toggle}>
         <p class="card-header-title">
-            <IconForLevel level={level}/> {semesterName} (<DateRange interval={semester}/>)
+            <IconForLevel level={level}/>
+            {semesterName}
+            (<DateRange interval={semester}/>)
+            <DeadlineIcon  interval={semester}/>
         </p>
         <AttentionStar display={displayStar}/>
         <PayoutRequest {payoutRequest}/>

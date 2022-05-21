@@ -1,12 +1,12 @@
 <script type="ts">
     import {Interval} from "../Calculator";
+    import {formatDate} from "../util";
 
     export let interval: Interval;
-    const options: Intl.DateTimeFormatOptions = {year: 'numeric', month: '2-digit', day: '2-digit'};
 </script>
 
 {#if interval.start.toUTCString() === interval.end.toUTCString()}
-    {interval.start.toLocaleDateString('de-DE', options)}
+    {formatDate(interval.start)}
 {:else}
-    {interval.start.toLocaleDateString('de-DE', options)} – {interval.end.toLocaleDateString('de-DE', options)}
+    {formatDate(interval.start)} – {formatDate(interval.end)}
 {/if}

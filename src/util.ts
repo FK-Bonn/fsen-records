@@ -198,10 +198,15 @@ export const changePassword = async (current_password: string, new_password: str
         .then(resp => {
             if (resp.ok) {
                 return 'Passwort geändert.';
-            } else if(resp.status === 401){
+            } else if (resp.status === 401) {
                 return 'Falsches aktuelles Passwort.';
             } else {
                 return 'Ein Problem ist aufgetreten (' + resp.status + ')';
             }
         });
+}
+
+const formatDateOptions: Intl.DateTimeFormatOptions = {year: 'numeric', month: '2-digit', day: '2-digit'};
+export const formatDate = (date: Date): string => {
+    return date.toLocaleDateString('de-DE', formatDateOptions);
 }
