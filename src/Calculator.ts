@@ -46,7 +46,7 @@ export class Interval {
                 return false;
             }
             const otherEnd = other.dateEnd ? stringToDate(other.dateEnd) : otherStart;
-            if (otherEnd > remainingStart) {
+            if (otherEnd >= remainingStart) {
                 remainingStart = otherEnd;
                 remainingStart.setDate(remainingStart.getDate() + 1);
             }
