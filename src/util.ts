@@ -1,4 +1,11 @@
-import {AnnotationLevel, IAnnotatedDocument, IAnnotation, IPayoutRequestData, IUserWithPermissions} from "./Interfaces";
+import {
+    AnnotationLevel,
+    IAnnotatedDocument,
+    IAnnotation,
+    IData,
+    IPayoutRequestData,
+    IUserWithPermissions
+} from "./Interfaces";
 import type {Interval} from "./Calculator";
 import {backendPrefix} from "./settings";
 
@@ -175,7 +182,7 @@ export const editPermissions = async (username: string, admin: boolean, permissi
 }
 
 export const resetPassword = async (username: string, password: string, token: string): Promise<string> => {
-    return fetch(backendPrefix + '/user/password/'+username,
+    return fetch(backendPrefix + '/user/password/' + username,
         {
             method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
             body: JSON.stringify({new_password: password})
@@ -209,4 +216,64 @@ export const changePassword = async (current_password: string, new_password: str
 const formatDateOptions: Intl.DateTimeFormatOptions = {year: 'numeric', month: '2-digit', day: '2-digit'};
 export const formatDate = (date: Date): string => {
     return date.toLocaleDateString('de-DE', formatDateOptions);
+}
+
+export const getUrlParameter = (key: string): string|null => {
+    const url = new URL(window.location.toString());
+    return url.searchParams.get(key);
+}
+
+export const setUrlParameter = (key: string, value: string) => {
+    const url = new URL(window.location.toString());
+    url.searchParams.set(key, value);
+    window.history.pushState({}, '', url);
+}
+
+export const scrollToHashIfPresent = () => {
+    if (window.location.hash) {
+        const id = window.location.hash.substring(1);
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView();
+        }
+    }
+}
+
+const getProceeding = (proceedings: IAnnotatedDocument[], key: string): IAnnotatedDocument => {
+    for (let proceeding of proceedings) {
+        if (proceeding.filename === key) {
+            return proceeding;
+        }
+    }
+    throw new Error('No proceeding with filename "' + key + '" found.');
+}
+
+export const pojoToIData = (data: any):IData=>{
+    data.studentBodies = new Map(Object.entries(data.studentBodies));
+    data.payoutRequests = new Map(Object.entries(data.payoutRequests));
+    for (let fsId of data.payoutRequests.keys()) {
+        data.payoutRequests.set(fsId, new Map(Object.entries(data.payoutRequests.get(fsId))));
+    }
+    for (let studentBody of data.studentBodies.keys()) {
+        const proceedings = data.studentBodies.get(studentBody).proceedings;
+        for (let budget of data.studentBodies.get(studentBody).budgets) {
+            budget.resolvedReferences = [];
+            for (let reference of budget.references) {
+                budget.resolvedReferences.push(getProceeding(proceedings, reference));
+            }
+        }
+        for (let balances of data.studentBodies.get(studentBody).balances) {
+            balances.resolvedReferences = [];
+            for (let reference of balances.references) {
+                balances.resolvedReferences.push(getProceeding(proceedings, reference));
+            }
+        }
+        for (let cashAudit of data.studentBodies.get(studentBody).cashAudits) {
+            cashAudit.resolvedReferences = [];
+            for (let reference of cashAudit.references) {
+                cashAudit.resolvedReferences.push(getProceeding(proceedings, reference));
+            }
+        }
+    }
+    return data as IData;
 }

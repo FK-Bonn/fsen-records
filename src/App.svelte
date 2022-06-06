@@ -7,15 +7,8 @@
     import PayoutRequestStatistics from "./sections/PayoutRequestStatistics.svelte";
     import {fsen} from "./stores";
     import UserMenu from "./sections/UserMenu.svelte";
-
-    const getProceeding = (proceedings: IAnnotatedDocument[], key: string): IAnnotatedDocument => {
-        for (let proceeding of proceedings) {
-            if (proceeding.filename === key) {
-                return proceeding;
-            }
-        }
-        throw new Error('No proceeding with filename "' + key + '" found.');
-    }
+    import {getUrlParameter, pojoToIData} from "./util";
+    import DiffView from "./sections/DiffView.svelte";
 
 
     const loadData = () => {
@@ -25,33 +18,8 @@
             })
             .then(rawdata => {
                 try {
-                    rawdata.studentBodies = new Map(Object.entries(rawdata.studentBodies));
-                    rawdata.payoutRequests = new Map(Object.entries(rawdata.payoutRequests));
-                    for (let fsId of rawdata.payoutRequests.keys()) {
-                        rawdata.payoutRequests.set(fsId, new Map(Object.entries(rawdata.payoutRequests.get(fsId))));
-                    }
-                    const data: IData = rawdata as IData;
-                    for (let studentBody of data.studentBodies.keys()) {
-                        const proceedings = data.studentBodies.get(studentBody).proceedings;
-                        for (let budget of data.studentBodies.get(studentBody).budgets) {
-                            budget.resolvedReferences = [];
-                            for (let reference of budget.references) {
-                                budget.resolvedReferences.push(getProceeding(proceedings, reference));
-                            }
-                        }
-                        for (let balances of data.studentBodies.get(studentBody).balances) {
-                            balances.resolvedReferences = [];
-                            for (let reference of balances.references) {
-                                balances.resolvedReferences.push(getProceeding(proceedings, reference));
-                            }
-                        }
-                        for (let cashAudit of data.studentBodies.get(studentBody).cashAudits) {
-                            cashAudit.resolvedReferences = [];
-                            for (let reference of cashAudit.references) {
-                                cashAudit.resolvedReferences.push(getProceeding(proceedings, reference));
-                            }
-                        }
-                    }
+                    const data: IData = pojoToIData(rawdata);
+
                     fetchedData = data;
                     fetchDataError = null;
                     $fsen = [...data.studentBodies.keys()].sort();
@@ -76,18 +44,21 @@
     let fetchedData: IData | null = null;
     let fetchDataError: string | null = null;
     let errors: string[] = [];
+    let diffview = getUrlParameter('diff') !== null;
 
-    const interval = setInterval(async () => {
-        loadError();
-        loadData();
-    }, refreshIntervalMilliseconds);
+    if (!diffview) {
+        const interval = setInterval(async () => {
+            loadError();
+            loadData();
+        }, refreshIntervalMilliseconds);
 
-    onMount(() => {
-        loadError();
-        loadData();
-    });
+        onMount(() => {
+            loadError();
+            loadData();
+        });
 
-    onDestroy(() => clearInterval(interval));
+        onDestroy(() => clearInterval(interval));
+    }
 </script>
 
 <svelte:head>
@@ -105,19 +76,23 @@
         <pre>{fetchDataError}</pre>
     {/if}
 
-    {#if fetchedData}
-        <section class="section">
-            <div class="container">
-                <StudentBodyList data={fetchedData}/>
-            </div>
-        </section>
-        <section class="section">
-            <div class="container">
-                <PayoutRequestStatistics data={fetchedData}/>
-            </div>
-        </section>
+    {#if !diffview}
+        {#if fetchedData}
+            <section class="section">
+                <div class="container">
+                    <StudentBodyList data={fetchedData}/>
+                </div>
+            </section>
+            <section class="section">
+                <div class="container">
+                    <PayoutRequestStatistics data={fetchedData}/>
+                </div>
+            </section>
+        {:else}
+            <progress class="progress is-large is-info" max="100">60%</progress>
+        {/if}
     {:else}
-        <progress class="progress is-large is-info" max="100">60%</progress>
+        <DiffView/>
     {/if}
 
 </main>

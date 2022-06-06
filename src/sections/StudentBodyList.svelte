@@ -7,21 +7,13 @@
     import Filters from "../components/Filters.svelte";
     import ToggleableStudentBody from "./ToggleableStudentBody.svelte";
     import {Interval} from "../Calculator";
+    import {scrollToHashIfPresent} from "../util";
 
     export let data: IData
     $: lastUpdate = new Date(data.timestamp * 1000).toLocaleString();
     $: lastUpdateLevel = (Date.now() / 1000 - data.timestamp) > 3600 ? AnnotationLevel.Warning : AnnotationLevel.Ok;
     $: semesters = data.semesters.map(value => Interval.fromStrings(value.start, value.end))
 
-    const scrollToHashIfPresent = () => {
-        if (window.location.hash) {
-            const id = window.location.hash.substring(1);
-            const element = document.getElementById(id);
-            if (element) {
-                element.scrollIntoView();
-            }
-        }
-    }
     onMount(() => {
         scrollToHashIfPresent();
     });
