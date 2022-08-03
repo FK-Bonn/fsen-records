@@ -1,37 +1,24 @@
 <script type="ts">
-    import type {IAnnotatedDocument, IData, IPayoutRequestData} from "../Interfaces";
+    import type {
+        IAnnotatedDocument, IAnnotatedDocumentDiff,
+        IData,
+        IPayoutRequestData,
+        IPayoutRequestDiff,
+        IStudentBodyDiff
+    } from "../Interfaces";
     import People from "../icons/People.svelte";
     import {onMount} from "svelte";
     import {scrollToHashIfPresent} from "../util";
+    import GenericDiff from "./diff/GenericDiff.svelte";
+    import PayoutRequestDiff from "./diff/PayoutRequestDiff.svelte";
+    import DocumentDiff from "./diff/DocumentDiff.svelte";
 
-    interface IPayoutRequestDiff {
-        fs: string;
-        semester: string;
-        oldPR: IPayoutRequestData | null;
-        newPR: IPayoutRequestData | null;
-    }
-
-    interface IStringDiff {
-        oldString: string | null;
-        newString: string | null;
-    }
-
-    interface IAnnotatedDocumentDiff {
-        filename: string;
-        oldDocument: IAnnotatedDocument | null;
-        newDocument: IAnnotatedDocument | null;
-    }
-
-    interface IStudentBodyDiff {
-        fs: string;
-        name: string;
-        balances: IAnnotatedDocumentDiff[];
-        budgets: IAnnotatedDocumentDiff[];
-        cashAudits: IAnnotatedDocumentDiff[];
-        electionResults: IAnnotatedDocumentDiff[];
-        proceedings: IAnnotatedDocumentDiff[];
-        financialYearAnnotationDiff: IStringDiff | null;
-        statutesDiff: IStringDiff | null;
+    const DOCTYPES = {
+        balances: 'Haushaltsrechnung',
+        budgets: 'Haushaltsplan',
+        cashAudits: 'Kassenprüfung',
+        electionResults: 'Wahlergebnis',
+        proceedings: 'Protokoll',
     }
 
     const isJsonEqual = (first: any, second: any): boolean => {
@@ -79,11 +66,24 @@
             proceedings: [],
             financialYearAnnotationDiff: null,
             statutesDiff: null,
+            modifiedPayoutRequests: [],
         };
+    }
+
+    const annotatedDocumentComparator = (first: IAnnotatedDocumentDiff, second: IAnnotatedDocumentDiff) => {
+        const firstFilename = first.oldDocument ? first.oldDocument.filename : first.newDocument.filename;
+        const secondFilename = second.oldDocument ? second.oldDocument.filename : second.newDocument.filename;
+        if (firstFilename > secondFilename) {
+            return 1;
+        } else if (firstFilename < secondFilename) {
+            return -1;
+        }
+        return 0;
     }
 
     const getModifiedStudentBodies = (first: IData, second: IData): IStudentBodyDiff[] => {
         const diffs = [];
+        const modifiedPayoutRequests = getModifiedPayoutRequests(first, second);
         for (let fs of first.studentBodies.keys()) {
             const firstStudentBody = first.studentBodies.get(fs);
             const secondStudentBody = second.studentBodies.get(fs);
@@ -106,6 +106,12 @@
                         diff[documentType].push({filename, oldDocument: null, newDocument: document});
                     }
                 }
+                diff[documentType].sort(annotatedDocumentComparator);
+            }
+            for (let modifiedPayoutRequest of modifiedPayoutRequests) {
+                if (modifiedPayoutRequest.fs === fs) {
+                    diff.modifiedPayoutRequests.push(modifiedPayoutRequest);
+                }
             }
             if (!isJsonEqual(diff, emptyStudentBodyDiff(fs, firstStudentBody.name))) {
                 diffs.push(diff);
@@ -119,7 +125,6 @@
     export let dateEnd: string;
     export let first: IData;
     export let second: IData;
-    $: modifiedPayoutRequests = getModifiedPayoutRequests(first, second);
     $: modifiedStudentBodies = getModifiedStudentBodies(first, second);
 
     onMount(() => {
@@ -133,33 +138,6 @@
     {:else}
         <h2 class="title is-2">Änderungen seit {dateStart}</h2>
     {/if}
-    <h3 class="heading is-3" id="payoutRequests">Anträge</h3>
-    <table class="table">
-        <thead>
-        <tr>
-            <th>fs</th>
-            <th>semester</th>
-            <th>alt</th>
-            <th>neu</th>
-        </tr>
-        </thead>
-        <tbody>
-
-        {#each modifiedPayoutRequests as request}
-            <tr>
-                <td>{request.fs}</td>
-                <td>{request.semester}</td>
-                <td>
-                    <pre>{JSON.stringify(request.oldPR, null, 2)}</pre>
-                </td>
-                <td>
-                    <pre>{JSON.stringify(request.newPR, null, 2)}</pre>
-                </td>
-            </tr>
-        {/each}
-        </tbody>
-    </table>
-
     <h3 class="heading is-3" id="studentBodies">Fachschaften</h3>
     {#each modifiedStudentBodies as studentBody}
         <h4 class="heading is-4">
@@ -177,26 +155,41 @@
             </tr>
             </thead>
             <tbody>
+            {#each studentBody.modifiedPayoutRequests as request}
+                <tr>
+                    <td>Antrag<br>{request.semester}</td>
+                    <PayoutRequestDiff before={request.oldPR} after={request.newPR}/>
+                </tr>
+            {/each}
             {#each ['balances', 'budgets', 'cashAudits', 'electionResults', 'proceedings'] as docType}
                 {#each studentBody[docType] as singleDiff}
                     <tr>
-                        <td>{docType}</td>
-                        <td>
-                            <pre>{JSON.stringify(singleDiff.oldDocument, null, 2)}</pre>
-                        </td>
-                        <td>
-                            <pre>{JSON.stringify(singleDiff.newDocument, null, 2)}</pre>
-                        </td>
+                        <td>{DOCTYPES[docType]}</td>
+                        <DocumentDiff before={singleDiff.oldDocument} after={singleDiff.newDocument}/>
                     </tr>
                 {/each}
             {/each}
+            {#if studentBody.financialYearAnnotationDiff}
+                <tr>
+                    <td>Haushaltsjahr</td>
+                    <GenericDiff before={studentBody.financialYearAnnotationDiff.oldString}
+                                 after={studentBody.financialYearAnnotationDiff.newString}/>
+                </tr>
+            {/if}
+            {#if studentBody.statutesDiff}
+                <tr>
+                    <td>Fachschaftssatzung</td>
+                    <GenericDiff before={studentBody.statutesDiff.oldString}
+                                 after={studentBody.statutesDiff.newString}/>
+                </tr>
+            {/if}
             </tbody>
         </table>
     {/each}
 </div>
 
 <style>
-    pre {
-        white-space: pre-wrap;
+    td {
+        width: 15%;
     }
 </style>

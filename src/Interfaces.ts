@@ -58,3 +58,35 @@ export interface IUserWithPermissions {
     admin: boolean
     permissions: string[]
 }
+
+
+export interface IPayoutRequestDiff {
+    fs: string;
+    semester: string;
+    oldPR: IPayoutRequestData | null;
+    newPR: IPayoutRequestData | null;
+}
+
+export interface IStringDiff {
+    oldString: string | null;
+    newString: string | null;
+}
+
+export interface IAnnotatedDocumentDiff {
+    filename: string;
+    oldDocument: IAnnotatedDocument | null;
+    newDocument: IAnnotatedDocument | null;
+}
+
+export interface IStudentBodyDiff {
+    fs: string;
+    name: string;
+    balances: IAnnotatedDocumentDiff[];
+    budgets: IAnnotatedDocumentDiff[];
+    cashAudits: IAnnotatedDocumentDiff[];
+    electionResults: IAnnotatedDocumentDiff[];
+    proceedings: IAnnotatedDocumentDiff[];
+    financialYearAnnotationDiff: IStringDiff | null;
+    statutesDiff: IStringDiff | null;
+    modifiedPayoutRequests: IPayoutRequestDiff[];
+}

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type {IAnnotatedDocument, IData} from "./Interfaces";
+    import type {IData} from "./Interfaces";
     import StudentBodyList from "./sections/StudentBodyList.svelte";
     import ErrorList from "./components/ErrorList.svelte";
     import {onDestroy, onMount} from "svelte";
