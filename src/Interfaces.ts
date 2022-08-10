@@ -39,6 +39,7 @@ export interface IPayoutRequestData {
     id: string
     status: string
     amount: number
+    requestDate: string
 }
 
 export interface ISemester {
@@ -47,6 +48,7 @@ export interface ISemester {
 }
 
 export interface IData {
+    budgetTitles: { [semester: string]: string }
     payoutRequests: Map<string, Map<string, IPayoutRequestData>>
     semesters: ISemester[]
     studentBodies: Map<string, IStudentBody>

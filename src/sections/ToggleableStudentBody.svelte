@@ -7,6 +7,7 @@
     import CompactStudentBody from "./CompactStudentBody.svelte";
 
     export let payoutRequests: Map<string, IPayoutRequestData> | undefined;
+    export let budgetTitles: { [semester: string]: string };
     export let semesters: Interval[];
     export let studentBody: IStudentBody;
     $: calculator = new CurrentlyCanBePaidCalculator(studentBody);
@@ -17,6 +18,6 @@
     {#if $compactMode}
         <CompactStudentBody {studentBody} {semesters}/>
     {:else}
-        <StudentBody {studentBody} {payoutRequests} {semesters}/>
+        <StudentBody {studentBody} {payoutRequests} {semesters} {budgetTitles}/>
     {/if}
 {/if}

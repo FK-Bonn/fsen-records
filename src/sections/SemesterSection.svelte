@@ -31,12 +31,14 @@
     }
 
     export let studentBody: IStudentBody;
+    export let budgetTitles: { [semester: string]: string };
     export let semester: Interval;
     $: level = calculateLevel(studentBody, semester);
     $: semesterName = calculateSemesterName(semester);
     $: semesterId = calculateSemesterId(semester);
     export let payoutRequests: Map<string, IPayoutRequestData> | undefined;
     $: payoutRequest = payoutRequests ? payoutRequests.get(semesterId) : null;
+    $: budgetTitle = budgetTitles ? budgetTitles[semesterId] : '';
     $: displayStar = shouldDisplayStar(level, payoutRequest);
     let opened: boolean = false;
 
@@ -57,7 +59,7 @@
             <DeadlineIcon  interval={semester}/>
         </p>
         <AttentionStar display={displayStar}/>
-        <PayoutRequest {payoutRequest}/>
+        <PayoutRequest {payoutRequest} fsName={studentBody.name} {budgetTitle}/>
         <button class="card-header-icon" aria-label="more options">
             <AngleIndicator {opened}/>
         </button>

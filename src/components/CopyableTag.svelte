@@ -1,9 +1,9 @@
 <script type="ts">
     import {fade} from 'svelte/transition';
-    import {copyToClipboard} from "../util";
+    import {copyRichContentToClipboard, copyToClipboard} from "../util";
 
     const clickCallback = () => {
-        copyToClipboard(text);
+        copyToClipboard(copyText || text);
         const oldText = text;
         text = 'kopiert!';
         setTimeout(() => {
@@ -12,10 +12,12 @@
     }
 
     export let text = '';
+    export let copyText = undefined;
     export let bold = false;
+    export let tagClass = 'is-light';
 </script>
 
-<span class="tag is-light" on:click|stopPropagation={clickCallback}>
+<span class="tag {tagClass}" on:click|stopPropagation={clickCallback}>
 {#key text}
     <span in:fade>
 {#if bold}<b>{text}</b>{:else}{text}{/if}

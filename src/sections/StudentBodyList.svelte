@@ -30,6 +30,9 @@
 
 <ul>
     {#each [...data.studentBodies] as [key, studentBody] (key)}
-        <ToggleableStudentBody {studentBody} payoutRequests={data.payoutRequests.get(key)} {semesters}/>
+        <ToggleableStudentBody {studentBody}
+                               payoutRequests={data.payoutRequests.get(key)}
+                               {semesters}
+                               budgetTitles={data.budgetTitles}/>
     {/each}
 </ul>

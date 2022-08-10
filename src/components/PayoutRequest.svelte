@@ -23,12 +23,29 @@
         return 'is-danger';
     }
 
-    export let payoutRequest: IPayoutRequestData
+    const getTableLine = (payoutRequest: IPayoutRequestData, fsName: string, budgetTitle: string): string => {
+        if (!payoutRequest) {
+            return '';
+        }
+        return [
+            budgetTitle,
+            fsName,
+            payoutRequest.id,
+            payoutRequest.requestDate,
+            euro(payoutRequest.amount),
+            'IBAN',
+        ].join('\t')
+    }
+
+    export let fsName: string = '';
+    export let budgetTitle: string;
+    export let payoutRequest: IPayoutRequestData;
     $: tagClass = getTagClass(payoutRequest);
+    $: tableLine = getTableLine(payoutRequest, fsName, budgetTitle);
 </script>
 {#if payoutRequest}
     <div class="tags card-header-icon">
-        <span class="tag {tagClass}">{payoutRequest.status}</span>
+        <CopyableTag tagClass={tagClass} text={payoutRequest.status} copyText="{tableLine}"/>
         <CopyableTag text={payoutRequest.id}/>
         <CopyableTag text={euro(payoutRequest.amount)} bold={true}/>
     </div>

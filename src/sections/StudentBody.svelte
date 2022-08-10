@@ -9,6 +9,7 @@
     import Warning from "../icons/Warning.svelte";
 
     export let payoutRequests: Map<string, IPayoutRequestData> | undefined;
+    export let budgetTitles: { [semester: string]: string };
     export let semesters: Interval[];
     export let studentBody: IStudentBody;
     $: calculator = new CurrentlyCanBePaidCalculator(studentBody);
@@ -47,7 +48,7 @@
         <CurrentlyCanBePaidSection {studentBody}/>
 
         {#each semesters as semester}
-            <SemesterSection {semester} {studentBody} {payoutRequests}/>
+            <SemesterSection {semester} {studentBody} {payoutRequests} {budgetTitles}/>
         {/each}
 
         <DocumentsSection {studentBody}/>
