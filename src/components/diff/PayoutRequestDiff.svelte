@@ -7,6 +7,7 @@
     $: idClass = (before && after) && (before.id !== after.id) ? 'is-warning' : '';
     $: statusClass = (before && after) && (before.status !== after.status) ? 'is-warning' : '';
     $: amountClass = (before && after) && (before.amount !== after.amount) ? 'is-warning' : '';
+    $: dateClass = (before && after) && (before.requestDate !== after.requestDate) ? 'is-warning' : '';
 </script>
 
 <td>
@@ -15,6 +16,7 @@
             <li>ID: <span class="tag {idClass}">{before.id}</span></li>
             <li>Status: <span class="tag {statusClass}">{before.status}</span></li>
             <li>Betrag: <span class="tag {amountClass}">{euro(before.amount)}</span></li>
+            <li>Antragsdatum: <span class="tag {dateClass}">{before.requestDate}</span></li>
         </ul>
     {:else }
         -nix-
@@ -26,6 +28,7 @@
             <li>ID: <span class="tag {idClass}">{after.id}</span></li>
             <li>Status: <span class="tag {statusClass}">{after.status}</span></li>
             <li>Betrag: <span class="tag {amountClass}">{euro(after.amount)}</span></li>
+            <li>Antragsdatum: <span class="tag {dateClass}">{after.requestDate}</span></li>
         </ul>
     {:else }
         -nix-
