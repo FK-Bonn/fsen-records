@@ -38,6 +38,7 @@ export const showOnlySemestersWithPayoutRequests = writable(lsGetBool('showOnlyS
 export const showOnlySemestersWithStar = writable(lsGetBool('showOnlySemestersWithStar'));
 export const compactMode = writable(lsGetBool('compactMode'));
 export const showFilenames = writable(lsGetBool('showFilenames', true));
+export const paleLowerDocuments = writable(lsGetBool('paleLowerDocuments', true));
 export const token = writable(lsGetString('token'));
 export const loggedInUser = writable<IUserWithPermissions|null>(null);
 export const fsen = writable<string[]>([]);
@@ -56,6 +57,9 @@ compactMode.subscribe(value => {
 });
 showFilenames.subscribe(value => {
     lsSetBool("showFilenames", value);
+});
+paleLowerDocuments.subscribe(value => {
+    lsSetBool("paleLowerDocuments", value);
 });
 token.subscribe(value => {
     try {

@@ -1,6 +1,6 @@
 <script type="ts">
     import type {IStudentBody} from "../Interfaces";
-    import {CurrentlyCanBePaidCalculator, Interval, SemesterCalculator} from "../Calculator";
+    import {CurrentlyCanBePaidCalculator, Interval, SemesterCalculator, VerdictCalculator} from "../Calculator";
     import DateRange from "../components/DateRange.svelte";
     import Checkmark from "../icons/Checkmark.svelte";
     import Questionmark from "../icons/Questionmark.svelte";
@@ -9,6 +9,7 @@
     import SingleDocumentWithoutReferences from "../components/SingleDocumentWithoutReferences.svelte";
     import IconForLevel from "../icons/IconForLevel.svelte";
     import RelevantDocumentsWithProceedings from "../components/RelevantDocumentsWithProceedings.svelte";
+    import {paleLowerDocuments} from "../stores";
 
     export let studentBody: IStudentBody;
     export let semester: Interval;
@@ -30,9 +31,9 @@
             <IconForLevel level={calculator.getBalanceLevel()}/>
             Haushaltsrechnungen
         </h5>
-        <ul>
+        <ul class="documents level-{calculator.getBalanceLevel()} {$paleLowerDocuments ? 'pale' : ''}">
             {#each calculator.getRelevantBalances() as balance}
-                <li>
+                <li class="document level-{VerdictCalculator.getWorstAnnotationLevel(balance.annotations)}">
                     <SingleDocument document={balance} {studentBody}/>
                 </li>
             {:else}
@@ -76,5 +77,11 @@
         margin-top: 0;
         margin-left: 0;
         list-style: none !important;
+    }
+
+    .pale.documents.level-Ok .document.level-Warning,
+    .pale.documents.level-Ok .document.level-Error,
+    .pale.documents.level-Warning .document.level-Error {
+        opacity: 0.3;
     }
 </style>

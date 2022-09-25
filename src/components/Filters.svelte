@@ -1,6 +1,7 @@
 <script type="ts">
     import {
         compactMode,
+        paleLowerDocuments,
         showFilenames,
         showOnlySemestersWithPayoutRequests,
         showOnlySemestersWithStar,
@@ -38,6 +39,12 @@
         <label class="checkbox">
             <input type="checkbox" bind:checked={$showFilenames}>
             Dateinamen anzeigen
+        </label>
+    </li>
+    <li>
+        <label class="checkbox">
+            <input type="checkbox" bind:checked={$paleLowerDocuments}>
+            Dokumente blass anzeigen, die ein niedrigeres Level als die Oberkategorie haben
         </label>
     </li>
 </ul>

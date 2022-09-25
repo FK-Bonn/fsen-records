@@ -5,6 +5,8 @@
     import SingleDocument from "./SingleDocument.svelte";
     import Cross from "../icons/Cross.svelte";
     import Questionmark from "../icons/Questionmark.svelte";
+    import {VerdictCalculator} from "../Calculator";
+    import {paleLowerDocuments} from "../stores";
 
     export let overallLevel: AnnotationLevel;
     export let documents: IAnnotatedDocument[];
@@ -17,30 +19,34 @@
     <IconForLevel level={overallLevel}/>
     {title}
 </h5>
-{#each documents as document}
-    <SingleDocumentWithoutReferences {document} {studentBody}/>
-    <ul class="prots">
-        {#each document.resolvedReferences as reference}
-            <li>
-                <b>{proceedingsTitle}:</b><br>
-                <SingleDocument document={reference} {studentBody}/>
-            </li>
-        {:else}
-            <li>
-                <b>{proceedingsTitle}:</b>
-                {#if document.checked}
-                    <Cross/>
+<div class="documents level-{overallLevel} {$paleLowerDocuments ? 'pale' : ''}">
+    {#each documents as document}
+        <div class="document level-{VerdictCalculator.getWorstAnnotationLevel(document.annotations)}">
+            <SingleDocumentWithoutReferences {document} {studentBody}/>
+            <ul class="prots">
+                {#each document.resolvedReferences as reference}
+                    <li>
+                        <b>{proceedingsTitle}:</b><br>
+                        <SingleDocument document={reference} {studentBody}/>
+                    </li>
                 {:else}
-                    <Questionmark/>
-                {/if}
-                ?
-            </li>
-        {/each}
-    </ul>
-{:else}
-    <Cross/>
-    Fehlt!
-{/each}
+                    <li>
+                        <b>{proceedingsTitle}:</b>
+                        {#if document.checked}
+                            <Cross/>
+                        {:else}
+                            <Questionmark/>
+                        {/if}
+                        ?
+                    </li>
+                {/each}
+            </ul>
+        </div>
+    {:else}
+        <Cross/>
+        Fehlt!
+    {/each}
+</div>
 
 <style>
     h5.title {
@@ -59,5 +65,11 @@
 
     ul.prots {
         margin-left: 1em;
+    }
+
+    .pale.documents.level-Ok .document.level-Warning,
+    .pale.documents.level-Ok .document.level-Error,
+    .pale.documents.level-Warning .document.level-Error {
+        opacity: 0.3;
     }
 </style>
