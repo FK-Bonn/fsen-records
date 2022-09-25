@@ -10,6 +10,7 @@
 
     export let overallLevel: AnnotationLevel;
     export let documents: IAnnotatedDocument[];
+    export let covered: boolean;
     export let title: string;
     export let proceedingsTitle: string;
     export let studentBody: IStudentBody;
@@ -20,6 +21,12 @@
     {title}
 </h5>
 <div class="documents level-{overallLevel} {$paleLowerDocuments ? 'pale' : ''}">
+    {#if documents.length > 0 && !covered}
+        <li>
+            <Cross/>
+            Semester nicht vollständig abgedeckt
+        </li>
+    {/if}
     {#each documents as document}
         <div class="document level-{VerdictCalculator.getWorstAnnotationLevel(document.annotations)}">
             <SingleDocumentWithoutReferences {document} {studentBody}/>

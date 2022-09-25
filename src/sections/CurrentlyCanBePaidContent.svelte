@@ -71,6 +71,7 @@
                 proceedingsTitle="Beschluss"
                 overallLevel={calculator.getCurrentFinancialYearBudgetLevel()}
                 documents={calculator.getRelevantBudgetsForCurrentFinancialYear()}
+                covered={calculator.isCurrentFinanicalYearCoveredByBudgets()}
                 {studentBody}/>
 
         <RelevantDocumentsWithProceedings
@@ -78,6 +79,7 @@
                 proceedingsTitle="Beschluss"
                 overallLevel={calculator.getPreviousFinancialYearBudgetLevel()}
                 documents={calculator.getRelevantBudgetsForPreviousFinancialYear()}
+                covered={calculator.isPreviousFinanicalYearCoveredByBudgets()}
                 {studentBody}/>
 
         <h5 class="title is-5">
@@ -102,6 +104,7 @@
                 proceedingsTitle="Wahl der Kassenprüfer*innen"
                 overallLevel={calculator.getCashAuditLevel()}
                 documents={calculator.getRelevantCashAuditsForPreviousFinancialYear()}
+                covered={calculator.isPreviousFinancialYearCoveredByCashAudits()}
                 {studentBody}/>
     </div>
 </div>

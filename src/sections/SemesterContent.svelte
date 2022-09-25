@@ -25,6 +25,7 @@
                 proceedingsTitle="Beschluss"
                 overallLevel={calculator.getBudgetLevel()}
                 documents={calculator.getRelevantBudgets()}
+                covered={calculator.isSemesterCoveredByBudgets()}
                 {studentBody}/>
 
         <h5 class="title is-5">
@@ -32,6 +33,12 @@
             Haushaltsrechnungen
         </h5>
         <ul class="documents level-{calculator.getBalanceLevel()} {$paleLowerDocuments ? 'pale' : ''}">
+            {#if calculator.getRelevantBalances().length > 0 && !calculator.isSemesterCoveredByBalances()}
+                <li>
+                    <Cross/>
+                    Semester nicht vollständig abgedeckt
+                </li>
+            {/if}
             {#each calculator.getRelevantBalances() as balance}
                 <li class="document level-{VerdictCalculator.getWorstAnnotationLevel(balance.annotations)}">
                     <SingleDocument document={balance} {studentBody}/>
@@ -49,6 +56,7 @@
                 proceedingsTitle="Wahl der Kassenprüfer*innen"
                 overallLevel={calculator.getCashAuditLevel()}
                 documents={calculator.getRelevantCashAudits()}
+                covered={calculator.isSemesterCoveredByCashAudits()}
                 {studentBody}/>
 
         <h5 class="title is-5">

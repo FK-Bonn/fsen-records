@@ -132,14 +132,21 @@ export class CurrentlyCanBePaidCalculator {
         }
     }
 
-    public getPreviousFinancialYearBudgetLevel() {
+    public getPreviousFinancialYearBudgetLevel(): AnnotationLevel {
         return this.getBudgetLevel(this.getPreviousFinancialYear());
     }
 
-    public getCurrentFinancialYearBudgetLevel() {
+    public isPreviousFinanicalYearCoveredByBudgets(): boolean {
+        return this.getPreviousFinancialYear().isCoveredBy(this.studentBody.budgets);
+    }
+
+    public getCurrentFinancialYearBudgetLevel(): AnnotationLevel {
         return this.getBudgetLevel(this.getCurrentFinancialYear());
     }
 
+    public isCurrentFinanicalYearCoveredByBudgets(): boolean {
+        return this.getCurrentFinancialYear().isCoveredBy(this.studentBody.budgets);
+    }
 
     private getBudgetLevel(interval: Interval): AnnotationLevel {
         return this.getLevelForDocuments(interval, this.studentBody.budgets, true);
@@ -151,6 +158,10 @@ export class CurrentlyCanBePaidCalculator {
 
     public getCashAuditLevel(): AnnotationLevel {
         return this.getLevelForDocuments(this.getPreviousFinancialYear(), this.studentBody.cashAudits, true);
+    }
+
+    public isPreviousFinancialYearCoveredByCashAudits(): boolean {
+        return this.getPreviousFinancialYear().isCoveredBy(this.studentBody.cashAudits);
     }
 
     private getLevelForDocuments(interval: Interval, documents: IAnnotatedDocument[], requireResolvedReference: boolean = false): AnnotationLevel {
@@ -315,12 +326,24 @@ export class SemesterCalculator {
         return this.getLevelForDocuments(this.studentBody.budgets, true);
     }
 
+    public isSemesterCoveredByBudgets(): boolean {
+        return this.semester.isCoveredBy(this.studentBody.budgets);
+    }
+
     public getBalanceLevel(): AnnotationLevel {
         return this.getLevelForDocuments(this.studentBody.balances);
     }
 
+    public isSemesterCoveredByBalances(): boolean {
+        return this.semester.isCoveredBy(this.studentBody.balances);
+    }
+
     public getCashAuditLevel(): AnnotationLevel {
         return this.getLevelForDocuments(this.studentBody.cashAudits, true);
+    }
+
+    public isSemesterCoveredByCashAudits(): boolean {
+        return this.semester.isCoveredBy(this.studentBody.cashAudits);
     }
 
     private getLevelForDocuments(documents: IAnnotatedDocument[], requireResolvedReference: boolean = false): AnnotationLevel {
