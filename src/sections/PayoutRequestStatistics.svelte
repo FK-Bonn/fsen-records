@@ -27,6 +27,16 @@
         return headers;
     }
 
+    const totalSum = (status: string) => {
+        let value = 0;
+        if (semesters) {
+            for (let semester of semesters.values()) {
+                value += semester.get(status) || 0;
+            }
+        }
+        return value;
+    }
+
     export let data: IData;
     $: semesters = mangleData(data.payoutRequests);
     $: headers = getHeaders(data.payoutRequests);
@@ -56,6 +66,20 @@
         </tr>
     {/each}
     </tbody>
+    <tfoot>
+    <tr>
+        <th>Semester</th>
+        {#each headers as header}
+            <th>{header}</th>
+        {/each}
+    </tr>
+    <tr>
+        <th>Gesamt</th>
+        {#each headers as header}
+            <th>{euro(totalSum(header))}</th>
+        {/each}
+    </tr>
+    </tfoot>
 </table>
 
 <style>
