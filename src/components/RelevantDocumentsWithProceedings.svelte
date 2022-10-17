@@ -24,7 +24,7 @@
     {#if documents.length > 0 && !covered}
         <li>
             <Cross/>
-            Semester nicht vollständig abgedeckt
+            Zeitraum nicht vollständig abgedeckt
         </li>
     {/if}
     {#each documents as document}
