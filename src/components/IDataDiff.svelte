@@ -88,6 +88,11 @@
             const firstStudentBody = first.studentBodies.get(fs);
             const secondStudentBody = second.studentBodies.get(fs);
             const diff = emptyStudentBodyDiff(fs, firstStudentBody.name);
+            if (!secondStudentBody) {
+                diff.name += ' (not found)';
+                diffs.push(diff);
+                continue;
+            }
 
             for (let documentType of ['balances', 'budgets', 'cashAudits', 'electionResults', 'proceedings']) {
                 for (let document of firstStudentBody[documentType]) {
