@@ -3,7 +3,10 @@ import {
     IAnnotatedDocument,
     IAnnotation,
     IData,
+    IFsData,
     IPayoutRequestData,
+    IPermission,
+    IProtectedFsData,
     IUserWithPermissions
 } from "./Interfaces";
 import type {Interval} from "./Calculator";
@@ -111,7 +114,7 @@ export const loadLoggedInUser = async (token: string): Promise<IUserWithPermissi
             if (resp.ok) {
                 return resp.json();
             } else {
-                Promise.reject('An error occured');
+                return Promise.reject('An error occured');
             }
         })
         .then(json => {
@@ -128,7 +131,7 @@ export const loadUsersList = async (token: string): Promise<Map<string, IUserWit
             if (resp.ok) {
                 return resp.json();
             } else {
-                Promise.reject('An error occured');
+                return Promise.reject('An error occured');
             }
         })
         .then(json => {
@@ -139,7 +142,7 @@ export const loadUsersList = async (token: string): Promise<Map<string, IUserWit
         });
 }
 
-export const createAccount = async (username: string, password: string, admin: boolean, permissions: string[], token: string): Promise<{ user: IUserWithPermissions | null, message: string | null }> => {
+export const createAccount = async (username: string, password: string, admin: boolean, permissions: IPermission[], token: string): Promise<{ user: IUserWithPermissions | null, message: string | null }> => {
     return fetch(backendPrefix + '/user/create',
         {
             method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
@@ -161,7 +164,7 @@ export const createAccount = async (username: string, password: string, admin: b
         });
 }
 
-export const editPermissions = async (username: string, admin: boolean, permissions: string[], token: string): Promise<{ user: IUserWithPermissions | null, message: string | null }> => {
+export const editPermissions = async (username: string, admin: boolean, permissions: IPermission[], token: string): Promise<{ user: IUserWithPermissions | null, message: string | null }> => {
     return fetch(backendPrefix + '/user/permissions',
         {
             method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
@@ -276,4 +279,29 @@ export const pojoToIData = (data: any):IData=>{
         }
     }
     return data as IData;
+}
+
+export const permissionLevelToString = (level: number) => {
+    let levelString = '???';
+    switch (level) {
+        case 0:
+            levelString = '–';
+            break;
+        case 1:
+            levelString = '👀';
+            break;
+        case 2:
+            levelString = '✏️';
+            break;
+    }
+    return levelString;
+}
+
+export const permissionToString = (permission: IPermission) => {
+    const level = permissionLevelToString(permission.level);
+    return `${permission.fs} (${level})`;
+}
+
+export const hasFsPermission = (permissions: IPermission[], fs: string, minLevel: number = 1): boolean => {
+    return permissions.filter(p => p.fs === fs && p.level >= minLevel).length > 0;
 }

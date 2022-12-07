@@ -1,14 +1,14 @@
 <script type="ts">
-    import type {IUserWithPermissions} from "../Interfaces";
-    import {fsen, loggedInUser, token} from "../stores";
-    import {createAccount, loadUsersList} from "../util";
+    import type {IPermission, IUserWithPermissions} from "../Interfaces";
+    import {loggedInUser, token} from "../stores";
+    import {createAccount, hasFsPermission, permissionLevelToString, permissionToString} from "../util";
 
     let activeTab: string = 'create_account';
 
     let createAccountUsername: string = '';
     let createAccountPassword: string = '';
     let createAccountAdmin: boolean = false;
-    let createAccountPermissions: string[] = [...$loggedInUser.permissions];
+    let createAccountPermissions: IPermission[] = [...$loggedInUser.permissions];
     let createdAccount: IUserWithPermissions | null = null;
     let createdMessage: string | null = null;
 
@@ -25,11 +25,12 @@
         createdMessage = createResult.message;
     }
 
-    const toggleCreatePermission = (fs: string) => {
-        if (createAccountPermissions.includes(fs)) {
-            createAccountPermissions = createAccountPermissions.filter(value => value !== fs);
+    const updateCreatePermission = (fs: string, level: number) => {
+        if (hasFsPermission(createAccountPermissions, fs, level)) {
+            createAccountPermissions = createAccountPermissions.filter(cap => cap.fs !== fs);
         } else {
-            createAccountPermissions = [...createAccountPermissions, fs].sort();
+            createAccountPermissions = createAccountPermissions.filter(cap => cap.fs !== fs);
+            createAccountPermissions = [...createAccountPermissions, {fs: fs, level: level}].sort();
         }
     }
 
@@ -63,13 +64,21 @@
 
     <b>Berechtigungen:</b>
 
-    {#each $loggedInUser.permissions as fs}
+    {#each $loggedInUser.permissions as p}
         <div class="field">
             <label class="checkbox">
-                <input type="checkbox" checked={createAccountPermissions.includes(fs)}
-                       on:click={()=>toggleCreatePermission(fs)}>
-                {fs}
+                <input type="checkbox" checked={hasFsPermission(createAccountPermissions, p.fs, 1)}
+                       on:click={()=>updateCreatePermission(p.fs, 1)}>
+                {permissionLevelToString(1)}
             </label>
+            {#if hasFsPermission($loggedInUser.permissions, p.fs, 2)}
+                <label class="checkbox">
+                    <input type="checkbox" checked={hasFsPermission(createAccountPermissions, p.fs, 2)}
+                           on:click={()=>updateCreatePermission(p.fs, 2)}>
+                    {permissionLevelToString(2)}
+                </label>
+            {/if}
+            | {p.fs}
         </div>
     {/each}
 

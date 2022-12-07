@@ -10,7 +10,7 @@
                 if (resp.ok) {
                     return resp.blob();
                 } else {
-                    Promise.reject('An error occured');
+                    return Promise.reject('An error occured');
                 }
             })
             .then(blob => {

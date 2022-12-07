@@ -1,8 +1,16 @@
 <script type="ts">
-    import type {IUserWithPermissions} from "../Interfaces";
+    import type {IPermission, IUserWithPermissions} from "../Interfaces";
     import {onMount} from "svelte";
     import {fsen, token} from "../stores";
-    import {createAccount, editPermissions, loadUsersList, resetPassword} from "../util";
+    import {
+        createAccount,
+        editPermissions,
+        hasFsPermission,
+        loadUsersList,
+        permissionLevelToString,
+        permissionToString,
+        resetPassword
+    } from "../util";
 
     let usersList: Map<string, IUserWithPermissions> | null = null;
     let activeTab: string = 'accounts';
@@ -10,13 +18,13 @@
     let createAccountUsername: string = '';
     let createAccountPassword: string = '';
     let createAccountAdmin: boolean = false;
-    let createAccountPermissions: string[] = [];
+    let createAccountPermissions: IPermission[] = [];
     let createdAccount: IUserWithPermissions | null = null;
     let createdMessage: string | null = null;
 
     let editPermissionsUsername: string = '';
     let editPermissionsAdmin: boolean = false;
-    let editPermissionsPermissions: string[] = [];
+    let editPermissionsPermissions: IPermission[] = [];
     let updatedAccount: IUserWithPermissions | null = null;
     let permissionsMessage: string | null = null;
 
@@ -24,19 +32,21 @@
     let resetPasswordPassword: string = '';
     let resetMessage: string | null = null;
 
-    const toggleCreatePermission = (fs: string) => {
-        if (createAccountPermissions.includes(fs)) {
-            createAccountPermissions = createAccountPermissions.filter(value => value !== fs);
+    const updateCreatePermission = (fs: string, level: number) => {
+        if (hasFsPermission(createAccountPermissions, fs, level)) {
+            createAccountPermissions = createAccountPermissions.filter(p => p.fs !== fs);
         } else {
-            createAccountPermissions = [...createAccountPermissions, fs].sort();
+            createAccountPermissions = createAccountPermissions.filter(p => p.fs !== fs);
+            createAccountPermissions = [...createAccountPermissions, {fs:fs, level: level}].sort();
         }
     }
 
-    const togglePermission = (fs: string) => {
-        if (editPermissionsPermissions.includes(fs)) {
-            editPermissionsPermissions = editPermissionsPermissions.filter(value => value !== fs);
+    const updatePermission = (fs: string, level: number) => {
+        if (hasFsPermission(editPermissionsPermissions, fs, level)) {
+            editPermissionsPermissions = editPermissionsPermissions.filter(p => p.fs !== fs);
         } else {
-            editPermissionsPermissions = [...editPermissionsPermissions, fs].sort();
+            editPermissionsPermissions = editPermissionsPermissions.filter(p => p.fs !== fs);
+            editPermissionsPermissions = [...editPermissionsPermissions, {fs:fs, level: level}].sort();
         }
     }
 
@@ -117,7 +127,7 @@
                 <li>
                     {usersList.get(userId).username}
                     {#if usersList.get(userId).admin}<span class="tag is-info">Admin</span>{/if}
-                    ({usersList.get(userId).permissions.join(', ')})
+                    ({usersList.get(userId).permissions.map(permissionToString).join(', ')})
                     <button class="button is-small" on:click={()=>loadEditPermissions(usersList.get(userId))}>
                         Rechte bearbeiten
                     </button>
@@ -157,10 +167,16 @@
     {#each $fsen as fs}
         <div class="field">
             <label class="checkbox">
-                <input type="checkbox" checked={createAccountPermissions.includes(fs)}
-                       on:click={()=>toggleCreatePermission(fs)}>
-                {fs}
+                <input type="checkbox" checked={hasFsPermission(createAccountPermissions, fs, 1)}
+                       on:click={()=>updateCreatePermission(fs, 1)}>
+                {permissionLevelToString(1)}
             </label>
+            <label class="checkbox">
+                <input type="checkbox" checked={hasFsPermission(createAccountPermissions, fs, 2)}
+                       on:click={()=>updateCreatePermission(fs, 2)}>
+                {permissionLevelToString(2)}
+            </label>
+                | {fs}
         </div>
     {/each}
 
@@ -192,10 +208,16 @@
     {#each $fsen as fs}
         <div class="field">
             <label class="checkbox">
-                <input type="checkbox" checked={editPermissionsPermissions.includes(fs)}
-                       on:click={()=>togglePermission(fs)}>
-                {fs}
+                <input type="checkbox" checked={hasFsPermission(editPermissionsPermissions, fs, 1)}
+                       on:click={()=>updatePermission(fs, 1)}>
+                {permissionLevelToString(1)}
             </label>
+            <label class="checkbox">
+                <input type="checkbox" checked={hasFsPermission(editPermissionsPermissions, fs, 2)}
+                       on:click={()=>updatePermission(fs, 2)}>
+                {permissionLevelToString(2)}
+            </label>
+            | {fs}
         </div>
     {/each}
 

@@ -58,7 +58,12 @@ export interface IData {
 export interface IUserWithPermissions {
     username: string
     admin: boolean
-    permissions: string[]
+    permissions: IPermission[]
+}
+
+export interface IPermission {
+    fs: string
+    level: number
 }
 
 

@@ -7,11 +7,12 @@
     import {loggedInUser, showFilenames} from "../stores";
     import DocumentName from "./DocumentName.svelte";
     import DownloadButton from "./DownloadButton.svelte";
+    import {hasFsPermission} from "../util";
 
     export let document: IAnnotatedDocument;
     export let withReferences: boolean = true;
     export let studentBody: IStudentBody;
-    let displayDownloadButton = $loggedInUser && studentBody && ($loggedInUser.admin || $loggedInUser.permissions.includes(studentBody.id));
+    let displayDownloadButton = $loggedInUser && studentBody && ($loggedInUser.admin || hasFsPermission($loggedInUser.permissions, studentBody.id));
 </script>
 
 {#if document.checked}
