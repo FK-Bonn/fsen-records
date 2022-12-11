@@ -97,3 +97,23 @@ export interface IStudentBodyDiff {
     statutesDiff: IStringDiff | null;
     modifiedPayoutRequests: IPayoutRequestDiff[];
 }
+
+export interface IEmailAddress {
+    address: string
+    usages: string[]
+}
+
+export interface IFsData {
+    email: string
+    phone: string
+    website: string
+    address: string
+    other: object
+}
+
+export interface IProtectedFsData {
+    email_addresses: IEmailAddress[]
+    iban: string
+    bic: string
+    other: object
+}

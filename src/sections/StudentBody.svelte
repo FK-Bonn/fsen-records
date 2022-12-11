@@ -7,12 +7,16 @@
     import SemesterSection from "./SemesterSection.svelte";
     import People from "../icons/People.svelte";
     import Warning from "../icons/Warning.svelte";
+    import {loggedInUser} from "../stores";
+    import FsDataSection from "./FsDataSection.svelte";
+    import {hasFsPermission} from "../util";
 
     export let payoutRequests: Map<string, IPayoutRequestData> | undefined;
     export let budgetTitles: { [semester: string]: string };
     export let semesters: Interval[];
     export let studentBody: IStudentBody;
     $: calculator = new CurrentlyCanBePaidCalculator(studentBody);
+    $: showData = $loggedInUser && studentBody && ($loggedInUser.admin || hasFsPermission($loggedInUser.permissions, studentBody.id));
 </script>
 
 <li>
@@ -24,7 +28,7 @@
             {studentBody.name}
         </h2>
 
-        <p class="box">
+        <div class="box">
             {#if studentBody.statutes.startsWith('https://')}
                 <a href="{studentBody.statutes}">Fachschaftssatzung</a> ·
             {:else}
@@ -43,7 +47,11 @@
             <br/>
             Vergangenes Haushaltsjahr:
             <DateRange interval={calculator.getPreviousFinancialYear()}/>
-        </p>
+
+            {#if showData}
+                <FsDataSection {studentBody}/>
+            {/if}
+        </div>
 
         <CurrentlyCanBePaidSection {studentBody}/>
 

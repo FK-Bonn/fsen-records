@@ -281,6 +281,67 @@ export const pojoToIData = (data: any):IData=>{
     return data as IData;
 }
 
+export const getFsData = async (fs: string, token: string): Promise<IFsData | null> => {
+    return fetch(backendPrefix + '/data/' + fs, {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                return Promise.reject('An error occured');
+            }
+        })
+        .then(json => {
+            return json;
+        });
+}
+
+export const putFsData = async (fs: string, data: IFsData, token: string): Promise<void> => {
+    return fetch(backendPrefix + '/data/' + fs, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+        body: JSON.stringify(data)
+    })
+        .then(resp => {
+            if (resp.ok) {
+                return;
+            } else {
+                return Promise.reject('An error occured');
+            }
+        });
+}
+
+export const getProtectedFsData = async (fs: string, token: string): Promise<IProtectedFsData | null> => {
+    return fetch(backendPrefix + '/data/' + fs + '/protected', {
+        method: 'GET',
+        headers: {'Authorization': `Bearer ${token}`}
+    })
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                return Promise.reject('An error occured');
+            }
+        })
+        .then(json => {
+            return json;
+        });
+}
+
+export const putProtectedFsData = async (fs: string, data: IProtectedFsData, token: string): Promise<void> => {
+    return fetch(backendPrefix + '/data/' + fs + '/protected', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+        body: JSON.stringify(data)
+    })
+        .then(resp => {
+            if (resp.ok) {
+                return;
+            } else {
+                return Promise.reject('An error occured');
+            }
+        });
+}
+
 export const permissionLevelToString = (level: number) => {
     let levelString = '???';
     switch (level) {
