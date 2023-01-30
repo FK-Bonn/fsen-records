@@ -1,5 +1,6 @@
 import {
     AnnotationLevel,
+    IAllFsData,
     IAnnotatedDocument,
     IAnnotation,
     IData,
@@ -281,6 +282,22 @@ export const pojoToIData = (data: any):IData=>{
     return data as IData;
 }
 
+export const getAllFsData = async (token: string): Promise<IAllFsData | null> => {
+    if(!token){
+        return null;
+    }
+    return fetch(backendPrefix + '/data', {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                return Promise.reject('An error occured');
+            }
+        })
+        .then(json => {
+            return json;
+        });
+}
 export const getFsData = async (fs: string, token: string): Promise<IFsData | null> => {
     return fetch(backendPrefix + '/data/' + fs, {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
         .then(resp => {
@@ -292,6 +309,9 @@ export const getFsData = async (fs: string, token: string): Promise<IFsData | nu
         })
         .then(json => {
             return json;
+        })
+        .catch(() => {
+            return null
         });
 }
 

@@ -5,9 +5,9 @@
     import {onDestroy, onMount} from "svelte";
     import {backendPrefix, refreshIntervalMilliseconds, siteTitle} from "./settings";
     import PayoutRequestStatistics from "./sections/PayoutRequestStatistics.svelte";
-    import {fsen} from "./stores";
+    import {allFsData, fsen, token} from "./stores";
     import UserMenu from "./sections/UserMenu.svelte";
-    import {getUrlParameter, pojoToIData} from "./util";
+    import {getAllFsData, getUrlParameter, pojoToIData} from "./util";
     import DiffView from "./sections/DiffView.svelte";
 
 
@@ -41,6 +41,12 @@
             });
     };
 
+
+    const loadAllFsData = () => {
+        getAllFsData($token).then(data => $allFsData = data);
+    };
+
+
     let fetchedData: IData | null = null;
     let fetchDataError: string | null = null;
     let errors: string[] = [];
@@ -55,6 +61,7 @@
         onMount(() => {
             loadError();
             loadData();
+            loadAllFsData();
         });
 
         onDestroy(() => clearInterval(interval));

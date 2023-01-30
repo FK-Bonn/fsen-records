@@ -1,5 +1,5 @@
 import {writable} from 'svelte/store';
-import type {IUserWithPermissions} from "./Interfaces";
+import type {IAllFsData, IUserWithPermissions} from "./Interfaces";
 
 const lsGetBool = (key: string, default_value: boolean = false): boolean => {
     try {
@@ -42,6 +42,7 @@ export const paleLowerDocuments = writable(lsGetBool('paleLowerDocuments', true)
 export const token = writable(lsGetString('token'));
 export const loggedInUser = writable<IUserWithPermissions|null>(null);
 export const fsen = writable<string[]>([]);
+export const allFsData = writable<IAllFsData>({});
 
 showOnlyWhoCurrentlyCanBePaid.subscribe(value => {
     lsSetBool("showOnlyWhoCurrentlyCanBePaid", value);

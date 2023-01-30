@@ -4,8 +4,8 @@
     export let data: IProtectedFsData;
 </script>
 
-<div class="box has-background-warning-light">
-    <h4>Interne Daten</h4>
+<details class="box has-background-warning-light">
+    <summary>Interne Daten</summary>
     <dl>
         <dt>IBAN</dt>
         <dd>{data.iban}</dd>
@@ -33,7 +33,7 @@
         {/each}
         </tbody>
     </table>
-</div>
+</details>
 
 
 <style>
@@ -44,5 +44,14 @@
     table {
         background-color: rgba(0, 0, 0, 0);
         width: auto;
+    }
+
+    summary {
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    details[open] > summary:first-of-type {
+        margin-bottom: 1em;
     }
 </style>

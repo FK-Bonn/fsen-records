@@ -1,8 +1,8 @@
 <script type="ts">
 
     import {backendPrefix} from "../settings";
-    import {loggedInUser, token} from "../stores";
-    import {loadLoggedInUser} from "../util";
+    import {allFsData, loggedInUser, token} from "../stores";
+    import {getAllFsData, loadLoggedInUser} from "../util";
 
     const login = () => {
         const formData = new FormData();
@@ -22,6 +22,9 @@
             })
             .then(user => {
                 $loggedInUser = user;
+                return getAllFsData($token);
+            }).then(fsData => {
+                $allFsData = fsData;
             }, (message) => {
                 alert(message);
             });

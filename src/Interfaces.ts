@@ -117,3 +117,7 @@ export interface IProtectedFsData {
     bic: string
     other: object
 }
+
+export interface IAllFsData {
+    [key: string]: { data?: IFsData, protected_data?: IProtectedFsData }
+}

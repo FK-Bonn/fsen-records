@@ -1,6 +1,6 @@
 <script type="ts">
     import type {IFsData, IStudentBody, IProtectedFsData} from "../Interfaces";
-    import {loggedInUser, token} from "../stores";
+    import {allFsData, loggedInUser, token} from "../stores";
     import {getFsData, getProtectedFsData, hasFsPermission, putFsData, putProtectedFsData} from "../util";
     import ErrorList from "../components/ErrorList.svelte";
     import FsDataDisplay from "../components/FsDataDisplay.svelte";
@@ -13,6 +13,8 @@
     let protectedDataPromise: Promise<IProtectedFsData> | null = null;
     let editFsData = false;
     let editProtectedFsData = false;
+    $: data = $allFsData.hasOwnProperty(studentBody.id) ? $allFsData[studentBody.id].data : null;
+    $: protectedData = $allFsData.hasOwnProperty(studentBody.id) ? $allFsData[studentBody.id].protected_data : null;
 
     const saveFsData = (data: IFsData) => {
         putFsData(studentBody.id, data, $token).then(() => reloadFsData())
@@ -42,70 +44,54 @@
         editProtectedFsData = !editProtectedFsData;
     }
 
-    const loadData = () => {
-        loadFsData();
-        if ($loggedInUser && studentBody && ($loggedInUser.admin || hasFsPermission($loggedInUser.permissions, studentBody.id, 2))) {
-            loadProtectedFsData();
-        }
-    }
     const loadFsData = () => {
-        dataPromise = getFsData(studentBody.id, $token);
+        getFsData(studentBody.id, $token).then(data => {
+            $allFsData[studentBody.id].data = data;
+        });
     }
     const loadProtectedFsData = () => {
-        protectedDataPromise = getProtectedFsData(studentBody.id, $token);
+        getProtectedFsData(studentBody.id, $token).then(data => {
+            $allFsData[studentBody.id].protected_data = data;
+        });
     }
 </script>
 
 <div class="fs-data content">
-    {#if dataPromise}
-        {#await dataPromise}
-            Daten werden geladen…
-        {:then data}
-            {#if editFsData}
-                <button on:click={()=>saveFsData(data)} class="button is-small is-bordered is-pulled-right">
-                    Speichern
-                </button>
-                <button on:click={()=>reloadFsData()} class="button is-small is-bordered is-pulled-right">
-                    Abbrechen
-                </button>
-                <FsDataEdit {data}/>
-            {:else}
-                {#if protectedDataPromise}
-                    <button on:click={()=>makeFsDataEditable()} class="button is-small is-bordered is-pulled-right">
-                        Bearbeiten
-                    </button>
-                {/if}
-                <FsDataDisplay {data}/>
-            {/if}
-        {:catch error}
-            <ErrorList errors={['Die Daten konnten leider nicht geladen werden.']}/>
-        {/await}
-    {/if}
-    {#if protectedDataPromise}
-        {#await protectedDataPromise}
-            Daten werden geladen…
-        {:then data}
-            {#if editProtectedFsData}
-                <button on:click={()=>saveProtectedFsData(data)} class="button is-small is-bordered is-pulled-right">
-                    Speichern
-                </button>
-                <button on:click={()=>reloadProtectedFsData()} class="button is-small is-bordered is-pulled-right">
-                    Abbrechen
-                </button>
-                <ProtectedFsDataEdit {data}/>
-            {:else}
-                <button on:click={()=>makeProtectedFsDataEditable()}
-                        class="button is-small is-bordered is-pulled-right">
+    {#if data}
+        {#if editFsData}
+            <button on:click={()=>saveFsData(data)} class="button is-small is-bordered is-pulled-right">
+                Speichern
+            </button>
+            <button on:click={()=>reloadFsData()} class="button is-small is-bordered is-pulled-right">
+                Abbrechen
+            </button>
+            <FsDataEdit {data}/>
+        {:else}
+            {#if protectedData}
+                <button on:click={()=>makeFsDataEditable()} class="button is-small is-bordered is-pulled-right">
                     Bearbeiten
                 </button>
-                <ProtectedFsDataDisplay {data}/>
             {/if}
-        {:catch error}
-            <ErrorList errors={['Die Daten konnten leider nicht geladen werden.']}/>
-        {/await}
+            <FsDataDisplay {data}/>
+        {/if}
     {/if}
-    {#if !dataPromise && !protectedDataPromise}
-        <button class="button" on:click={()=>loadData()}>Daten laden</button>
+    {#if protectedData}
+        {#if editProtectedFsData}
+            <button on:click={()=>saveProtectedFsData(protectedData)}
+                    class="button is-small is-bordered is-pulled-right">
+                Speichern
+            </button>
+            <button on:click={()=>reloadProtectedFsData()} class="button is-small is-bordered is-pulled-right">
+                Abbrechen
+            </button>
+            <ProtectedFsDataEdit data="{protectedData}"/>
+        {:else}
+            <button on:click={()=>makeProtectedFsDataEditable()}
+                    class="button is-small is-bordered is-pulled-right">
+                Bearbeiten
+            </button>
+            <ProtectedFsDataDisplay data="{protectedData}"/>
+        {/if}
     {/if}
 </div>
 
