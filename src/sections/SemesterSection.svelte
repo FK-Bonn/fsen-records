@@ -59,7 +59,7 @@
             <DeadlineIcon  interval={semester}/>
         </p>
         <AttentionStar display={displayStar}/>
-        <PayoutRequest {payoutRequest} fsName={studentBody.name} {budgetTitle}/>
+        <PayoutRequest {payoutRequest} fsName={studentBody.name} fsId={studentBody.id} {budgetTitle}/>
         <button class="card-header-icon" aria-label="more options">
             <AngleIndicator {opened}/>
         </button>

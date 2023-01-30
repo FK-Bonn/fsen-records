@@ -13,8 +13,8 @@
     let protectedDataPromise: Promise<IProtectedFsData> | null = null;
     let editFsData = false;
     let editProtectedFsData = false;
-    $: data = $allFsData.hasOwnProperty(studentBody.id) ? $allFsData[studentBody.id].data : null;
-    $: protectedData = $allFsData.hasOwnProperty(studentBody.id) ? $allFsData[studentBody.id].protected_data : null;
+    $: data = $allFsData?.hasOwnProperty(studentBody.id) ? $allFsData[studentBody.id].data : null;
+    $: protectedData = $allFsData?.hasOwnProperty(studentBody.id) ? $allFsData[studentBody.id].protected_data : null;
 
     const saveFsData = (data: IFsData) => {
         putFsData(studentBody.id, data, $token).then(() => reloadFsData())

@@ -1,7 +1,8 @@
 <script type="ts">
-    import type {IPayoutRequestData} from "../Interfaces";
+    import type {IAllFsData, IPayoutRequestData} from "../Interfaces";
     import {euro} from "../util";
     import CopyableTag from "./CopyableTag.svelte";
+    import {allFsData} from "../stores";
 
     const getTagClass = (payoutRequest: IPayoutRequestData): string => {
         if (!payoutRequest) {
@@ -23,9 +24,16 @@
         return 'is-danger';
     }
 
-    const getTableLine = (payoutRequest: IPayoutRequestData, fsName: string, budgetTitle: string): string => {
+    const getTableLine = (allData: IAllFsData, payoutRequest: IPayoutRequestData, fsName: string, fsId: string, budgetTitle: string): string => {
         if (!payoutRequest) {
             return '';
+        }
+        let iban = 'IBAN';
+        if (allData?.hasOwnProperty(fsId)) {
+            const fsData = allData[fsId];
+            if (fsData.protected_data) {
+                iban = fsData.protected_data.iban;
+            }
         }
         return [
             budgetTitle,
@@ -33,15 +41,16 @@
             payoutRequest.id,
             payoutRequest.requestDate,
             euro(payoutRequest.amount),
-            'IBAN',
+            iban,
         ].join('\t')
     }
 
     export let fsName: string = '';
+    export let fsId: string = '';
     export let budgetTitle: string;
     export let payoutRequest: IPayoutRequestData;
     $: tagClass = getTagClass(payoutRequest);
-    $: tableLine = getTableLine(payoutRequest, fsName, budgetTitle);
+    $: tableLine = getTableLine($allFsData, payoutRequest, fsName, fsId, budgetTitle);
 </script>
 {#if payoutRequest}
     <div class="tags card-header-icon">
