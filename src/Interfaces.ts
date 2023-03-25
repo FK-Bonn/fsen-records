@@ -108,7 +108,23 @@ export interface IFsData {
     phone: string
     website: string
     address: string
+    serviceTimes: IServiceTimes
+    regularMeeting: IRegularMeeting
     other: object
+}
+
+export interface IServiceTimes {
+    monday: string
+    tuesday: string
+    wednesday: string
+    thursday: string
+    friday: string
+}
+
+export interface IRegularMeeting {
+    dayOfWeek: string
+    time: string
+    location: string
 }
 
 export interface IProtectedFsData {
