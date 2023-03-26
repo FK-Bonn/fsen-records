@@ -2,7 +2,6 @@
     import {loggedInUser, token} from "../stores";
     import AdminMenu from "./AdminMenu.svelte";
     import ChangePasswordMenu from "./ChangePasswordMenu.svelte";
-    import AdminMenuWrapper from "./AdminMenuWrapper.svelte";
 
     const logout = () => {
         $token = '';
@@ -72,7 +71,7 @@
 
 {#if showAdminMenu}
     <div class="box">
-        <AdminMenuWrapper isAdmin="{$loggedInUser.admin}"/>
+        <AdminMenu isAdmin="{$loggedInUser.admin}"/>
     </div>
 {/if}
 {#if showChangePasswordMenu}

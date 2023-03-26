@@ -165,11 +165,38 @@ export const createAccount = async (username: string, password: string, admin: b
         });
 }
 
-export const editPermissions = async (username: string, admin: boolean, permissions: IPermission[], token: string): Promise<{ user: IUserWithPermissions | null, message: string | null }> => {
+export const editPermissions = async (isAdmin: boolean, username: string, admin: boolean, permissions: IPermission[], token: string): Promise<{ user: IUserWithPermissions | null, message: string | null }> => {
+    if (isAdmin) {
+        return editPermissionsPost(username, admin, permissions, token);
+    } else {
+        return editPermissionsPatch(username, permissions, token);
+    }
+}
+export const editPermissionsPost = async (username: string, admin: boolean, permissions: IPermission[], token: string): Promise<{ user: IUserWithPermissions | null, message: string | null }> => {
     return fetch(backendPrefix + '/user/permissions',
         {
             method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
             body: JSON.stringify({username, admin, permissions})
+        })
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
+            }
+        })
+        .then(json => {
+            return {user: json, message: 'Rechte aktualisiert.'};
+        }, reason => {
+            return {user: null, message: reason};
+        });
+}
+
+export const editPermissionsPatch = async (username: string, permissions: IPermission[], token: string): Promise<{ user: IUserWithPermissions | null, message: string | null }> => {
+    return fetch(backendPrefix + '/user/permissions',
+        {
+            method: 'PATCH', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+            body: JSON.stringify({username, permissions})
         })
         .then(resp => {
             if (resp.ok) {
