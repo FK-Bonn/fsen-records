@@ -88,7 +88,7 @@ export const shouldDisplayStar = (level: AnnotationLevel, payoutRequest?: IPayou
     if (!completeLevels.includes(level)) {
         return false;
     }
-    return ['GESTELLT', 'IN BEARBEITUNG'].includes(payoutRequest.status);
+    return ['GESTELLT'].includes(payoutRequest.status);
 }
 
 export const calculateSemesterId = (interval?: Interval) => {

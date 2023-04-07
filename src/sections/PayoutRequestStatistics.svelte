@@ -16,7 +16,7 @@
         return retval;
     }
     const getHeaders = (data: Map<string, Map<string, IPayoutRequestData>>): string[] => {
-        const headers: string[] = ['GESTELLT', 'IN BEARBEITUNG', 'VOLLSTÄNDIG', 'ANGEWIESEN', 'ÜBERWIESEN'];
+        const headers: string[] = ['GESTELLT', 'VOLLSTÄNDIG', 'ANGEWIESEN', 'ÜBERWIESEN'];
         for (let [fs, semester] of data) {
             for (let [semesterkey, semesterdata] of semester) {
                 if (!headers.includes(semesterdata.status)) {

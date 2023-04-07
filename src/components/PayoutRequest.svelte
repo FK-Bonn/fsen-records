@@ -15,9 +15,6 @@
         if (status === 'VOLLSTÄNDIG') {
             return 'is-success';
         }
-        if (status === 'IN BEARBEITUNG') {
-            return 'is-info';
-        }
         if (status === 'GESTELLT') {
             return 'is-dark';
         }
