@@ -1,5 +1,6 @@
 <script type="ts">
-    import type {IPayoutRequestData, IStudentBody} from "../Interfaces";
+    import type {IStudentBody} from "../Interfaces";
+    import {INewPayoutRequestData} from "../Interfaces";
     import {CurrentlyCanBePaidCalculator, Interval} from "../Calculator";
     import DateRange from "../components/DateRange.svelte";
     import CurrentlyCanBePaidSection from "./CurrentlyCanBePaidSection.svelte";
@@ -11,7 +12,7 @@
     import FsDataSection from "./FsDataSection.svelte";
     import {hasFsPermission} from "../util";
 
-    export let payoutRequests: Map<string, IPayoutRequestData> | undefined;
+    export let payoutRequests: Map<string, INewPayoutRequestData> | undefined;
     export let budgetTitles: { [semester: string]: string };
     export let semesters: Interval[];
     export let studentBody: IStudentBody;

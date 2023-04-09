@@ -1,6 +1,5 @@
 <script type="ts">
-    import type {IAnnotatedDocument, IAnnotatedDocumentDiff, IPayoutRequestData} from "../../Interfaces";
-    import {euro} from "../../util";
+    import type {IAnnotatedDocument} from "../../Interfaces";
 
     const jsonRepresentationIsDifferent = (first, second) => {
         return JSON.stringify(first) !== JSON.stringify(second);

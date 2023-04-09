@@ -1,21 +1,21 @@
 <script type="ts">
-    import type {IData, IPayoutRequestData} from "../Interfaces";
-    import {euro} from "../util";
+    import {euroCents} from "../util";
+    import {INewPayoutRequestData} from "../Interfaces";
 
-    const mangleData = (data: Map<string, Map<string, IPayoutRequestData>>): Map<string, Map<string, number>> => {
+    const mangleData = (data: Map<string, Map<string, INewPayoutRequestData>>): Map<string, Map<string, number>> => {
         const retval: Map<string, Map<string, number>> = new Map<>();
         for (let [fs, semester] of data) {
             for (let [semesterkey, semesterdata] of semester) {
                 if (!retval.has(semesterkey)) {
                     retval.set(semesterkey, new Map<string, number>());
                 }
-                const newValue = (retval.get(semesterkey).get(semesterdata.status) || 0) + semesterdata.amount;
+                const newValue = (retval.get(semesterkey).get(semesterdata.status) || 0) + semesterdata.amount_cents;
                 retval.get(semesterkey).set(semesterdata.status, newValue);
             }
         }
         return retval;
     }
-    const getHeaders = (data: Map<string, Map<string, IPayoutRequestData>>): string[] => {
+    const getHeaders = (data: Map<string, Map<string, INewPayoutRequestData>>): string[] => {
         const headers: string[] = ['GESTELLT', 'VOLLSTÄNDIG', 'ANGEWIESEN', 'ÜBERWIESEN'];
         for (let [fs, semester] of data) {
             for (let [semesterkey, semesterdata] of semester) {
@@ -37,9 +37,9 @@
         return value;
     }
 
-    export let data: IData;
-    $: semesters = mangleData(data.payoutRequests);
-    $: headers = getHeaders(data.payoutRequests);
+    export let data: Map<string, Map<string, INewPayoutRequestData>>;
+    $: semesters = mangleData(data);
+    $: headers = getHeaders(data);
 </script>
 
 <h2 class="title is-2" id="finanicalstatus">
@@ -61,7 +61,7 @@
         <tr>
             <th>{semester}</th>
             {#each headers as status}
-                <td>{euro(semesters.get(semester).get(status))}</td>
+                <td>{euroCents(semesters.get(semester).get(status))}</td>
             {/each}
         </tr>
     {/each}
@@ -76,7 +76,7 @@
     <tr>
         <th>Gesamt</th>
         {#each headers as header}
-            <th>{euro(totalSum(header))}</th>
+            <th>{euroCents(totalSum(header))}</th>
         {/each}
     </tr>
     </tfoot>

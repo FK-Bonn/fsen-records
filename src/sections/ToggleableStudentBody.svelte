@@ -1,9 +1,9 @@
 <script type="ts">
     import StudentBody from "./StudentBody.svelte";
-    import type {IPayoutRequestData, IStudentBody} from "../Interfaces";
+    import type {INewPayoutRequestData, IPayoutRequestData, IStudentBody} from "../Interfaces";
     import {AnnotationLevel} from "../Interfaces";
     import {CurrentlyCanBePaidCalculator, Interval, SemesterCalculator} from "../Calculator";
-    import {compactMode, showOnlyWhoCurrentlyCanBePaid, showOnlySemestersWithStar} from "../stores";
+    import {compactMode, showOnlySemestersWithStar, showOnlyWhoCurrentlyCanBePaid} from "../stores";
     import CompactStudentBody from "./CompactStudentBody.svelte";
     import {calculateSemesterId, shouldDisplayStar} from "../util";
 
@@ -36,7 +36,7 @@
         return show;
     }
 
-    export let payoutRequests: Map<string, IPayoutRequestData> | undefined;
+    export let payoutRequests: Map<string, INewPayoutRequestData> | undefined;
     export let budgetTitles: { [semester: string]: string };
     export let semesters: Interval[];
     export let studentBody: IStudentBody;

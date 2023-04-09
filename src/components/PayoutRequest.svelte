@@ -1,10 +1,10 @@
 <script type="ts">
-    import type {IAllFsData, IPayoutRequestData} from "../Interfaces";
-    import {euro} from "../util";
+    import type {IAllFsData, INewPayoutRequestData} from "../Interfaces";
+    import {euroCents} from "../util";
     import CopyableTag from "./CopyableTag.svelte";
     import {allFsData} from "../stores";
 
-    const getTagClass = (payoutRequest: IPayoutRequestData): string => {
+    const getTagClass = (payoutRequest: INewPayoutRequestData): string => {
         if (!payoutRequest) {
             return '';
         }
@@ -21,7 +21,7 @@
         return 'is-danger';
     }
 
-    const getTableLine = (allData: IAllFsData, payoutRequest: IPayoutRequestData, fsName: string, fsId: string, budgetTitle: string): string => {
+    const getTableLine = (allData: IAllFsData, payoutRequest: INewPayoutRequestData, fsName: string, fsId: string, budgetTitle: string): string => {
         if (!payoutRequest) {
             return '';
         }
@@ -35,9 +35,9 @@
         return [
             budgetTitle,
             fsName,
-            payoutRequest.id,
-            payoutRequest.requestDate,
-            euro(payoutRequest.amount),
+            payoutRequest.request_id,
+            payoutRequest.request_date,
+            euroCents(payoutRequest.amount_cents),
             iban,
         ].join('\t')
     }
@@ -45,15 +45,15 @@
     export let fsName: string = '';
     export let fsId: string = '';
     export let budgetTitle: string;
-    export let payoutRequest: IPayoutRequestData;
+    export let payoutRequest: INewPayoutRequestData;
     $: tagClass = getTagClass(payoutRequest);
     $: tableLine = getTableLine($allFsData, payoutRequest, fsName, fsId, budgetTitle);
 </script>
 {#if payoutRequest}
     <div class="tags card-header-icon">
         <CopyableTag tagClass={tagClass} text={payoutRequest.status} copyText="{tableLine}"/>
-        <CopyableTag text={payoutRequest.id}/>
-        <CopyableTag text={euro(payoutRequest.amount)} bold={true}/>
+        <CopyableTag text={payoutRequest.request_id}/>
+        <CopyableTag text={euroCents(payoutRequest.amount_cents)} bold={true}/>
     </div>
 {/if}
 

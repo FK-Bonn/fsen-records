@@ -1,6 +1,6 @@
 <script type="ts">
     import type {IData} from "../Interfaces";
-    import {AnnotationLevel} from "../Interfaces";
+    import {AnnotationLevel, INewPayoutRequestData} from "../Interfaces";
     import {onMount} from 'svelte';
     import Legend from "../components/Legend.svelte";
     import IconForLevel from "../icons/IconForLevel.svelte";
@@ -10,6 +10,7 @@
     import {scrollToHashIfPresent} from "../util";
 
     export let data: IData
+    export let payoutRequestData: Map<string, Map<string, INewPayoutRequestData>>
     $: lastUpdate = new Date(data.timestamp * 1000).toLocaleString();
     $: lastUpdateLevel = (Date.now() / 1000 - data.timestamp) > 3600 ? AnnotationLevel.Warning : AnnotationLevel.Ok;
     $: semesters = data.semesters.map(value => Interval.fromStrings(value.start, value.end))
@@ -31,7 +32,7 @@
 <ul>
     {#each [...data.studentBodies] as [key, studentBody] (key)}
         <ToggleableStudentBody {studentBody}
-                               payoutRequests={data.payoutRequests.get(key)}
+                               payoutRequests={payoutRequestData.get(key)}
                                {semesters}
                                budgetTitles={data.budgetTitles}/>
     {/each}

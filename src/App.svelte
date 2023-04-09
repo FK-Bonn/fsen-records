@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type {IData} from "./Interfaces";
+    import type {IData, INewPayoutRequestData} from "./Interfaces";
     import StudentBodyList from "./sections/StudentBodyList.svelte";
     import ErrorList from "./components/ErrorList.svelte";
     import {onDestroy, onMount} from "svelte";
@@ -7,7 +7,7 @@
     import PayoutRequestStatistics from "./sections/PayoutRequestStatistics.svelte";
     import {allFsData, fsen, token} from "./stores";
     import UserMenu from "./sections/UserMenu.svelte";
-    import {getAllFsData, getUrlParameter, pojoToIData} from "./util";
+    import {getAllFsData, getUrlParameter, manglePayoutRequestData, pojoToIData} from "./util";
     import DiffView from "./sections/DiffView.svelte";
 
 
@@ -29,6 +29,20 @@
             }, reason => {
                 fetchDataError = reason;
             });
+        fetch(backendPrefix + '/payout-request/afsg')
+            .then(response => response.json(), () => {
+                payoutRequestsDataError = "Fetching data failed";
+            })
+            .then(rawdata => {
+                try {
+                    payoutRequestData = manglePayoutRequestData(rawdata);
+                    payoutRequestsDataError = null;
+                } catch (err) {
+                    payoutRequestsDataError = err.message;
+                }
+            }, reason => {
+                payoutRequestsDataError = reason;
+            });
     };
 
     const loadError = () => {
@@ -48,7 +62,9 @@
 
 
     let fetchedData: IData | null = null;
+    let payoutRequestData: Map<string, Map<string, INewPayoutRequestData>> | null = null;
     let fetchDataError: string | null = null;
+    let payoutRequestsDataError: string | null = null;
     let errors: string[] = [];
     let diffview = getUrlParameter('diff') !== null;
 
@@ -83,16 +99,24 @@
         <pre>{fetchDataError}</pre>
     {/if}
 
+    {#if payoutRequestsDataError}
+        <pre>{payoutRequestsDataError}</pre>
+    {/if}
+
     {#if !diffview}
-        {#if fetchedData}
+        {#if fetchedData && payoutRequestData}
             <section class="section">
                 <div class="container">
-                    <StudentBodyList data={fetchedData}/>
+                    <StudentBodyList data={fetchedData} payoutRequestData="{payoutRequestData}"/>
                 </div>
             </section>
+        {:else}
+            <progress class="progress is-large is-info" max="100">60%</progress>
+        {/if}
+        {#if payoutRequestData}
             <section class="section">
                 <div class="container">
-                    <PayoutRequestStatistics data={fetchedData}/>
+                    <PayoutRequestStatistics data="{payoutRequestData}"/>
                 </div>
             </section>
         {:else}

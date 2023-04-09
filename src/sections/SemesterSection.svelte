@@ -7,7 +7,7 @@
     import DateRange from "../components/DateRange.svelte";
     import SemesterContent from "./SemesterContent.svelte";
     import IconForLevel from "../icons/IconForLevel.svelte";
-    import {IPayoutRequestData} from "../Interfaces";
+    import {INewPayoutRequestData, IPayoutRequestData} from "../Interfaces";
     import PayoutRequest from "../components/PayoutRequest.svelte";
     import AttentionStar from "../components/AttentionStar.svelte";
     import {showOnlySemestersWithPayoutRequests, showOnlySemestersWithStar} from "../stores";
@@ -36,7 +36,7 @@
     $: level = calculateLevel(studentBody, semester);
     $: semesterName = calculateSemesterName(semester);
     $: semesterId = calculateSemesterId(semester);
-    export let payoutRequests: Map<string, IPayoutRequestData> | undefined;
+    export let payoutRequests: Map<string, INewPayoutRequestData> | undefined;
     $: payoutRequest = payoutRequests ? payoutRequests.get(semesterId) : null;
     $: budgetTitle = budgetTitles ? budgetTitles[semesterId] : '';
     $: displayStar = shouldDisplayStar(level, payoutRequest);

@@ -4,7 +4,7 @@ import {
     IAnnotatedDocument,
     IAnnotation,
     IData,
-    IFsData,
+    IFsData, INewPayoutRequestData,
     IPayoutRequestData,
     IPermission,
     IProtectedFsData,
@@ -68,6 +68,9 @@ export const getDocumentsWithLevels = (documents: IAnnotatedDocument[], allowedL
     return documentsWithLevels;
 }
 
+export const euroCents = (value: number | undefined): string => {
+    return euro(value / 100);
+}
 export const euro = (value: number | undefined): string => {
     if (!value) {
         value = 0;
@@ -307,6 +310,17 @@ export const pojoToIData = (data: any):IData=>{
         }
     }
     return data as IData;
+}
+
+export const manglePayoutRequestData = (data: INewPayoutRequestData[]): Map<string, Map<string, INewPayoutRequestData>> => {
+    const retval = new Map<string, Map<string, INewPayoutRequestData>>()
+    for (let datum of data) {
+        if(!retval.has(datum.fs)){
+            retval.set(datum.fs, new Map<string, INewPayoutRequestData>());
+        }
+        retval.get(datum.fs).set(datum.semester, datum);
+    }
+    return retval;
 }
 
 export const getAllFsData = async (token: string): Promise<IAllFsData | null> => {
