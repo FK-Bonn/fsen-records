@@ -1,7 +1,7 @@
 <script type="ts">
     import {Interval} from "../Calculator";
     import Calendar from "../icons/Calendar.svelte";
-    import {formatDate, stringToDate} from "../util";
+    import {formatDate, getLastDayForSubmission, isBeforeLastDayForSubmission, stringToDate} from "../util";
     import {completionDeadlineOverrides} from "../settings";
 
     const isFutureSemester = (interval: Interval): boolean => {
@@ -9,16 +9,6 @@
         return today < interval.start;
     }
 
-    const getLastDayForSubmission = (interval: Interval): Date => {
-        const lastDayForSubmission = new Date(interval.end);
-        lastDayForSubmission.setFullYear(lastDayForSubmission.getFullYear() + 1);
-        return lastDayForSubmission;
-    }
-
-    const isBeforeLastDayForSubmission = (interval: Interval): boolean => {
-        const today = new Date();
-        return today < getLastDayForSubmission(interval);
-    }
 
     const getLastDayForCompletion = (interval: Interval): Date => {
         for (let key in completionDeadlineOverrides) {

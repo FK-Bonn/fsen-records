@@ -5,9 +5,9 @@
     import {onDestroy, onMount} from "svelte";
     import {backendPrefix, refreshIntervalMilliseconds, siteTitle} from "./settings";
     import PayoutRequestStatistics from "./sections/PayoutRequestStatistics.svelte";
-    import {allFsData, fsen, token} from "./stores";
+    import {allFsData, fsen, payoutRequestData, token} from "./stores";
     import UserMenu from "./sections/UserMenu.svelte";
-    import {getAllFsData, getUrlParameter, manglePayoutRequestData, pojoToIData} from "./util";
+    import {getAllFsData, getPayoutRequestData, getUrlParameter, manglePayoutRequestData, pojoToIData} from "./util";
     import DiffView from "./sections/DiffView.svelte";
 
 
@@ -29,17 +29,13 @@
             }, reason => {
                 fetchDataError = reason;
             });
-        fetch(backendPrefix + '/payout-request/afsg')
-            .then(response => response.json(), () => {
-                payoutRequestsDataError = "Fetching data failed";
-            })
-            .then(rawdata => {
-                try {
-                    payoutRequestData = manglePayoutRequestData(rawdata);
-                    payoutRequestsDataError = null;
-                } catch (err) {
-                    payoutRequestsDataError = err.message;
-                }
+    };
+
+    const loadPayoutRequestData = () => {
+        getPayoutRequestData()
+            .then(data => {
+                $payoutRequestData = data;
+                payoutRequestsDataError = null;
             }, reason => {
                 payoutRequestsDataError = reason;
             });
@@ -62,7 +58,6 @@
 
 
     let fetchedData: IData | null = null;
-    let payoutRequestData: Map<string, Map<string, INewPayoutRequestData>> | null = null;
     let fetchDataError: string | null = null;
     let payoutRequestsDataError: string | null = null;
     let errors: string[] = [];
@@ -72,11 +67,13 @@
         const interval = setInterval(async () => {
             loadError();
             loadData();
+            loadPayoutRequestData();
         }, refreshIntervalMilliseconds);
 
         onMount(() => {
             loadError();
             loadData();
+            loadPayoutRequestData();
             loadAllFsData();
         });
 
@@ -104,19 +101,19 @@
     {/if}
 
     {#if !diffview}
-        {#if fetchedData && payoutRequestData}
+        {#if fetchedData}
             <section class="section">
                 <div class="container">
-                    <StudentBodyList data={fetchedData} payoutRequestData="{payoutRequestData}"/>
+                    <StudentBodyList data={fetchedData}/>
                 </div>
             </section>
         {:else}
             <progress class="progress is-large is-info" max="100">60%</progress>
         {/if}
-        {#if payoutRequestData}
+        {#if $payoutRequestData}
             <section class="section">
                 <div class="container">
-                    <PayoutRequestStatistics data="{payoutRequestData}"/>
+                    <PayoutRequestStatistics/>
                 </div>
             </section>
         {:else}

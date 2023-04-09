@@ -11,7 +11,7 @@
     import PayoutRequest from "../components/PayoutRequest.svelte";
     import AttentionStar from "../components/AttentionStar.svelte";
     import {showOnlySemestersWithPayoutRequests, showOnlySemestersWithStar} from "../stores";
-    import {calculateSemesterId, shouldDisplayStar} from "../util";
+    import {calculateSemesterId, calculateSemesterName, shouldDisplayStar} from "../util";
     import DeadlineIcon from "../components/DeadlineIcon.svelte";
 
     const calculateLevel = (studentBody: IStudentBody, semester: Interval) => {
@@ -19,16 +19,6 @@
         return calculator.calculateOverallLevel();
     }
 
-    const calculateSemesterName = (interval?: Interval) => {
-        if (!interval) {
-            return '?';
-        }
-        if (interval.start.getFullYear() === interval.end.getFullYear()) {
-            return 'Sommersemester ' + interval.start.getFullYear();
-        } else {
-            return 'Wintersemester ' + interval.start.getFullYear() + '/' + interval.end.getFullYear().toString().substring(2, 4);
-        }
-    }
 
     export let studentBody: IStudentBody;
     export let budgetTitles: { [semester: string]: string };
@@ -59,7 +49,7 @@
             <DeadlineIcon  interval={semester}/>
         </p>
         <AttentionStar display={displayStar}/>
-        <PayoutRequest {payoutRequest} fsName={studentBody.name} fsId={studentBody.id} {budgetTitle}/>
+        <PayoutRequest {payoutRequest} fsName={studentBody.name} fsId={studentBody.id} {budgetTitle} {semester}/>
         <button class="card-header-icon" aria-label="more options">
             <AngleIndicator {opened}/>
         </button>

@@ -1,8 +1,12 @@
 <script type="ts">
     import {euroCents} from "../util";
     import {INewPayoutRequestData} from "../Interfaces";
+    import {payoutRequestData} from "../stores";
 
     const mangleData = (data: Map<string, Map<string, INewPayoutRequestData>>): Map<string, Map<string, number>> => {
+        if (!data) {
+            return new Map();
+        }
         const retval: Map<string, Map<string, number>> = new Map<>();
         for (let [fs, semester] of data) {
             for (let [semesterkey, semesterdata] of semester) {
@@ -16,6 +20,9 @@
         return retval;
     }
     const getHeaders = (data: Map<string, Map<string, INewPayoutRequestData>>): string[] => {
+        if (!data) {
+            return [];
+        }
         const headers: string[] = ['GESTELLT', 'VOLLSTÄNDIG', 'ANGEWIESEN', 'ÜBERWIESEN'];
         for (let [fs, semester] of data) {
             for (let [semesterkey, semesterdata] of semester) {
@@ -37,9 +44,8 @@
         return value;
     }
 
-    export let data: Map<string, Map<string, INewPayoutRequestData>>;
-    $: semesters = mangleData(data);
-    $: headers = getHeaders(data);
+    $: semesters = mangleData($payoutRequestData);
+    $: headers = getHeaders($payoutRequestData);
 </script>
 
 <h2 class="title is-2" id="finanicalstatus">

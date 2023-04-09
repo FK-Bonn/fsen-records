@@ -12,6 +12,7 @@ import {
 } from "./Interfaces";
 import type {Interval} from "./Calculator";
 import {backendPrefix} from "./settings";
+import {payoutRequestData} from "./stores";
 
 export const stringToDate = (input: string) => {
     const output = new Date(input);
@@ -83,7 +84,7 @@ export const euro = (value: number | undefined): string => {
     return formatter.format(value);
 }
 
-export const shouldDisplayStar = (level: AnnotationLevel, payoutRequest?: IPayoutRequestData): boolean => {
+export const shouldDisplayStar = (level: AnnotationLevel, payoutRequest?: INewPayoutRequestData): boolean => {
     if (!payoutRequest) {
         return false;
     }
@@ -92,6 +93,18 @@ export const shouldDisplayStar = (level: AnnotationLevel, payoutRequest?: IPayou
         return false;
     }
     return ['GESTELLT'].includes(payoutRequest.status);
+}
+
+
+export const calculateSemesterName = (interval?: Interval) => {
+    if (!interval) {
+        return '?';
+    }
+    if (interval.start.getFullYear() === interval.end.getFullYear()) {
+        return 'Sommersemester ' + interval.start.getFullYear();
+    } else {
+        return 'Wintersemester ' + interval.start.getFullYear() + '/' + interval.end.getFullYear().toString().substring(2, 4);
+    }
 }
 
 export const calculateSemesterId = (interval?: Interval) => {
@@ -247,9 +260,53 @@ export const changePassword = async (current_password: string, new_password: str
         });
 }
 
+export const createPayoutRequest = async (fs: string, semester: string, token: string): Promise<{ payoutRequest: INewPayoutRequestData | null, message: string | null }> => {
+    return fetch(backendPrefix + '/payout-request/afsg/create',
+        {
+            method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+            body: JSON.stringify({fs, semester})
+        })
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
+            }
+        })
+        .then(json => {
+            return {payoutRequest: json, message: 'AFSG-Antrag gestellt.'};
+        }, reason => {
+            return {payoutRequest: null, message: reason};
+        });
+}
+
+export const editPayoutRequest = async (request_id: string, payload: any, token: string): Promise<{ payoutRequest: INewPayoutRequestData | null, message: string | null }> => {
+    return fetch(backendPrefix + '/payout-request/afsg/' + request_id,
+        {
+            method: 'PATCH', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+            body: JSON.stringify(payload)
+        })
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
+            }
+        })
+        .then(json => {
+            return {payoutRequest: json, message: 'AFSG-Antrag aktualisiert.'};
+        }, reason => {
+            return {payoutRequest: null, message: reason};
+        });
+}
+
 const formatDateOptions: Intl.DateTimeFormatOptions = {year: 'numeric', month: '2-digit', day: '2-digit'};
 export const formatDate = (date: Date): string => {
     return date.toLocaleDateString('de-DE', formatDateOptions);
+}
+
+export const formatIsoDate = (date: Date): string => {
+    return date.toISOString().substring(0, 10);
 }
 
 export const getUrlParameter = (key: string): string|null => {
@@ -322,6 +379,16 @@ export const manglePayoutRequestData = (data: INewPayoutRequestData[]): Map<stri
     }
     return retval;
 }
+
+export const getPayoutRequestData = async (): Promise<Map<string, Map<string, INewPayoutRequestData>>> => {
+    return fetch(backendPrefix + '/payout-request/afsg')
+        .then(response => response.json(), () => {
+            return Promise.reject("Fetching data failed");
+        })
+        .then(rawdata => {
+            return manglePayoutRequestData(rawdata);
+        });
+};
 
 export const getAllFsData = async (token: string): Promise<IAllFsData | null> => {
     if(!token){
@@ -426,4 +493,15 @@ export const permissionToString = (permission: IPermission) => {
 
 export const hasFsPermission = (permissions: IPermission[], fs: string, minLevel: number = 1): boolean => {
     return permissions.filter(p => p.fs === fs && p.level >= minLevel).length > 0;
+}
+
+export const getLastDayForSubmission = (interval: Interval): Date => {
+    const lastDayForSubmission = new Date(interval.end);
+    lastDayForSubmission.setFullYear(lastDayForSubmission.getFullYear() + 1);
+    return lastDayForSubmission;
+}
+
+export const isBeforeLastDayForSubmission = (interval: Interval): boolean => {
+    const today = new Date();
+    return today < getLastDayForSubmission(interval);
 }

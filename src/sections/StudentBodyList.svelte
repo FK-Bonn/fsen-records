@@ -8,9 +8,9 @@
     import ToggleableStudentBody from "./ToggleableStudentBody.svelte";
     import {Interval} from "../Calculator";
     import {scrollToHashIfPresent} from "../util";
+    import {payoutRequestData} from "../stores";
 
     export let data: IData
-    export let payoutRequestData: Map<string, Map<string, INewPayoutRequestData>>
     $: lastUpdate = new Date(data.timestamp * 1000).toLocaleString();
     $: lastUpdateLevel = (Date.now() / 1000 - data.timestamp) > 3600 ? AnnotationLevel.Warning : AnnotationLevel.Ok;
     $: semesters = data.semesters.map(value => Interval.fromStrings(value.start, value.end))
@@ -32,7 +32,6 @@
 <ul>
     {#each [...data.studentBodies] as [key, studentBody] (key)}
         <ToggleableStudentBody {studentBody}
-                               payoutRequests={payoutRequestData.get(key)}
                                {semesters}
                                budgetTitles={data.budgetTitles}/>
     {/each}

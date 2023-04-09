@@ -3,11 +3,11 @@
     import type {INewPayoutRequestData, IPayoutRequestData, IStudentBody} from "../Interfaces";
     import {AnnotationLevel} from "../Interfaces";
     import {CurrentlyCanBePaidCalculator, Interval, SemesterCalculator} from "../Calculator";
-    import {compactMode, showOnlySemestersWithStar, showOnlyWhoCurrentlyCanBePaid} from "../stores";
+    import {compactMode, payoutRequestData, showOnlySemestersWithStar, showOnlyWhoCurrentlyCanBePaid} from "../stores";
     import CompactStudentBody from "./CompactStudentBody.svelte";
     import {calculateSemesterId, shouldDisplayStar} from "../util";
 
-    const anySemesterHasStar = (studentBody: IStudentBody, payoutRequests: Map<string, IPayoutRequestData> | undefined, semesters: Interval[]) => {
+    const anySemesterHasStar = (studentBody: IStudentBody, payoutRequests: Map<string, INewPayoutRequestData> | undefined, semesters: Interval[]) => {
         if (!studentBody || !payoutRequests || !semesters) {
             return false;
         }
@@ -25,7 +25,7 @@
     }
 
     const shouldShow = (showOnlyWhoCurrentlyCanBePaid: boolean, showOnlyWithStars: boolean, studentBody: IStudentBody, calculator: CurrentlyCanBePaidCalculator,
-                        payoutRequests: Map<string, IPayoutRequestData> | undefined, semesters: Interval[]) => {
+                        payoutRequests: Map<string, INewPayoutRequestData> | undefined, semesters: Interval[]) => {
         let show = true;
         if (showOnlyWhoCurrentlyCanBePaid) {
             show &= (AnnotationLevel.Error !== calculator.calculateOverallLevel());
@@ -36,10 +36,10 @@
         return show;
     }
 
-    export let payoutRequests: Map<string, INewPayoutRequestData> | undefined;
     export let budgetTitles: { [semester: string]: string };
     export let semesters: Interval[];
     export let studentBody: IStudentBody;
+    $: payoutRequests = $payoutRequestData ? $payoutRequestData.get(studentBody.id) : undefined
     $: calculator = new CurrentlyCanBePaidCalculator(studentBody);
     $: show = shouldShow($showOnlyWhoCurrentlyCanBePaid, $showOnlySemestersWithStar, studentBody, calculator, payoutRequests, semesters);
 </script>
