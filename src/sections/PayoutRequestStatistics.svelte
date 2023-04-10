@@ -23,7 +23,7 @@
         if (!data) {
             return [];
         }
-        const headers: string[] = ['GESTELLT', 'VOLLSTÄNDIG', 'ANGEWIESEN', 'ÜBERWIESEN'];
+        const headers: string[] = ['GESTELLT', 'VOLLSTÄNDIG', 'ANGEWIESEN', 'ÜBERWIESEN', 'FAILED'];
         for (let [fs, semester] of data) {
             for (let [semesterkey, semesterdata] of semester) {
                 if (!headers.includes(semesterdata.status)) {

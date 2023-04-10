@@ -118,6 +118,7 @@
                                 <th>Status</th>
                                 <td>
                                     <select class="select" bind:value={status} on:change={setStatusDateToToday}>
+                                        <option value='EINGEREICHT'>EINGEREICHT</option>
                                         <option value='GESTELLT'>GESTELLT</option>
                                         <option value='VOLLSTÄNDIG'>VOLLSTÄNDIG</option>
                                         <option value='ANGEWIESEN'>ANGEWIESEN</option>

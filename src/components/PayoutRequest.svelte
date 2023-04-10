@@ -21,6 +21,9 @@
         if (status === 'GESTELLT') {
             return 'is-dark';
         }
+        if (status === 'EINGEREICHT') {
+            return 'is-info';
+        }
         return 'is-danger';
     }
 

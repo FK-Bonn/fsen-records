@@ -92,7 +92,7 @@ export const shouldDisplayStar = (level: AnnotationLevel, payoutRequest?: INewPa
     if (!completeLevels.includes(level)) {
         return false;
     }
-    return ['GESTELLT'].includes(payoutRequest.status);
+    return ['EINGEREICHT', 'GESTELLT'].includes(payoutRequest.status);
 }
 
 
