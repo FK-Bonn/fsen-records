@@ -1,16 +1,13 @@
 <script type="ts">
-    import type {IFsData, IStudentBody, IProtectedFsData} from "../Interfaces";
-    import {allFsData, loggedInUser, token} from "../stores";
-    import {getFsData, getProtectedFsData, hasFsPermission, putFsData, putProtectedFsData} from "../util";
-    import ErrorList from "../components/ErrorList.svelte";
+    import type {IFsData, IProtectedFsData, IStudentBody} from "../Interfaces";
+    import {allFsData, token} from "../stores";
+    import {getFsData, getProtectedFsData, putFsData, putProtectedFsData} from "../util";
     import FsDataDisplay from "../components/FsDataDisplay.svelte";
     import ProtectedFsDataDisplay from "../components/ProtectedFsDataDisplay.svelte";
     import FsDataEdit from "../components/FsDataEdit.svelte";
     import ProtectedFsDataEdit from "../components/ProtectedFsDataEdit.svelte";
 
     export let studentBody: IStudentBody;
-    let dataPromise: Promise<IFsData> | null = null;
-    let protectedDataPromise: Promise<IProtectedFsData> | null = null;
     let editFsData = false;
     let editProtectedFsData = false;
     $: data = $allFsData?.hasOwnProperty(studentBody.id) ? $allFsData[studentBody.id].data : null;

@@ -1,6 +1,6 @@
 <script type="ts">
     import {
-        compactMode,
+        compactMode, displayFsData,
         paleLowerDocuments,
         showFilenames,
         showOnlySemestersWithPayoutRequests,
@@ -19,6 +19,12 @@
     </li>
     <li>
         <label class="checkbox">
+            <input type="checkbox" bind:checked={$compactMode}>
+            Kompakte Ansicht
+        </label>
+    </li>
+    <li>
+        <label class="checkbox">
             <input type="checkbox" bind:checked={$showOnlySemestersWithPayoutRequests} disabled={$compactMode}>
             Nur Semester mit Anträgen anzeigen
         </label>
@@ -31,19 +37,19 @@
     </li>
     <li>
         <label class="checkbox">
-            <input type="checkbox" bind:checked={$compactMode}>
-            Kompakte Ansicht
-        </label>
-    </li>
-    <li>
-        <label class="checkbox">
-            <input type="checkbox" bind:checked={$showFilenames}>
+            <input type="checkbox" bind:checked={$showFilenames} disabled={$compactMode}>
             Dateinamen anzeigen
         </label>
     </li>
     <li>
         <label class="checkbox">
-            <input type="checkbox" bind:checked={$paleLowerDocuments}>
+            <input type="checkbox" bind:checked={$displayFsData} disabled={$compactMode}>
+            FS-Kontaktdaten etc. anzeigen
+        </label>
+    </li>
+    <li>
+        <label class="checkbox">
+            <input type="checkbox" bind:checked={$paleLowerDocuments} disabled={$compactMode}>
             Dokumente blass anzeigen, die ein niedrigeres Level als die Oberkategorie haben
         </label>
     </li>

@@ -8,7 +8,7 @@
     import SemesterSection from "./SemesterSection.svelte";
     import People from "../icons/People.svelte";
     import Warning from "../icons/Warning.svelte";
-    import {loggedInUser} from "../stores";
+    import {displayFsData, loggedInUser} from "../stores";
     import FsDataSection from "./FsDataSection.svelte";
     import {hasFsPermission} from "../util";
 
@@ -17,7 +17,7 @@
     export let semesters: Interval[];
     export let studentBody: IStudentBody;
     $: calculator = new CurrentlyCanBePaidCalculator(studentBody);
-    $: showData = $loggedInUser && studentBody && ($loggedInUser.admin || hasFsPermission($loggedInUser.permissions, studentBody.id));
+    $: showData = $displayFsData && $loggedInUser && studentBody && ($loggedInUser.admin || hasFsPermission($loggedInUser.permissions, studentBody.id));
 </script>
 
 <li>
