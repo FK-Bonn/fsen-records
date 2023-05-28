@@ -12,7 +12,8 @@
 
 
     const loadData = () => {
-        fetch("/data/data.json")
+        const url = fixedDate ? `/data/history/${fixedDate}-data.json` : "/data/data.json";
+        fetch(url)
             .then(response => response.json(), () => {
                 fetchDataError = "Fetching data failed";
             })
@@ -32,7 +33,7 @@
     };
 
     const loadPayoutRequestData = () => {
-        getPayoutRequestData()
+        getPayoutRequestData(fixedDate)
             .then(data => {
                 $payoutRequestData = data;
                 payoutRequestsDataError = null;
@@ -62,6 +63,7 @@
     let payoutRequestsDataError: string | null = null;
     let errors: string[] = [];
     let diffview = getUrlParameter('diff') !== null;
+    const fixedDate = getUrlParameter('date');
 
     if (!diffview) {
         const interval = setInterval(async () => {
@@ -104,6 +106,11 @@
         {#if fetchedData}
             <section class="section">
                 <div class="container">
+                    {#if fixedDate}
+                        <div class="box has-background-grey-dark has-text-centered has-text-weight-bold has-text-white">
+                            Stand von {fixedDate}
+                        </div>
+                    {/if}
                     <StudentBodyList data={fetchedData}/>
                 </div>
             </section>

@@ -380,8 +380,12 @@ export const manglePayoutRequestData = (data: INewPayoutRequestData[]): Map<stri
     return retval;
 }
 
-export const getPayoutRequestData = async (): Promise<Map<string, Map<string, INewPayoutRequestData>>> => {
-    return fetch(backendPrefix + '/payout-request/afsg')
+export const getPayoutRequestData = async (fixedDate: string | null = null): Promise<Map<string, Map<string, INewPayoutRequestData>>> => {
+    let url = backendPrefix + '/payout-request/afsg';
+    if (fixedDate) {
+        url += '/' + fixedDate;
+    }
+    return fetch(url)
         .then(response => response.json(), () => {
             return Promise.reject("Fetching data failed");
         })
