@@ -12,6 +12,7 @@
     import GenericDiff from "./diff/GenericDiff.svelte";
     import PayoutRequestDiff from "./diff/PayoutRequestDiff.svelte";
     import DocumentDiff from "./diff/DocumentDiff.svelte";
+    import {INewPayoutRequestData} from "../Interfaces";
 
     const DOCTYPES = {
         balances: 'Haushaltsrechnung',
@@ -25,29 +26,30 @@
         return JSON.stringify(first) === JSON.stringify(second);
     }
 
-    const getModifiedPayoutRequests = (first: IData, second: IData): IPayoutRequestDiff[] => {
+    const getModifiedPayoutRequests = (first: Map<string, Map<string, INewPayoutRequestData>>,
+                                       second: Map<string, Map<string, INewPayoutRequestData>>): IPayoutRequestDiff[] => {
         const modifiedPayoutRequests = [];
-        for (let fs of first.payoutRequests.keys()) {
-            for (let semester of first.payoutRequests.get(fs).keys()) {
-                const firstData = first.payoutRequests.get(fs).get(semester);
-                if (!second.payoutRequests.has(fs)) {
+        for (let fs of first.keys()) {
+            for (let semester of first.get(fs).keys()) {
+                const firstData = first.get(fs).get(semester);
+                if (!second.has(fs)) {
                     modifiedPayoutRequests.push({fs, semester, oldPR: firstData, newPR: null});
-                } else if (!second.payoutRequests.get(fs).has(semester)) {
+                } else if (!second.get(fs).has(semester)) {
                     modifiedPayoutRequests.push({fs, semester, oldPR: firstData, newPR: null});
                 } else {
-                    const secondData = second.payoutRequests.get(fs).get(semester);
+                    const secondData = second.get(fs).get(semester);
                     if (!isJsonEqual(firstData, secondData)) {
                         modifiedPayoutRequests.push({fs, semester, oldPR: firstData, newPR: secondData});
                     }
                 }
             }
         }
-        for (let fs of second.payoutRequests.keys()) {
-            for (let semester of second.payoutRequests.get(fs).keys()) {
-                const secondData = second.payoutRequests.get(fs).get(semester);
-                if (!first.payoutRequests.has(fs)) {
+        for (let fs of second.keys()) {
+            for (let semester of second.get(fs).keys()) {
+                const secondData = second.get(fs).get(semester);
+                if (!first.has(fs)) {
                     modifiedPayoutRequests.push({fs, semester, oldPR: null, newPR: secondData});
-                } else if (!first.payoutRequests.get(fs).has(semester)) {
+                } else if (!first.get(fs).has(semester)) {
                     modifiedPayoutRequests.push({fs, semester, oldPR: null, newPR: secondData});
                 }
             }
@@ -81,9 +83,14 @@
         return 0;
     }
 
-    const getModifiedStudentBodies = (first: IData, second: IData): IStudentBodyDiff[] => {
+    const getModifiedStudentBodies = (
+        first: IData,
+        second: IData,
+        firstPayoutRequests: Map<string, Map<string, INewPayoutRequestData>>,
+        secondPayoutRequests: Map<string, Map<string, INewPayoutRequestData>>
+    ): IStudentBodyDiff[] => {
         const diffs = [];
-        const modifiedPayoutRequests = getModifiedPayoutRequests(first, second);
+        const modifiedPayoutRequests = getModifiedPayoutRequests(firstPayoutRequests, secondPayoutRequests);
         for (let fs of first.studentBodies.keys()) {
             const firstStudentBody = first.studentBodies.get(fs);
             const secondStudentBody = second.studentBodies.get(fs);
@@ -130,7 +137,9 @@
     export let dateEnd: string;
     export let first: IData;
     export let second: IData;
-    $: modifiedStudentBodies = getModifiedStudentBodies(first, second);
+    export let firstPayoutRequests: Map<string, Map<string, INewPayoutRequestData>>;
+    export let secondPayoutRequests: Map<string, Map<string, INewPayoutRequestData>>;
+    $: modifiedStudentBodies = getModifiedStudentBodies(first, second, firstPayoutRequests, secondPayoutRequests);
 
     onMount(() => {
         scrollToHashIfPresent();

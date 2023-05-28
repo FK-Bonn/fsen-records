@@ -1,8 +1,9 @@
 <script type="ts">
-    import {getUrlParameter, pojoToIData} from "../util";
+    import {getPayoutRequestData, getUrlParameter, pojoToIData} from "../util";
     import {IData} from "../Interfaces";
     import IDataDiff from "../components/IDataDiff.svelte";
     import ErrorList from "../components/ErrorList.svelte";
+    import {payoutRequestData} from "../stores";
 
     const loadData = (url: string): Promise<IData> => {
         return fetch(url)
@@ -19,6 +20,8 @@
     let dataPromise = Promise.all([
         loadData(`/data/history/${dateStart}-data.json`),
         loadData(dateEndUrl),
+        getPayoutRequestData(dateStart),
+        getPayoutRequestData(dateEnd),
     ]);
 </script>
 
@@ -30,7 +33,8 @@
             {#await dataPromise}
                 Daten werden geladen…
             {:then results}
-                <IDataDiff {dateStart} {dateEnd} first={results[0]} second={results[1]}/>
+                <IDataDiff {dateStart} {dateEnd} first={results[0]} second={results[1]}
+                           firstPayoutRequests="{results[2]}" secondPayoutRequests="{results[3]}"/>
             {:catch error}
                 <ErrorList errors={['Die Daten konnten leider nicht geladen werden.']}/>
             {/await}
