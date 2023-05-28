@@ -1,9 +1,9 @@
 <script type="ts">
     import {Interval} from "../Calculator";
     import {euroCents, formatDate} from "../util";
-    import type {INewPayoutRequestData} from "../Interfaces";
+    import type {IFullPayoutRequestData, INewPayoutRequestData} from "../Interfaces";
 
-    export let payoutRequest: INewPayoutRequestData;
+    export let payoutRequest: INewPayoutRequestData | IFullPayoutRequestData;
 </script>
 
 <table class="table is-narrow">
@@ -40,15 +40,19 @@
         <td>{payoutRequest.comment}</td>
     </tr>
     <tr>
+        <th>Frist zur Vervollständigung</th>
+        <td>{payoutRequest.completion_deadline}</td>
+    </tr>
+    <tr>
         <th>Antrag gestellt von</th>
-        <td>{payoutRequest.requester}</td>
+        <td>{payoutRequest.requester || '(versteckt)'}</td>
     </tr>
     <tr>
         <th>Zuletzt modifiziert am</th>
-        <td>{payoutRequest.last_modified_timestamp}</td>
+        <td>{payoutRequest.last_modified_timestamp || '(versteckt)'}</td>
     </tr>
     <tr>
         <th>Zuletzt modifiziert von</th>
-        <td>{payoutRequest.last_modified_by}</td>
+        <td>{payoutRequest.last_modified_by || '(versteckt)'}</td>
     </tr>
 </table>

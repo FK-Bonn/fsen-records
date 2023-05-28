@@ -1,25 +1,19 @@
 <script type="ts">
-    import {
-        calculateSemesterId,
-        calculateSemesterName,
-        createPayoutRequest,
-        editPayoutRequest,
-        euroCents, formatIsoDate, getPayoutRequestData
-    } from "../util";
-    import type {Interval} from "../Calculator";
+    import {editPayoutRequest, formatIsoDate, getPayoutRequestData} from "../util";
     import {payoutRequestData, token} from "../stores";
-    import type {INewPayoutRequestData} from "../Interfaces";
+    import type {IFullPayoutRequestData, INewPayoutRequestData} from "../Interfaces";
     import PayoutRequestTable from "./PayoutRequestTable.svelte";
 
-    export let payoutRequest: INewPayoutRequestData;
+    export let payoutRequest: INewPayoutRequestData | IFullPayoutRequestData;
     export let editModal: boolean = true;
 
     let status: string = payoutRequest.status;
     let status_date: string = payoutRequest.status_date;
     let amount_cents: number = payoutRequest.amount_cents;
     let comment: string = payoutRequest.comment;
+    let completion_deadline: string = payoutRequest.completion_deadline;
 
-    let completedRequest: INewPayoutRequestData | null = null;
+    let completedRequest: IFullPayoutRequestData | null = null;
     let message = '';
 
 
@@ -146,16 +140,22 @@
                                 </td>
                             </tr>
                             <tr>
+                                <th>Frist zur Vervollständigung</th>
+                                <td>
+                                    <input class="input" type="text" bind:value={completion_deadline}>
+                                </td>
+                            </tr>
+                            <tr>
                                 <th>Antrag gestellt von</th>
-                                <td>{payoutRequest.requester}</td>
+                                <td>{payoutRequest.requester || '(versteckt)'}</td>
                             </tr>
                             <tr>
                                 <th>Zuletzt modifiziert am</th>
-                                <td>{payoutRequest.last_modified_timestamp}</td>
+                                <td>{payoutRequest.last_modified_timestamp || '(versteckt)'}</td>
                             </tr>
                             <tr>
                                 <th>Zuletzt modifiziert von</th>
-                                <td>{payoutRequest.last_modified_by}</td>
+                                <td>{payoutRequest.last_modified_by || '(versteckt)'}</td>
                             </tr>
                         </table>
                     </div>

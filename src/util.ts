@@ -4,7 +4,7 @@ import {
     IAnnotatedDocument,
     IAnnotation,
     IData,
-    IFsData, INewPayoutRequestData,
+    IFsData, IFullPayoutRequestData, INewPayoutRequestData,
     IPayoutRequestData,
     IPermission,
     IProtectedFsData,
@@ -280,7 +280,10 @@ export const createPayoutRequest = async (fs: string, semester: string, token: s
         });
 }
 
-export const editPayoutRequest = async (request_id: string, payload: any, token: string): Promise<{ payoutRequest: INewPayoutRequestData | null, message: string | null }> => {
+export const editPayoutRequest = async (request_id: string, payload: any, token: string): Promise<{
+    payoutRequest: IFullPayoutRequestData | null,
+    message: string | null
+}> => {
     return fetch(backendPrefix + '/payout-request/afsg/' + request_id,
         {
             method: 'PATCH', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},

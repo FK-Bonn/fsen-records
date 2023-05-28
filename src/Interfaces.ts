@@ -43,17 +43,21 @@ export interface IPayoutRequestData {
 }
 
 export interface INewPayoutRequestData {
-    fs: string,
-    semester: string,
-    status: "string",
-    status_date: string,
-    amount_cents: number,
-    comment: string,
-    request_id: string,
-    request_date: string,
-    requester: string,
-    last_modified_timestamp: string,
-    last_modified_by: string,
+    fs: string
+    semester: string
+    status: string
+    status_date: string
+    amount_cents: number
+    comment: string
+    request_id: string
+    request_date: string
+    completion_deadline: string
+}
+
+export interface IFullPayoutRequestData extends INewPayoutRequestData {
+    requester: string
+    last_modified_timestamp: string
+    last_modified_by: string
 }
 
 export interface ISemester {
