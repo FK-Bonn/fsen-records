@@ -9,6 +9,7 @@
     import UserMenu from "./sections/UserMenu.svelte";
     import {getAllFsData, getPayoutRequestData, getUrlParameter, manglePayoutRequestData, pojoToIData} from "./util";
     import DiffView from "./sections/DiffView.svelte";
+    import MainView from "./components/MainView.svelte";
 
 
     const loadData = () => {
@@ -103,29 +104,7 @@
     {/if}
 
     {#if !diffview}
-        {#if fetchedData}
-            <section class="section">
-                <div class="container">
-                    {#if fixedDate}
-                        <div class="box has-background-grey-dark has-text-centered has-text-weight-bold has-text-white">
-                            Stand von {fixedDate}
-                        </div>
-                    {/if}
-                    <StudentBodyList data={fetchedData}/>
-                </div>
-            </section>
-        {:else}
-            <progress class="progress is-large is-info" max="100">60%</progress>
-        {/if}
-        {#if $payoutRequestData}
-            <section class="section">
-                <div class="container">
-                    <PayoutRequestStatistics/>
-                </div>
-            </section>
-        {:else}
-            <progress class="progress is-large is-info" max="100">60%</progress>
-        {/if}
+        <MainView {fixedDate} {fetchedData}/>
     {:else}
         <DiffView/>
     {/if}
