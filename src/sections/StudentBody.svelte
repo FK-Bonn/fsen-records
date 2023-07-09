@@ -17,7 +17,9 @@
     export let semesters: Interval[];
     export let studentBody: IStudentBody;
     $: calculator = new CurrentlyCanBePaidCalculator(studentBody);
-    $: showData = $displayFsData && $loggedInUser && studentBody && ($loggedInUser.admin || hasFsPermission($loggedInUser.permissions, studentBody.id));
+    $: showData = $displayFsData && $loggedInUser && studentBody &&
+        ($loggedInUser.admin || hasFsPermission($loggedInUser.permissions, studentBody.id, 'read_public_data')
+            || hasFsPermission($loggedInUser.permissions, studentBody.id, 'read_protected_data'));
 </script>
 
 <li>

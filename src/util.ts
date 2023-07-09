@@ -14,6 +14,18 @@ import type {Interval} from "./Calculator";
 import {backendPrefix} from "./settings";
 import {payoutRequestData} from "./stores";
 
+
+export const PERMISSIONS: (keyof IPermission)[] = [
+    'read_files' as keyof IPermission,
+    'read_permissions' as keyof IPermission,
+    'write_permissions' as keyof IPermission,
+    'read_public_data' as keyof IPermission,
+    'write_public_data' as keyof IPermission,
+    'read_protected_data' as keyof IPermission,
+    'write_protected_data' as keyof IPermission,
+    'submit_payout_request' as keyof IPermission,
+]
+
 export const stringToDate = (input: string) => {
     const output = new Date(input);
     output.setHours(0);
@@ -493,13 +505,49 @@ export const permissionLevelToString = (level: number) => {
     return levelString;
 }
 
-export const permissionToString = (permission: IPermission) => {
-    const level = permissionLevelToString(permission.level);
-    return `${permission.fs} (${level})`;
+export const permissionToString = (key: keyof IPermission) => {
+    switch (key) {
+        case 'read_files':
+            return '👀 Dateien anzeigen';
+        case 'read_permissions':
+            return '👀 Berechtigungen anzeigen';
+        case 'write_permissions':
+            return '✏️ Berechtigungen ändern';
+        case 'read_public_data':
+            return '👀 FS-Daten anzeigen';
+        case 'write_public_data':
+            return '✏️ FS-Daten ändern';
+        case 'read_protected_data':
+            return '👀 geschützte FS-Daten anzeigen';
+        case 'write_protected_data':
+            return '️✏️ geschützte FS-Daten ändern';
+        case 'submit_payout_request':
+            return '️✏️ Anträge stellen';
+    }
 }
 
-export const hasFsPermission = (permissions: IPermission[], fs: string, minLevel: number = 1): boolean => {
-    return permissions.filter(p => p.fs === fs && p.level >= minLevel).length > 0;
+const collectPermissions = (permission: IPermission) => {
+    const permissions = [];
+    for (let prop of PERMISSIONS) {
+        if (permission[prop]) {
+            permissions.push(permissionToString(prop));
+        }
+    }
+    return permissions;
+}
+
+export const permissionsToString = (permission: IPermission) => {
+    const permissions = collectPermissions(permission);
+    return `${permission.fs} (${permissions.join(', ')})`;
+}
+
+export const hasAnyFsPermission = (permissions: IPermission[], fs: string): boolean => {
+    return permissions.filter(p => p.fs === fs).length > 0;
+}
+
+
+export const hasFsPermission = (permissions: IPermission[], fs: string, key: keyof IPermission): boolean => {
+    return permissions.filter(p => p.fs === fs && p[key]).length > 0;
 }
 
 export const getLastDayForSubmission = (interval: Interval): Date => {

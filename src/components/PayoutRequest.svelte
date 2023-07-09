@@ -67,7 +67,7 @@
     let editModal: boolean = false;
     $: tagClass = getTagClass(payoutRequest);
     $: tableLine = getTableLine($allFsData, payoutRequest, fsName, fsId, budgetTitle);
-    $: isRequestAllowed = isBeforeLastDayForSubmission(semester) && $loggedInUser && ($loggedInUser.admin || hasFsPermission($loggedInUser.permissions, fsId, 2));
+    $: isRequestAllowed = isBeforeLastDayForSubmission(semester) && $loggedInUser && ($loggedInUser.admin || hasFsPermission($loggedInUser.permissions, fsId, 'submit_payout_request'));
 </script>
 {#if payoutRequest}
     <div class="tags card-header-icon">

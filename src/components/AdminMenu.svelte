@@ -4,10 +4,11 @@
     import {fsen, loggedInUser, token} from "../stores";
     import {
         createAccount,
-        editPermissions,
+        editPermissions, hasAnyFsPermission,
         hasFsPermission,
         loadUsersList,
-        permissionLevelToString,
+        PERMISSIONS,
+        permissionsToString,
         permissionToString,
         resetPassword
     } from "../util";
@@ -18,7 +19,7 @@
         if (!$loggedInUser) {
             return false;
         }
-        return $loggedInUser.admin || $loggedInUser.permissions.some(permission => permission.level >= 2);
+        return $loggedInUser.admin || $loggedInUser.permissions.some(permission => permission.write_permissions);
     }
 
     let usersList: Map<string, IUserWithPermissions> | null = null;
@@ -41,22 +42,46 @@
     let resetPasswordPassword: string = '';
     let resetMessage: string | null = null;
 
-    const updateCreatePermission = (fs: string, level: number) => {
-        if (hasFsPermission(createAccountPermissions, fs, level)) {
-            createAccountPermissions = createAccountPermissions.filter(p => p.fs !== fs);
+    const updateCreatePermission = (fs: string, permission: keyof IPermission, value: boolean) => {
+        const permissionForFS = createAccountPermissions.filter(p => p.fs === fs);
+        if (permissionForFS.length) {
+            permissionForFS[0][permission] = value;
         } else {
-            createAccountPermissions = createAccountPermissions.filter(p => p.fs !== fs);
-            createAccountPermissions = [...createAccountPermissions, {fs:fs, level: level}].sort();
+            const newPermission = {
+                fs: fs,
+                read_permissions: false,
+                write_permissions: false,
+                read_files: false,
+                read_public_data: false,
+                write_public_data: false,
+                read_protected_data: false,
+                write_protected_data: false,
+                submit_payout_request: false,
+            }
+            newPermission[permission] = value;
+            createAccountPermissions = [...createAccountPermissions, newPermission].sort();
         }
     }
 
-    const updatePermission = (fs: string, level: number) => {
-        if (hasFsPermission(editPermissionsPermissions, fs, level)) {
-            editPermissionsPermissions = editPermissionsPermissions.filter(p => p.fs !== fs);
-            editPermissionsPermissions = [...editPermissionsPermissions, {fs: fs, level: 0}].sort();
+    const updatePermission = (fs: string, permission: keyof IPermission, value: boolean) => {
+        console.log(fs, permission, value, editPermissionsPermissions)
+        const permissionForFS = editPermissionsPermissions.filter(p => p.fs === fs);
+        if (permissionForFS.length) {
+            permissionForFS[0][permission] = value;
         } else {
-            editPermissionsPermissions = editPermissionsPermissions.filter(p => p.fs !== fs);
-            editPermissionsPermissions = [...editPermissionsPermissions, {fs:fs, level: level}].sort();
+            const newPermission = {
+                fs: fs,
+                read_permissions: false,
+                write_permissions: false,
+                read_files: false,
+                read_public_data: false,
+                write_public_data: false,
+                read_protected_data: false,
+                write_protected_data: false,
+                submit_payout_request: false,
+            }
+            newPermission[permission] = value;
+            editPermissionsPermissions = [...editPermissionsPermissions, newPermission].sort();
         }
     }
 
@@ -144,13 +169,17 @@
                 <li>
                     {usersList.get(userId).username}
                     {#if usersList.get(userId).admin}<span class="tag is-info">Admin</span>{/if}
-                    ({usersList.get(userId).permissions.map(permissionToString).join(', ')})
                     <button class="button is-small" on:click={()=>loadEditPermissions(usersList.get(userId))}>
                         Rechte bearbeiten
                     </button>
                     <button class="button is-small" on:click={()=>loadResetPassword(usersList.get(userId))}>
                         Passwort zurücksetzen
                     </button>
+                    <ul>
+                        {#each usersList.get(userId).permissions.map(permissionsToString) as permissions}
+                            <li>{permissions}</li>
+                        {/each}
+                    </ul>
                 </li>
             {/each}
         </ul>
@@ -183,19 +212,21 @@
         <hr>
 
         {#each $fsen as fs}
-            <div class="field">
-                <label class="checkbox">
-                    <input type="checkbox" checked={hasFsPermission(createAccountPermissions, fs, 1)}
-                           on:click={()=>updateCreatePermission(fs, 1)}>
-                    {permissionLevelToString(1)}
-                </label>
-                <label class="checkbox">
-                    <input type="checkbox" checked={hasFsPermission(createAccountPermissions, fs, 2)}
-                           on:click={()=>updateCreatePermission(fs, 2)}>
-                    {permissionLevelToString(2)}
-                </label>
-                | {fs}
-            </div>
+            <details open="{hasAnyFsPermission(createAccountPermissions, fs)}">
+                <summary>{fs}</summary>
+                <ul>
+                    {#each PERMISSIONS as permission}
+                        <li>
+                            <label class="checkbox">
+                                <input type="checkbox"
+                                       checked={hasFsPermission(createAccountPermissions, fs, permission)}
+                                       on:click={(event)=>updateCreatePermission(fs, permission, event.target.checked)}>
+                                {permissionToString(permission)}
+                            </label>
+                        </li>
+                    {/each}
+                </ul>
+            </details>
         {/each}
     {:else}
         <hr>
@@ -203,21 +234,23 @@
         <b>Berechtigungen:</b>
 
         {#each $loggedInUser.permissions as p}
-            <div class="field">
-                <label class="checkbox">
-                    <input type="checkbox" checked={hasFsPermission(createAccountPermissions, p.fs, 1)}
-                           on:click={()=>updateCreatePermission(p.fs, 1)}>
-                    {permissionLevelToString(1)}
-                </label>
-                {#if hasFsPermission($loggedInUser.permissions, p.fs, 2)}
-                    <label class="checkbox">
-                        <input type="checkbox" checked={hasFsPermission(createAccountPermissions, p.fs, 2)}
-                               on:click={()=>updateCreatePermission(p.fs, 2)}>
-                        {permissionLevelToString(2)}
-                    </label>
-                {/if}
-                | {p.fs}
-            </div>
+            {#if p.write_permissions}
+                <details open>
+                    <summary>{p.fs}</summary>
+                    <ul>
+                        {#each PERMISSIONS as permission}
+                            <li>
+                                <label class="checkbox">
+                                    <input type="checkbox"
+                                           checked={hasFsPermission(createAccountPermissions, p.fs, permission)}
+                                           on:click={(event)=>updateCreatePermission(p.fs, permission, event.target.checked)}>
+                                    {permissionToString(permission)}
+                                </label>
+                            </li>
+                        {/each}
+                    </ul>
+                </details>
+            {/if}
         {/each}
     {/if}
 
@@ -248,19 +281,21 @@
         <hr>
 
         {#each $fsen as fs}
-            <div class="field">
-                <label class="checkbox">
-                    <input type="checkbox" checked={hasFsPermission(editPermissionsPermissions, fs, 1)}
-                           on:click={()=>updatePermission(fs, 1)}>
-                    {permissionLevelToString(1)}
-                </label>
-                <label class="checkbox">
-                    <input type="checkbox" checked={hasFsPermission(editPermissionsPermissions, fs, 2)}
-                           on:click={()=>updatePermission(fs, 2)}>
-                    {permissionLevelToString(2)}
-                </label>
-                | {fs}
-            </div>
+            <details open="{hasAnyFsPermission(editPermissionsPermissions, fs)}">
+                <summary>{fs}</summary>
+                <ul>
+                    {#each PERMISSIONS as permission}
+                        <li>
+                            <label class="checkbox">
+                                <input type="checkbox"
+                                       checked={hasFsPermission(editPermissionsPermissions, fs, permission)}
+                                       on:click={(event)=>updatePermission(fs, permission, event.target.checked)}>
+                                {permissionToString(permission)}
+                            </label>
+                        </li>
+                    {/each}
+                </ul>
+            </details>
         {/each}
     {:else}
         <hr>
@@ -268,20 +303,22 @@
         <b>Berechtigungen:</b>
 
         {#each $loggedInUser.permissions as p}
-            {#if hasFsPermission($loggedInUser.permissions, p.fs, 2)}
-                <div class="field">
-                    <label class="checkbox">
-                        <input type="checkbox" checked={hasFsPermission(editPermissionsPermissions, p.fs, 1)}
-                               on:click={()=>updatePermission(p.fs, 1)}>
-                        {permissionLevelToString(1)}
-                    </label>
-                    <label class="checkbox">
-                        <input type="checkbox" checked={hasFsPermission(editPermissionsPermissions, p.fs, 2)}
-                               on:click={()=>updatePermission(p.fs, 2)}>
-                        {permissionLevelToString(2)}
-                    </label>
-                    | {p.fs}
-                </div>
+            {#if p.write_permissions}
+            <details open>
+                <summary>{p.fs}</summary>
+                <ul>
+                    {#each PERMISSIONS as permission}
+                        <li>
+                            <label class="checkbox">
+                                <input type="checkbox"
+                                       checked={hasFsPermission(editPermissionsPermissions, p.fs, permission)}
+                                       on:click={(event)=>updatePermission(p.fs, permission, event.target.checked)}>
+                                {permissionToString(permission)}
+                            </label>
+                        </li>
+                    {/each}
+                </ul>
+            </details>
             {/if}
         {/each}
     {/if}

@@ -81,7 +81,14 @@ export interface IUserWithPermissions {
 
 export interface IPermission {
     fs: string
-    level: number
+    read_permissions: boolean
+    write_permissions: boolean
+    read_files: boolean
+    read_public_data: boolean
+    write_public_data: boolean
+    read_protected_data: boolean
+    write_protected_data: boolean
+    submit_payout_request: boolean
 }
 
 

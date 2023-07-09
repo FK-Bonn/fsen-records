@@ -12,7 +12,7 @@
     export let document: IAnnotatedDocument;
     export let withReferences: boolean = true;
     export let studentBody: IStudentBody;
-    let displayDownloadButton = $loggedInUser && studentBody && ($loggedInUser.admin || hasFsPermission($loggedInUser.permissions, studentBody.id));
+    let displayDownloadButton = $loggedInUser && studentBody && ($loggedInUser.admin || hasFsPermission($loggedInUser.permissions, studentBody.id, 'read_files'));
 </script>
 
 {#if document.checked}
