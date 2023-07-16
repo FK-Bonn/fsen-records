@@ -6,6 +6,7 @@
     import type {Interval} from "../Calculator";
     import RequestModal from "./RequestModal.svelte";
     import RequestEditModal from "./RequestEditModal.svelte";
+    import RequestHistoryModal from "./RequestHistoryModal.svelte";
 
     const getTagClass = (payoutRequest: INewPayoutRequestData): string => {
         if (!payoutRequest) {
@@ -51,11 +52,19 @@
     const showModal = (e) => {
         modal = true;
         editModal = false;
+        historyModal = false;
     }
 
     const showEditModal = (e) => {
         editModal = true;
         modal = false;
+        historyModal = false;
+    }
+
+    const showHistoryModal = (e) => {
+        editModal = false;
+        modal = false;
+        historyModal = true;
     }
 
     export let fsName: string = '';
@@ -65,6 +74,7 @@
     export let payoutRequest: INewPayoutRequestData;
     let modal: boolean = false;
     let editModal: boolean = false;
+    let historyModal: boolean = false;
     $: tagClass = getTagClass(payoutRequest);
     $: tableLine = getTableLine($allFsData, payoutRequest, fsName, fsId, budgetTitle);
     $: isRequestAllowed = isBeforeLastDayForSubmission(semester) && $loggedInUser && ($loggedInUser.admin || hasFsPermission($loggedInUser.permissions, fsId, 'submit_payout_request'));
@@ -74,8 +84,13 @@
         <CopyableTag tagClass={tagClass} text={payoutRequest.status} copyText="{tableLine}"/>
         <CopyableTag text={payoutRequest.request_id}/>
         <CopyableTag text={euroCents(payoutRequest.amount_cents)} bold={true}/>
+        <button class="button is-small" on:click|stopPropagation={showHistoryModal} title="Bearbeitungsverlauf anzeigen">
+            📜
+        </button>
         {#if $loggedInUser && $loggedInUser.admin}
-            <button class="button is-small" on:click|stopPropagation={showEditModal}>✏️</button>
+            <button class="button is-small" on:click|stopPropagation={showEditModal} title="Antrag bearbeiten">
+                ✏️
+            </button>
         {/if}
     </div>
 {:else if isRequestAllowed}
@@ -88,6 +103,9 @@
 {/if}
 {#if editModal && payoutRequest}
     <RequestEditModal {payoutRequest} bind:editModal={editModal}/>
+{/if}
+{#if historyModal && payoutRequest}
+    <RequestHistoryModal {payoutRequest} bind:historyModal={historyModal}/>
 {/if}
 
 <style>

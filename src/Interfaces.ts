@@ -55,9 +55,9 @@ export interface INewPayoutRequestData {
 }
 
 export interface IFullPayoutRequestData extends INewPayoutRequestData {
-    requester: string
-    last_modified_timestamp: string
-    last_modified_by: string
+    requester?: string
+    last_modified_timestamp?: string
+    last_modified_by?: string
 }
 
 export interface ISemester {

@@ -411,6 +411,17 @@ export const getPayoutRequestData = async (fixedDate: string | null = null): Pro
         });
 };
 
+export const getPayoutRequestHistory = async (request_id: string, token: string): Promise<IFullPayoutRequestData[]> => {
+    let url = backendPrefix + `/payout-request/afsg/${request_id}/history`;
+    return fetch(url, {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
+        .then(response => response.json(), () => {
+            return Promise.reject("Fetching data failed");
+        })
+        .then(rawdata => {
+            return rawdata;
+        });
+};
+
 export const getAllFsData = async (token: string): Promise<IAllFsData | null> => {
     if(!token){
         return null;
