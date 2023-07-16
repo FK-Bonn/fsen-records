@@ -22,7 +22,6 @@
         </tr>
         </thead>
         <tbody>
-
         {#each data.email_addresses as email_address}
             <tr>
                 <th>{email_address.address}</th>

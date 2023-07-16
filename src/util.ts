@@ -4,15 +4,17 @@ import {
     IAnnotatedDocument,
     IAnnotation,
     IData,
-    IFsData, IFullPayoutRequestData, INewPayoutRequestData,
-    IPayoutRequestData,
+    IFsData,
+    IFsDataResponse,
+    IFullPayoutRequestData,
+    INewPayoutRequestData,
     IPermission,
     IProtectedFsData,
+    IProtectedFsDataResponse,
     IUserWithPermissions
 } from "./Interfaces";
 import type {Interval} from "./Calculator";
 import {backendPrefix} from "./settings";
-import {payoutRequestData} from "./stores";
 
 
 export const PERMISSIONS: (keyof IPermission)[] = [
@@ -425,7 +427,7 @@ export const getAllFsData = async (token: string): Promise<IAllFsData | null> =>
             return json;
         });
 }
-export const getFsData = async (fs: string, token: string): Promise<IFsData | null> => {
+export const getFsData = async (fs: string, token: string): Promise<IFsDataResponse | null> => {
     return fetch(backendPrefix + '/data/' + fs, {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
         .then(resp => {
             if (resp.ok) {
@@ -457,7 +459,7 @@ export const putFsData = async (fs: string, data: IFsData, token: string): Promi
         });
 }
 
-export const getProtectedFsData = async (fs: string, token: string): Promise<IProtectedFsData | null> => {
+export const getProtectedFsData = async (fs: string, token: string): Promise<IProtectedFsDataResponse | null> => {
     return fetch(backendPrefix + '/data/' + fs + '/protected', {
         method: 'GET',
         headers: {'Authorization': `Bearer ${token}`}

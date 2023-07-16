@@ -35,7 +35,7 @@
         if (allData?.hasOwnProperty(fsId)) {
             const fsData = allData[fsId];
             if (fsData.protected_data) {
-                iban = fsData.protected_data.iban;
+                iban = fsData.protected_data.data.iban;
             }
         }
         return [

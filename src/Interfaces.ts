@@ -138,6 +138,11 @@ export interface IFsData {
     other: object
 }
 
+export interface IFsDataResponse {
+    data: IFsData
+    is_latest: boolean
+}
+
 export interface IServiceTimes {
     monday: string
     tuesday: string
@@ -159,6 +164,11 @@ export interface IProtectedFsData {
     other: object
 }
 
+export interface IProtectedFsDataResponse {
+    data: IProtectedFsData
+    is_latest: boolean
+}
+
 export interface IAllFsData {
-    [key: string]: { data?: IFsData, protected_data?: IProtectedFsData }
+    [key: string]: { data?: IFsDataResponse, protected_data?: IProtectedFsDataResponse }
 }

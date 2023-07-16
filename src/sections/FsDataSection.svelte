@@ -55,39 +55,61 @@
 
 <div class="fs-data content">
     {#if data}
+        {#if !data.is_latest}
+            <article class="message is-danger">
+                <div class="message-header"><p>Neuere Daten vorhanden</p></div>
+                <div class="message-body">
+                    <p>
+                        Diese Daten sind veraltet.
+                        Es sind neuere Daten vorhanden, die allerdings noch nicht überprüft wurden
+                        und deshalb nicht angezeigt werden.</p>
+                </div>
+            </article>
+        {/if}
         {#if editFsData}
-            <button on:click={()=>saveFsData(data)} class="button is-small is-bordered is-pulled-right">
+            <button on:click={()=>saveFsData(data.data)} class="button is-small is-bordered is-pulled-right">
                 Speichern
             </button>
             <button on:click={()=>reloadFsData()} class="button is-small is-bordered is-pulled-right">
                 Abbrechen
             </button>
-            <FsDataEdit {data}/>
+            <FsDataEdit data="{data.data}"/>
         {:else}
             {#if protectedData}
                 <button on:click={()=>makeFsDataEditable()} class="button is-small is-bordered is-pulled-right">
                     Bearbeiten
                 </button>
             {/if}
-            <FsDataDisplay {data}/>
+            <FsDataDisplay data="{data.data}"/>
         {/if}
     {/if}
     {#if protectedData}
+        {#if !protectedData.is_latest}
+            <article class="message is-danger">
+                <div class="message-header"><p>Neuere interne Daten vorhanden</p></div>
+                <div class="message-body">
+                    <p>
+                        Diese internen Daten sind veraltet.
+                        Es sind neuere interne Daten vorhanden, die allerdings noch nicht überprüft wurden
+                        und deshalb nicht angezeigt werden.</p>
+                </div>
+            </article>
+        {/if}
         {#if editProtectedFsData}
-            <button on:click={()=>saveProtectedFsData(protectedData)}
+            <button on:click={()=>saveProtectedFsData(protectedData.data)}
                     class="button is-small is-bordered is-pulled-right">
                 Speichern
             </button>
             <button on:click={()=>reloadProtectedFsData()} class="button is-small is-bordered is-pulled-right">
                 Abbrechen
             </button>
-            <ProtectedFsDataEdit data="{protectedData}"/>
+            <ProtectedFsDataEdit data="{protectedData.data}"/>
         {:else}
             <button on:click={()=>makeProtectedFsDataEditable()}
                     class="button is-small is-bordered is-pulled-right">
                 Bearbeiten
             </button>
-            <ProtectedFsDataDisplay data="{protectedData}"/>
+            <ProtectedFsDataDisplay data="{protectedData.data}"/>
         {/if}
     {/if}
 </div>
