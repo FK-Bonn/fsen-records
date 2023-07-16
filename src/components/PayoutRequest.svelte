@@ -36,7 +36,11 @@
         if (allData?.hasOwnProperty(fsId)) {
             const fsData = allData[fsId];
             if (fsData.protected_data) {
-                iban = fsData.protected_data.data.iban;
+                if (fsData.protected_data.is_latest) {
+                    iban = fsData.protected_data.data.iban;
+                } else {
+                    iban = 'DIE INTERNEN DATEN WURDEN MODIFIZIERT, BITTE PRÜFEN, GGF BESTÄTIGEN, DANN NEU KOPIEREN';
+                }
             }
         }
         return [

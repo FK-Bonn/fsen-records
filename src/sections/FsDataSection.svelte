@@ -1,15 +1,19 @@
 <script type="ts">
     import type {IFsData, IProtectedFsData, IStudentBody} from "../Interfaces";
-    import {allFsData, token} from "../stores";
-    import {getFsData, getProtectedFsData, putFsData, putProtectedFsData} from "../util";
+    import {allFsData, loggedInUser, token} from "../stores";
+    import {getFsData, getProtectedFsData, hasFsPermission, putFsData, putProtectedFsData} from "../util";
     import FsDataDisplay from "../components/FsDataDisplay.svelte";
     import ProtectedFsDataDisplay from "../components/ProtectedFsDataDisplay.svelte";
     import FsDataEdit from "../components/FsDataEdit.svelte";
     import ProtectedFsDataEdit from "../components/ProtectedFsDataEdit.svelte";
+    import FsDataHistoryModal from "../components/FsDataHistoryModal.svelte";
+    import FsProtectedDataHistoryModal from "../components/FsProtectedDataHistoryModal.svelte";
 
     export let studentBody: IStudentBody;
     let editFsData = false;
     let editProtectedFsData = false;
+    let fsDataHistoryModal = false;
+    let fsProtectedDataHistoryModal = false;
     $: data = $allFsData?.hasOwnProperty(studentBody.id) ? $allFsData[studentBody.id].data : null;
     $: protectedData = $allFsData?.hasOwnProperty(studentBody.id) ? $allFsData[studentBody.id].protected_data : null;
 
@@ -51,6 +55,15 @@
             $allFsData[studentBody.id].protected_data = data;
         });
     }
+
+    const displayFsDataHistory = () => {
+        fsDataHistoryModal = true;
+        fsProtectedDataHistoryModal = false;
+    }
+    const displayProtectedFsDataHistory = () => {
+        fsDataHistoryModal = false;
+        fsProtectedDataHistoryModal = true;
+    }
 </script>
 
 <div class="fs-data content">
@@ -75,7 +88,12 @@
             </button>
             <FsDataEdit data="{data.data}"/>
         {:else}
-            {#if protectedData}
+            {#if $loggedInUser?.admin}
+                <button on:click={()=>displayFsDataHistory()} class="button is-small is-bordered is-pulled-right">
+                    Bearbeitungsverlauf
+                </button>
+            {/if}
+            {#if $loggedInUser && (hasFsPermission($loggedInUser.permissions, studentBody.id, 'write_public_data') || $loggedInUser.admin)}
                 <button on:click={()=>makeFsDataEditable()} class="button is-small is-bordered is-pulled-right">
                     Bearbeiten
                 </button>
@@ -105,6 +123,12 @@
             </button>
             <ProtectedFsDataEdit data="{protectedData.data}"/>
         {:else}
+            {#if $loggedInUser?.admin}
+                <button on:click={()=>displayProtectedFsDataHistory()}
+                        class="button is-small is-bordered is-pulled-right">
+                    Bearbeitungsverlauf
+                </button>
+            {/if}
             <button on:click={()=>makeProtectedFsDataEditable()}
                     class="button is-small is-bordered is-pulled-right">
                 Bearbeiten
@@ -113,6 +137,12 @@
         {/if}
     {/if}
 </div>
+{#if fsDataHistoryModal}
+    <FsDataHistoryModal fs="{studentBody.id}" bind:fsDataHistoryModal={fsDataHistoryModal}/>
+{/if}
+{#if fsProtectedDataHistoryModal}
+    <FsProtectedDataHistoryModal fs="{studentBody.id}" bind:fsProtectedDataHistoryModal={fsProtectedDataHistoryModal}/>
+{/if}
 
 <style>
     .fs-data {

@@ -143,6 +143,15 @@ export interface IFsDataResponse {
     is_latest: boolean
 }
 
+export interface IFsDataHistoryEntry extends IFsData {
+    id: number
+    user: string
+    timestamp: string
+    approved: boolean
+    approved_by?: string
+    approval_timestamp?: string
+}
+
 export interface IServiceTimes {
     monday: string
     tuesday: string
@@ -162,6 +171,15 @@ export interface IProtectedFsData {
     iban: string
     bic: string
     other: object
+}
+
+export interface IProtectedFsDataHistoryEntry extends IProtectedFsData {
+    id: number
+    user: string
+    timestamp: string
+    approved: boolean
+    approved_by?: string
+    approval_timestamp?: string
 }
 
 export interface IProtectedFsDataResponse {

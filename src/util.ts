@@ -9,7 +9,7 @@ import {
     IFullPayoutRequestData,
     INewPayoutRequestData,
     IPermission,
-    IProtectedFsData,
+    IProtectedFsData, IProtectedFsDataHistoryEntry,
     IProtectedFsDataResponse,
     IUserWithPermissions
 } from "./Interfaces";
@@ -421,6 +421,73 @@ export const getPayoutRequestHistory = async (request_id: string, token: string)
             return rawdata;
         });
 };
+
+export const getFsDataHistory = async (fs: string, token: string): Promise<IFsData[]> => {
+    let url = backendPrefix + `/data/${fs}/history`;
+    return fetch(url, {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
+        .then(response => response.json(), () => {
+            return Promise.reject("Fetching data failed");
+        })
+        .then(rawdata => {
+            return rawdata;
+        });
+};
+
+export const getProtectedFsDataHistory = async (fs: string, token: string): Promise<IProtectedFsDataHistoryEntry[]> => {
+    let url = backendPrefix + `/data/${fs}/protected/history`;
+    return fetch(url, {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
+        .then(response => response.json(), () => {
+            return Promise.reject("Fetching data failed");
+        })
+        .then(rawdata => {
+            return rawdata;
+        });
+};
+
+
+export const approveFsData = async (id: number, token: string): Promise<{ message: string }> => {
+    let url = backendPrefix + `/data/approve/${id}`;
+    return fetch(url,
+        {
+            method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+        })
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else if (resp.status == 404) {
+                return Promise.reject(`Daten mit ID ${id} existieren nicht.`);
+            } else {
+                return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
+            }
+        })
+        .then(json => {
+            return {message: 'Daten bestätigt.'};
+        }, reason => {
+            return {message: reason};
+        });
+}
+
+export const approveProtectedFsData = async (id: number, token: string): Promise<{ message: string }> => {
+    let url = backendPrefix + `/data/approve/protected/${id}`;
+    return fetch(url,
+        {
+            method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+        })
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else if (resp.status == 404) {
+                return Promise.reject(`Daten mit ID ${id} existieren nicht.`);
+            } else {
+                return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
+            }
+        })
+        .then(json => {
+            return {message: 'Interne Daten bestätigt.'};
+        }, reason => {
+            return {message: reason};
+        });
+}
 
 export const getAllFsData = async (token: string): Promise<IAllFsData | null> => {
     if(!token){
