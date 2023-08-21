@@ -52,6 +52,29 @@
         return {sum, count};
     }
 
+    const rowCountSum = (semester: string) => {
+        let count = 0;
+        if (semesters) {
+            const semesterData = semesters.get(semester);
+            for (let statusValues of semesterData.values()) {
+                count += statusValues.count;
+            }
+        }
+        return count;
+    }
+
+    const totalPayoutRequestCount = () => {
+        let count = 0;
+        if (semesters) {
+            for (let semester of semesters.values()) {
+                for (let statusValues of semester.values()) {
+                    count += statusValues.count;
+                }
+            }
+        }
+        return count;
+    }
+
     $: semesters = mangleData($payoutRequestData);
     $: headers = getHeaders($payoutRequestData);
 </script>
@@ -68,6 +91,7 @@
         {#each headers as header}
             <th colspan="2">{header}</th>
         {/each}
+        <th>#</th>
     </tr>
     </thead>
     <tbody>
@@ -78,6 +102,7 @@
                 <td><span class="tag is-light">{semesters.get(semester).get(status)?.count || 0}</span></td>
                 <td>{euroCents(semesters.get(semester).get(status)?.sum)}</td>
             {/each}
+            <td><span class="tag is-info is-light">{rowCountSum(semester)}</span></td>
         </tr>
     {/each}
     </tbody>
@@ -87,6 +112,7 @@
         {#each headers as header}
             <th colspan="2">{header}</th>
         {/each}
+        <th>#</th>
     </tr>
     <tr>
         <th>Gesamt</th>
@@ -94,6 +120,7 @@
             <th><span class="tag is-light">{totalSum(header).count}</span></th>
             <th>{euroCents(totalSum(header).sum)}</th>
         {/each}
+        <td><span class="tag is-info is-light">{totalPayoutRequestCount()}</span></td>
     </tr>
     </tfoot>
 </table>
