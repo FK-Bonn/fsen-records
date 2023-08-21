@@ -3,17 +3,23 @@
     import {INewPayoutRequestData} from "../Interfaces";
     import {payoutRequestData} from "../stores";
 
-    const mangleData = (data: Map<string, Map<string, INewPayoutRequestData>>): Map<string, Map<string, number>> => {
+    interface CountWithSum {
+        count: number
+        sum: number
+    }
+
+    const mangleData = (data: Map<string, Map<string, INewPayoutRequestData>>): Map<string, Map<string, CountWithSum>> => {
         if (!data) {
             return new Map();
         }
-        const retval: Map<string, Map<string, number>> = new Map<>();
+        const retval: Map<string, Map<string, CountWithSum>> = new Map<>();
         for (let [fs, semester] of data) {
             for (let [semesterkey, semesterdata] of semester) {
                 if (!retval.has(semesterkey)) {
                     retval.set(semesterkey, new Map<string, number>());
                 }
-                const newValue = (retval.get(semesterkey).get(semesterdata.status) || 0) + semesterdata.amount_cents;
+                const oldValue = retval.get(semesterkey).get(semesterdata.status) || {count: 0, sum: 0}
+                const newValue = {count: oldValue.count + 1, sum: oldValue.sum + semesterdata.amount_cents};
                 retval.get(semesterkey).set(semesterdata.status, newValue);
             }
         }
@@ -35,13 +41,15 @@
     }
 
     const totalSum = (status: string) => {
-        let value = 0;
+        let sum = 0;
+        let count = 0;
         if (semesters) {
             for (let semester of semesters.values()) {
-                value += semester.get(status) || 0;
+                sum += semester.get(status)?.sum || 0;
+                count += semester.get(status)?.count || 0;
             }
         }
-        return value;
+        return {sum, count};
     }
 
     $: semesters = mangleData($payoutRequestData);
@@ -58,7 +66,7 @@
     <tr>
         <th>Semester</th>
         {#each headers as header}
-            <th>{header}</th>
+            <th colspan="2">{header}</th>
         {/each}
     </tr>
     </thead>
@@ -67,7 +75,8 @@
         <tr>
             <th>{semester}</th>
             {#each headers as status}
-                <td>{euroCents(semesters.get(semester).get(status))}</td>
+                <td><span class="tag is-light">{semesters.get(semester).get(status)?.count || 0}</span></td>
+                <td>{euroCents(semesters.get(semester).get(status)?.sum)}</td>
             {/each}
         </tr>
     {/each}
@@ -76,13 +85,14 @@
     <tr>
         <th>Semester</th>
         {#each headers as header}
-            <th>{header}</th>
+            <th colspan="2">{header}</th>
         {/each}
     </tr>
     <tr>
         <th>Gesamt</th>
         {#each headers as header}
-            <th>{euroCents(totalSum(header))}</th>
+            <th><span class="tag is-light">{totalSum(header).count}</span></th>
+            <th>{euroCents(totalSum(header).sum)}</th>
         {/each}
     </tr>
     </tfoot>
