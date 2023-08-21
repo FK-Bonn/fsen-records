@@ -1,6 +1,6 @@
 <script type="ts">
     import type {IAllFsData, INewPayoutRequestData} from "../Interfaces";
-    import {euroCents, hasFsPermission, isBeforeLastDayForSubmission} from "../util";
+    import {euroCents, hasFsPermission, isBeforeLastDayForSubmission, getStatusTagClass} from "../util";
     import CopyableTag from "./CopyableTag.svelte";
     import {allFsData, loggedInUser} from "../stores";
     import type {Interval} from "../Calculator";
@@ -8,25 +8,6 @@
     import RequestEditModal from "./RequestEditModal.svelte";
     import RequestHistoryModal from "./RequestHistoryModal.svelte";
 
-    const getTagClass = (payoutRequest: INewPayoutRequestData): string => {
-        if (!payoutRequest) {
-            return '';
-        }
-        const status = payoutRequest.status;
-        if (['ÜBERWIESEN', 'ANGEWIESEN'].includes(status)) {
-            return 'is-light';
-        }
-        if (status === 'VOLLSTÄNDIG') {
-            return 'is-success';
-        }
-        if (status === 'GESTELLT') {
-            return 'is-dark';
-        }
-        if (status === 'EINGEREICHT') {
-            return 'is-info';
-        }
-        return 'is-danger';
-    }
 
     const getTableLine = (allData: IAllFsData, payoutRequest: INewPayoutRequestData, fsName: string, fsId: string, budgetTitle: string): string => {
         if (!payoutRequest) {
@@ -79,7 +60,7 @@
     let modal: boolean = false;
     let editModal: boolean = false;
     let historyModal: boolean = false;
-    $: tagClass = getTagClass(payoutRequest);
+    $: tagClass = getStatusTagClass(payoutRequest);
     $: tableLine = getTableLine($allFsData, payoutRequest, fsName, fsId, budgetTitle);
     $: isRequestAllowed = isBeforeLastDayForSubmission(semester) && $loggedInUser && ($loggedInUser.admin || hasFsPermission($loggedInUser.permissions, fsId, 'submit_payout_request'));
 </script>

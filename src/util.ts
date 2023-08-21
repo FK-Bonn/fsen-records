@@ -132,6 +132,26 @@ export const calculateSemesterId = (interval?: Interval) => {
     }
 }
 
+export const getStatusTagClass = (payoutRequest: INewPayoutRequestData): string => {
+    if (!payoutRequest) {
+        return '';
+    }
+    const status = payoutRequest.status;
+    if (['ÜBERWIESEN', 'ANGEWIESEN'].includes(status)) {
+        return 'is-light';
+    }
+    if (status === 'VOLLSTÄNDIG') {
+        return 'is-success';
+    }
+    if (status === 'GESTELLT') {
+        return 'is-dark';
+    }
+    if (status === 'EINGEREICHT') {
+        return 'is-info';
+    }
+    return 'is-danger';
+}
+
 export const copyToClipboard = (str: string) => {
     if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
         return navigator.clipboard.writeText(str);

@@ -1,9 +1,11 @@
 <script type="ts">
     import {Interval} from "../Calculator";
-    import {euroCents, formatDate} from "../util";
+    import {euroCents, formatDate, getStatusTagClass} from "../util";
     import type {IFullPayoutRequestData, INewPayoutRequestData} from "../Interfaces";
+    import CopyableTag from "./CopyableTag.svelte";
 
     export let payoutRequest: INewPayoutRequestData | IFullPayoutRequestData;
+    $: tagClass = getStatusTagClass(payoutRequest);
 </script>
 
 <table class="table is-narrow">
@@ -17,7 +19,7 @@
     </tr>
     <tr>
         <th>Antragsnummer</th>
-        <td>{payoutRequest.request_id}</td>
+        <td><CopyableTag text={payoutRequest.request_id}/></td>
     </tr>
     <tr>
         <th>Antragsdatum</th>
@@ -25,7 +27,7 @@
     </tr>
     <tr>
         <th>Status</th>
-        <td>{payoutRequest.status}</td>
+        <td><span class="tag {tagClass}">{payoutRequest.status}</span></td>
     </tr>
     <tr>
         <th>Status-Datum</th>
@@ -33,7 +35,7 @@
     </tr>
     <tr>
         <th>Betrag</th>
-        <td>{euroCents(payoutRequest.amount_cents)}</td>
+        <td><CopyableTag text={euroCents(payoutRequest.amount_cents)} bold={true}/></td>
     </tr>
     <tr>
         <th>Kommentar</th>
