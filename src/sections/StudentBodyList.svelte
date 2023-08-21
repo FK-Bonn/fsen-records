@@ -10,7 +10,8 @@
     import {scrollToHashIfPresent} from "../util";
     import {payoutRequestData} from "../stores";
 
-    export let data: IData
+    export let data: IData;
+    export let fixedDate: string | null;
     $: lastUpdate = new Date(data.timestamp * 1000).toLocaleString();
     $: lastUpdateLevel = (Date.now() / 1000 - data.timestamp) > 3600 ? AnnotationLevel.Warning : AnnotationLevel.Ok;
     $: semesters = data.semesters.map(value => Interval.fromStrings(value.start, value.end))
@@ -33,6 +34,7 @@
     {#each [...data.studentBodies] as [key, studentBody] (key)}
         <ToggleableStudentBody {studentBody}
                                {semesters}
-                               budgetTitles={data.budgetTitles}/>
+                               budgetTitles={data.budgetTitles}
+                               {fixedDate}/>
     {/each}
 </ul>

@@ -38,16 +38,17 @@
 
     export let budgetTitles: { [semester: string]: string };
     export let semesters: Interval[];
+    export let fixedDate: string | null;
     export let studentBody: IStudentBody;
     $: payoutRequests = $payoutRequestData ? $payoutRequestData.get(studentBody.id) : undefined
-    $: calculator = new CurrentlyCanBePaidCalculator(studentBody);
+    $: calculator = new CurrentlyCanBePaidCalculator(studentBody, fixedDate);
     $: show = shouldShow($showOnlyWhoCurrentlyCanBePaid, $showOnlySemestersWithStar, studentBody, calculator, payoutRequests, semesters);
 </script>
 
 {#if show}
     {#if $compactMode}
-        <CompactStudentBody {studentBody} {semesters}/>
+        <CompactStudentBody {studentBody} {semesters} {fixedDate}/>
     {:else}
-        <StudentBody {studentBody} {payoutRequests} {semesters} {budgetTitles}/>
+        <StudentBody {studentBody} {payoutRequests} {semesters} {budgetTitles} {fixedDate}/>
     {/if}
 {/if}

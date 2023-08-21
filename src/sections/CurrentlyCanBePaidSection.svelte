@@ -6,13 +6,14 @@
     import {AnnotationLevel} from "../Interfaces";
     import {CurrentlyCanBePaidCalculator} from "../Calculator";
 
-    const calculateLevel = (studentBody: IStudentBody) => {
-        const calculator = new CurrentlyCanBePaidCalculator(studentBody);
+    const calculateLevel = (studentBody: IStudentBody, fixedDate: string | null) => {
+        const calculator = new CurrentlyCanBePaidCalculator(studentBody, fixedDate);
         return calculator.calculateOverallLevel();
     }
 
     export let studentBody: IStudentBody;
-    $: level = calculateLevel(studentBody);
+    export let fixedDate: string | null;
+    $: level = calculateLevel(studentBody, fixedDate);
     let opened: boolean = false;
 
     const toggle = () => {
@@ -30,7 +31,7 @@
         </button>
     </header>
     {#if opened}
-        <CurrentlyCanBePaidContent {studentBody}/>
+        <CurrentlyCanBePaidContent {studentBody} {fixedDate}/>
     {/if}
 </div>
 

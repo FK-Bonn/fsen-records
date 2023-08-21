@@ -17,7 +17,7 @@
                     Stand von {fixedDate}
                 </div>
             {/if}
-            <StudentBodyList data={fetchedData}/>
+            <StudentBodyList data={fetchedData} {fixedDate}/>
         </div>
     </section>
 {:else}

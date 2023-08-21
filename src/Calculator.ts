@@ -73,9 +73,11 @@ export class VerdictCalculator {
 
 export class CurrentlyCanBePaidCalculator {
     private readonly studentBody: IStudentBody;
+    private readonly date: string | null;
 
-    constructor(studentBody: IStudentBody) {
+    constructor(studentBody: IStudentBody, fixedDate: string | null) {
         this.studentBody = studentBody;
+        this.date = fixedDate;
     }
 
     public calculateOverallLevel(): AnnotationLevel {
@@ -197,7 +199,7 @@ export class CurrentlyCanBePaidCalculator {
             return false;
         }
 
-        const limit = new Date();
+        const limit = this.date ? new Date(this.date) : new Date();
         limit.setFullYear(limit.getFullYear() - 1);
         return limit < stringToDate(mostRecentElection.dateEnd);
     }
@@ -263,7 +265,7 @@ export class CurrentlyCanBePaidCalculator {
         }
         const startDay = parseInt(this.studentBody.financialYearStart.substring(0, 2));
         const startMonth = parseInt(this.studentBody.financialYearStart.substring(3, 5)) - 1;
-        const now = new Date();
+        const now = this.date ? new Date(this.date) : new Date();
         const startDayCurrentFinancialYear = new Date(now.getFullYear(), startMonth, startDay);
         if (startDayCurrentFinancialYear > now) {
             startDayCurrentFinancialYear.setFullYear(startDayCurrentFinancialYear.getFullYear() - 1);

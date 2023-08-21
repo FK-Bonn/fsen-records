@@ -7,7 +7,8 @@
 
     export let semesters: Interval[];
     export let studentBody: IStudentBody;
-    $: calculator = new CurrentlyCanBePaidCalculator(studentBody);
+    export let fixedDate: string | null;
+    $: calculator = new CurrentlyCanBePaidCalculator(studentBody, fixedDate);
 </script>
 
 <li>

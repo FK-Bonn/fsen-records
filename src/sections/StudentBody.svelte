@@ -16,7 +16,8 @@
     export let budgetTitles: { [semester: string]: string };
     export let semesters: Interval[];
     export let studentBody: IStudentBody;
-    $: calculator = new CurrentlyCanBePaidCalculator(studentBody);
+    export let fixedDate: string | null;
+    $: calculator = new CurrentlyCanBePaidCalculator(studentBody, fixedDate);
     $: showData = $displayFsData && $loggedInUser && studentBody &&
         ($loggedInUser.admin || hasFsPermission($loggedInUser.permissions, studentBody.id, 'read_public_data')
             || hasFsPermission($loggedInUser.permissions, studentBody.id, 'read_protected_data'));
@@ -44,7 +45,7 @@
             <br/>
             Aktuelles Haushaltsjahr:
             <DateRange interval={calculator.getCurrentFinancialYear()}/>
-            {#if calculator.getCurrentFinancialYear().end < new Date()}
+            {#if calculator.getCurrentFinancialYear().end < (fixedDate ? new Date(fixedDate) : new Date())}
                 <Warning/>
             {/if}
             <br/>
@@ -56,7 +57,7 @@
             {/if}
         </div>
 
-        <CurrentlyCanBePaidSection {studentBody}/>
+        <CurrentlyCanBePaidSection {studentBody} {fixedDate}/>
 
         {#each semesters as semester}
             <SemesterSection {semester} {studentBody} {payoutRequests} {budgetTitles}/>

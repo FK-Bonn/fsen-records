@@ -12,7 +12,8 @@
     import {paleLowerDocuments} from "../stores";
 
     export let studentBody: IStudentBody;
-    $: calculator = new CurrentlyCanBePaidCalculator(studentBody);
+    export let fixedDate: string | null;
+    $: calculator = new CurrentlyCanBePaidCalculator(studentBody, fixedDate);
     $: mostRecentElection = calculator.getMostRecentElection();
     $: mostRecentInauguralMeetingProceedings = calculator.getProceedingsOfMostRecentInauguralMeeting();
 </script>
