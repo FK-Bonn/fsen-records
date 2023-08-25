@@ -12,7 +12,7 @@
     import AttentionStar from "../components/AttentionStar.svelte";
     import {showOnlySemestersWithPayoutRequests, showOnlySemestersWithStar} from "../stores";
     import {calculateSemesterId, calculateSemesterName, shouldDisplayStar} from "../util";
-    import DeadlineIcon from "../components/DeadlineIcon.svelte";
+    import DeadlineIcon from "../components/DeadlineIcons.svelte";
 
     const calculateLevel = (studentBody: IStudentBody, semester: Interval) => {
         const calculator = new SemesterCalculator(studentBody, semester);

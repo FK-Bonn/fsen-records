@@ -1,5 +1,5 @@
 <script type="ts">
-    import {Interval} from "../Calculator";
+    import type {Interval} from "../Calculator";
     import Calendar from "../icons/Calendar.svelte";
     import {formatDate, getLastDayForSubmission, isBeforeLastDayForSubmission, stringToDate} from "../util";
     import {completionDeadlineOverrides} from "../settings";
@@ -26,19 +26,27 @@
         return today < getLastDayForCompletion(interval);
     }
 
-    const getDeadline = (interval: Interval): string | null => {
-        if (isBeforeLastDayForSubmission(interval)) {
-            return 'Antragsfrist: ' + formatDate(getLastDayForSubmission(interval));
-        }
+    const getSubmissionDeadline = (interval: Interval): string => {
+        return 'Antragsfrist: ' + formatDate(getLastDayForSubmission(interval));
+    }
+
+    const getCompletionDeadline = (interval: Interval): string => {
         return 'Frist zur Vervollständigung: ' + formatDate(getLastDayForCompletion(interval));
     }
 
-    const getColourClass = (interval: Interval): string => {
+    const getColourClassForSubmission = (interval: Interval): string => {
         if (isFutureSemester(interval)) {
             return 'has-text-danger';
         }
         if (isBeforeLastDayForSubmission(interval)) {
             return 'has-text-info';
+        }
+        return 'has-text-secondary';
+    }
+
+    const getColourClassForCompletion = (interval: Interval): string => {
+        if (isFutureSemester(interval)) {
+            return 'has-text-danger';
         }
         if (isBeforeLastDayForCompletion(interval)) {
             return 'has-text-warning';
@@ -46,21 +54,24 @@
         return 'has-text-secondary';
     }
 
-    const shouldDisplay = (interval: Interval) => {
-        if (!interval) {
-            return false;
-        }
-        return getDeadline(interval) !== null;
+    const shouldDisplay = (interval: Interval): boolean => {
+        return !!interval;
+
     }
 
     export let interval: Interval;
     $: display = shouldDisplay(interval);
-    $: title = getDeadline(interval);
-    $: colourClass = getColourClass(interval);
+    $: submissionDeadline = getSubmissionDeadline(interval);
+    $: completionDeadline = getCompletionDeadline(interval);
+    $: submissionClass = getColourClassForSubmission(interval);
+    $: completionClass = getColourClassForCompletion(interval);
 </script>
 
 {#if display}
-    <span class={colourClass}>
-        <Calendar {title}/>
+    <span class={submissionClass}>
+        <Calendar title={submissionDeadline}/>
+    </span>
+    <span class={completionClass}>
+        <Calendar title={completionDeadline}/>
     </span>
 {/if}
