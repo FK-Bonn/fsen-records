@@ -1,7 +1,8 @@
 <script type="ts">
-    import {euroCents} from "../util";
+    import {euroCents, scrollToHashIfPresent} from "../util";
     import type {INewPayoutRequestData} from "../Interfaces";
     import {payoutRequestData} from "../stores";
+    import {onMount} from "svelte";
 
     interface SemesterSums {
         open: number
@@ -81,6 +82,10 @@
         completed: 0
     }).completed), 0);
     $: completableSum = remainingSemesters.reduce((intermediateSum, semester) => intermediateSum + semesters.get(semester).open, 0);
+
+    onMount(() => {
+        scrollToHashIfPresent();
+    });
 </script>
 
 <h2 class="title is-2" id="auto-budget">

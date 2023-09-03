@@ -1,7 +1,8 @@
 <script type="ts">
-    import {euroCents} from "../util";
+    import {euroCents, scrollToHashIfPresent} from "../util";
     import {INewPayoutRequestData} from "../Interfaces";
     import {payoutRequestData} from "../stores";
+    import {onMount} from "svelte";
 
     interface CountWithSum {
         count: number
@@ -77,6 +78,10 @@
 
     $: semesters = mangleData($payoutRequestData);
     $: headers = getHeaders($payoutRequestData);
+
+    onMount(() => {
+        scrollToHashIfPresent();
+    });
 </script>
 
 <h2 class="title is-2" id="finanicalstatus">

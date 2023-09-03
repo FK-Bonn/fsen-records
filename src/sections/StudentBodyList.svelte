@@ -1,6 +1,6 @@
 <script type="ts">
     import type {IData} from "../Interfaces";
-    import {AnnotationLevel, INewPayoutRequestData} from "../Interfaces";
+    import {AnnotationLevel} from "../Interfaces";
     import {onMount} from 'svelte';
     import Legend from "../components/Legend.svelte";
     import IconForLevel from "../icons/IconForLevel.svelte";
@@ -8,7 +8,6 @@
     import ToggleableStudentBody from "./ToggleableStudentBody.svelte";
     import {Interval} from "../Calculator";
     import {scrollToHashIfPresent} from "../util";
-    import {payoutRequestData} from "../stores";
 
     export let data: IData;
     export let fixedDate: string | null;
