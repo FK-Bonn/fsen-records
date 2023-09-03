@@ -4,6 +4,7 @@
     import StudentBodyList from "../sections/StudentBodyList.svelte";
     import PayoutRequestStatistics from "../sections/PayoutRequestStatistics.svelte";
     import type {IData} from "../Interfaces";
+    import AutoBudget from "../sections/AutoBudget.svelte";
 
     export let fetchedData: IData;
     export let fixedDate: string | null;
@@ -27,6 +28,11 @@
     <section class="section">
         <div class="container">
             <PayoutRequestStatistics/>
+        </div>
+    </section>
+    <section class="section">
+        <div class="container">
+            <AutoBudget {fixedDate}/>
         </div>
     </section>
 {:else}
