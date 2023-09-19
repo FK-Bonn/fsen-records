@@ -623,6 +623,8 @@ export const permissionToString = (key: keyof IPermission) => {
             return '️✏️ geschützte FS-Daten ändern';
         case 'submit_payout_request':
             return '️✏️ Anträge stellen';
+        case 'locked':
+            return '🔒 Rechte-Bearbeitung nur durch FSK';
     }
 }
 
@@ -632,6 +634,9 @@ const collectPermissions = (permission: IPermission) => {
         if (permission[prop]) {
             permissions.push(permissionToString(prop));
         }
+    }
+    if (permission.locked) {
+        permissions.push(permissionToString('locked'));
     }
     return permissions;
 }

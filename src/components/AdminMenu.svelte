@@ -57,6 +57,7 @@
                 read_protected_data: false,
                 write_protected_data: false,
                 submit_payout_request: false,
+                locked: false,
             }
             newPermission[permission] = value;
             createAccountPermissions = [...createAccountPermissions, newPermission].sort();
@@ -79,6 +80,7 @@
                 read_protected_data: false,
                 write_protected_data: false,
                 submit_payout_request: false,
+                locked: false,
             }
             newPermission[permission] = value;
             editPermissionsPermissions = [...editPermissionsPermissions, newPermission].sort();
@@ -225,6 +227,14 @@
                             </label>
                         </li>
                     {/each}
+                    <li>
+                        <label class="checkbox">
+                            <input type="checkbox"
+                                   checked={hasFsPermission(createAccountPermissions, fs, 'locked')}
+                                   on:click={(event)=>updateCreatePermission(fs, 'locked', event.target.checked)}>
+                            {permissionToString('locked')}
+                        </label>
+                    </li>
                 </ul>
             </details>
         {/each}
@@ -294,6 +304,14 @@
                             </label>
                         </li>
                     {/each}
+                    <li>
+                        <label class="checkbox">
+                            <input type="checkbox"
+                                   checked={hasFsPermission(editPermissionsPermissions, fs, 'locked')}
+                                   on:click={(event)=>updatePermission(fs, 'locked', event.target.checked)}>
+                            {permissionToString('locked')}
+                        </label>
+                    </li>
                 </ul>
             </details>
         {/each}
@@ -310,13 +328,20 @@
                     {#each PERMISSIONS as permission}
                         <li>
                             <label class="checkbox">
-                                <input type="checkbox"
+                                <input type="checkbox" disabled={hasFsPermission(editPermissionsPermissions, p.fs, 'locked')}
                                        checked={hasFsPermission(editPermissionsPermissions, p.fs, permission)}
                                        on:click={(event)=>updatePermission(p.fs, permission, event.target.checked)}>
                                 {permissionToString(permission)}
                             </label>
                         </li>
                     {/each}
+                    <li>
+                        <label class="checkbox" disabled>
+                            <input type="checkbox" disabled
+                                   checked={hasFsPermission(editPermissionsPermissions, p.fs, 'locked')}>
+                            {permissionToString('locked')}
+                        </label>
+                    </li>
                 </ul>
             </details>
             {/if}

@@ -89,6 +89,7 @@ export interface IPermission {
     read_protected_data: boolean
     write_protected_data: boolean
     submit_payout_request: boolean
+    locked: boolean
 }
 
 
