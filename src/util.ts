@@ -661,7 +661,8 @@ export const getLastDayForSubmission = (interval: Interval): Date => {
     return lastDayForSubmission;
 }
 
-export const isBeforeLastDayForSubmission = (interval: Interval): boolean => {
-    const today = new Date();
-    return today < getLastDayForSubmission(interval);
+export const isBeforeOrOnLastDayForSubmission = (interval: Interval): boolean => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return yesterday < getLastDayForSubmission(interval);
 }

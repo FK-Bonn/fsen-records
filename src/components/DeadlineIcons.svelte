@@ -1,7 +1,7 @@
 <script type="ts">
     import type {Interval} from "../Calculator";
     import Calendar from "../icons/Calendar.svelte";
-    import {formatDate, getLastDayForSubmission, isBeforeLastDayForSubmission, stringToDate} from "../util";
+    import {formatDate, getLastDayForSubmission, isBeforeOrOnLastDayForSubmission, stringToDate} from "../util";
     import {completionDeadlineOverrides} from "../settings";
 
     const isFutureSemester = (interval: Interval): boolean => {
@@ -38,7 +38,7 @@
         if (isFutureSemester(interval)) {
             return 'has-text-danger';
         }
-        if (isBeforeLastDayForSubmission(interval)) {
+        if (isBeforeOrOnLastDayForSubmission(interval)) {
             return 'has-text-info';
         }
         return 'has-text-secondary';

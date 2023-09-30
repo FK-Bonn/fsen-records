@@ -1,6 +1,6 @@
 <script type="ts">
     import type {IAllFsData, INewPayoutRequestData} from "../Interfaces";
-    import {euroCents, hasFsPermission, isBeforeLastDayForSubmission, getStatusTagClass} from "../util";
+    import {euroCents, hasFsPermission, isBeforeOrOnLastDayForSubmission, getStatusTagClass} from "../util";
     import CopyableTag from "./CopyableTag.svelte";
     import {allFsData, loggedInUser} from "../stores";
     import type {Interval} from "../Calculator";
@@ -62,7 +62,7 @@
     let historyModal: boolean = false;
     $: tagClass = getStatusTagClass(payoutRequest);
     $: tableLine = getTableLine($allFsData, payoutRequest, fsName, fsId, budgetTitle);
-    $: isRequestAllowed = isBeforeLastDayForSubmission(semester) && $loggedInUser && ($loggedInUser.admin || hasFsPermission($loggedInUser.permissions, fsId, 'submit_payout_request'));
+    $: isRequestAllowed = isBeforeOrOnLastDayForSubmission(semester) && $loggedInUser && ($loggedInUser.admin || hasFsPermission($loggedInUser.permissions, fsId, 'submit_payout_request'));
 </script>
 {#if payoutRequest}
     <div class="tags card-header-icon">
