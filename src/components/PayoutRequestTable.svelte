@@ -1,11 +1,18 @@
 <script type="ts">
-    import {Interval} from "../Calculator";
-    import {euroCents, formatDate, getStatusTagClass} from "../util";
+    import {euroCents, getStatusTagClass} from "../util";
     import type {IFullPayoutRequestData, INewPayoutRequestData} from "../Interfaces";
     import CopyableTag from "./CopyableTag.svelte";
 
     export let payoutRequest: INewPayoutRequestData | IFullPayoutRequestData;
+    export let previous: INewPayoutRequestData | IFullPayoutRequestData | null;
     $: tagClass = getStatusTagClass(payoutRequest);
+    $: previousTagClass = getStatusTagClass(previous);
+    $: requestDateChanged = previous && previous?.request_date !== payoutRequest.request_date;
+    $: statusChanged = previous && previous?.status !== payoutRequest.status;
+    $: statusDateChanged = previous && previous?.status_date !== payoutRequest.status_date;
+    $: amountCentsChanged = previous && previous?.amount_cents !== payoutRequest.amount_cents;
+    $: commentChanged = previous && previous?.comment !== payoutRequest.comment;
+    $: deadlineChanged = previous && previous?.completion_deadline !== payoutRequest.completion_deadline;
 </script>
 
 <table class="table is-narrow">
@@ -19,31 +26,82 @@
     </tr>
     <tr>
         <th>Antragsnummer</th>
-        <td><CopyableTag text={payoutRequest.request_id}/></td>
+        <td>
+            <CopyableTag text={payoutRequest.request_id}/>
+        </td>
     </tr>
-    <tr>
+    <tr class={requestDateChanged ? 'has-background-warning' : ''}>
         <th>Antragsdatum</th>
-        <td>{payoutRequest.request_date}</td>
+        {#if !requestDateChanged}
+            <td>{payoutRequest.request_date}</td>
+        {:else}
+            <td>
+                <del>{previous?.request_date}</del>
+                <br>
+                <b>{payoutRequest.request_date}</b>
+            </td>
+        {/if}
     </tr>
-    <tr>
+    <tr class={statusChanged ? 'has-background-warning' : ''}>
         <th>Status</th>
-        <td><span class="tag {tagClass}">{payoutRequest.status}</span></td>
+        {#if !statusChanged}
+            <td><span class="tag {tagClass}">{payoutRequest.status}</span></td>
+        {:else}
+            <td>
+                <span class="tag {previousTagClass}"><del>{previous?.status}</del></span><br>
+                <span class="tag {tagClass}">{payoutRequest.status}</span>
+            </td>
+        {/if}
     </tr>
-    <tr>
+    <tr class={statusDateChanged ? 'has-background-warning' : ''}>
         <th>Status-Datum</th>
-        <td>{payoutRequest.status_date}</td>
+        {#if !statusDateChanged}
+            <td>{payoutRequest.status_date}</td>
+        {:else}
+            <td>
+                <del>{previous?.status_date}</del>
+                <br>
+                <b>{payoutRequest.status_date}</b>
+            </td>
+        {/if}
     </tr>
-    <tr>
+    <tr class={amountCentsChanged ? 'has-background-warning' : ''}>
         <th>Betrag</th>
-        <td><CopyableTag text={euroCents(payoutRequest.amount_cents)} bold={true}/></td>
+        {#if !amountCentsChanged}
+        <td>
+            <CopyableTag text={euroCents(payoutRequest.amount_cents)} bold={true}/>
+        </td>
+        {:else}
+            <td>
+                <CopyableTag text={euroCents(previous.amount_cents)} tagClass={'is-light is-strikethrough'}/>
+                <br>
+                <CopyableTag text={euroCents(payoutRequest.amount_cents)} bold={true}/>
+            </td>
+        {/if}
     </tr>
-    <tr>
+    <tr class={commentChanged ? 'has-background-warning' : ''}>
         <th>Kommentar</th>
-        <td>{payoutRequest.comment}</td>
+        {#if !commentChanged}
+            <td>{payoutRequest.comment}</td>
+        {:else}
+            <td>
+                <del>{previous?.comment}</del>
+                <br>
+                <b>{payoutRequest.comment}</b>
+            </td>
+        {/if}
     </tr>
-    <tr>
+    <tr class={deadlineChanged ? 'has-background-warning' : ''}>
         <th>Frist zur Vervollständigung</th>
-        <td>{payoutRequest.completion_deadline}</td>
+        {#if !deadlineChanged}
+            <td>{payoutRequest.completion_deadline}</td>
+        {:else}
+            <td>
+                <del>{previous?.completion_deadline}</del>
+                <br>
+                <b>{payoutRequest.completion_deadline}</b>
+            </td>
+        {/if}
     </tr>
     <tr>
         <th>Antrag gestellt von</th>

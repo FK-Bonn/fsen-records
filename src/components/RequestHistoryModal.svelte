@@ -45,8 +45,11 @@
                             </div>
                         </article>
                     {:else if completedRequest}
-                        {#each completedRequest as requestState}
-                            <PayoutRequestTable payoutRequest={requestState}/>
+                        {#each completedRequest as requestState, i}
+                            <PayoutRequestTable
+                                    payoutRequest={requestState}
+                                    previous="{i===(completedRequest.length-1)?null:completedRequest[i+1]}"
+                            />
                             <hr>
                         {/each}
                     {:else}

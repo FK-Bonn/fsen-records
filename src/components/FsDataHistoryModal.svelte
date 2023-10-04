@@ -46,8 +46,10 @@
                             </div>
                         </article>
                     {:else if completedRequest}
-                        {#each completedRequest as data}
-                            <FsDataHistoryEntry {fs} {data} bind:fsDataHistoryModal={fsDataHistoryModal}/>
+                        {#each completedRequest as data, i}
+                            <FsDataHistoryEntry {fs} {data}
+                                                previous="{i===(completedRequest.length-1)?null:completedRequest[i+1]}"
+                                                bind:fsDataHistoryModal={fsDataHistoryModal}/>
                             <hr>
                         {/each}
                     {:else}

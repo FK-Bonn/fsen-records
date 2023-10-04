@@ -4,6 +4,7 @@
     import type {IProtectedFsDataHistoryEntry} from "../Interfaces";
     import {onMount} from "svelte";
     import ProtectedFsDataHistoryEntry from "./ProtectedFsDataHistoryEntry.svelte";
+    import FsDataHistoryEntry from "./FsDataHistoryEntry.svelte";
 
     export let fsProtectedDataHistoryModal: boolean = true;
     export let fs: string;
@@ -33,7 +34,7 @@
         <div class="card">
             <header class="card-header">
                 <p class="card-header-title">
-                Interne Daten für {fs}: Bearbeitungsverlauf
+                    Interne Daten für {fs}: Bearbeitungsverlauf
                 </p>
             </header>
             <div class="card-content">
@@ -45,8 +46,12 @@
                             </div>
                         </article>
                     {:else if completedRequest}
-                        {#each completedRequest as data}
-                            <ProtectedFsDataHistoryEntry {data} {fs} bind:fsProtectedDataHistoryModal={fsProtectedDataHistoryModal}/>
+                        {#each completedRequest as data, i}
+                            <ProtectedFsDataHistoryEntry
+                                    {data}
+                                    {fs}
+                                    previous="{i===(completedRequest.length-1)?null:completedRequest[i+1]}"
+                                    bind:fsProtectedDataHistoryModal={fsProtectedDataHistoryModal}/>
                             <hr>
                         {/each}
                     {:else}

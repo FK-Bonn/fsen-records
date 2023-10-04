@@ -30,4 +30,7 @@
     .tag {
         margin-bottom: 0;
     }
+    .is-strikethrough {
+        text-decoration: line-through;
+    }
 </style>
