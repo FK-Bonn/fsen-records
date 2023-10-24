@@ -21,6 +21,12 @@
         }
         return $loggedInUser.admin || $loggedInUser.permissions.some(permission => permission.write_permissions);
     }
+    const hasViewPermissionsPermission = () => {
+        if (!$loggedInUser) {
+            return false;
+        }
+        return $loggedInUser.admin || $loggedInUser.permissions.some(permission => permission.read_permissions);
+    }
 
     let usersList: Map<string, IUserWithPermissions> | null = null;
     let activeTab: string = hasEditPermission() ? 'accounts' : 'create_account';
@@ -143,7 +149,7 @@
 
 <div class="tabs">
     <ul>
-        {#if hasEditPermission()}
+        {#if hasEditPermission() || hasViewPermissionsPermission()}
             <li class={activeTab === 'accounts' ? 'is-active' : ''}>
                 <a on:click={()=>activeTab='accounts'}>Accounts</a>
             </li>
@@ -171,12 +177,16 @@
                 <li>
                     {usersList.get(userId).username}
                     {#if usersList.get(userId).admin}<span class="tag is-info">Admin</span>{/if}
-                    <button class="button is-small" on:click={()=>loadEditPermissions(usersList.get(userId))}>
-                        Rechte bearbeiten
-                    </button>
-                    <button class="button is-small" on:click={()=>loadResetPassword(usersList.get(userId))}>
-                        Passwort zurücksetzen
-                    </button>
+                    {#if hasEditPermission()}
+                        <button class="button is-small" on:click={()=>loadEditPermissions(usersList.get(userId))}>
+                            Rechte bearbeiten
+                        </button>
+                    {/if}
+                    {#if isAdmin}
+                        <button class="button is-small" on:click={()=>loadResetPassword(usersList.get(userId))}>
+                            Passwort zurücksetzen
+                        </button>
+                    {/if}
                     <ul>
                         {#each usersList.get(userId).permissions.map(permissionsToString) as permissions}
                             <li>{permissions}</li>
@@ -260,6 +270,8 @@
                         {/each}
                     </ul>
                 </details>
+            {:else}
+                <p class="has-text-grey">{p.fs}: Du hast keine Berechtigung, für diese Fachschaft Rechte zu vergeben.</p>
             {/if}
         {/each}
     {/if}
@@ -322,28 +334,29 @@
 
         {#each $loggedInUser.permissions as p}
             {#if p.write_permissions}
-            <details open>
-                <summary>{p.fs}</summary>
-                <ul>
-                    {#each PERMISSIONS as permission}
+                <details open>
+                    <summary>{p.fs}</summary>
+                    <ul>
+                        {#each PERMISSIONS as permission}
+                            <li>
+                                <label class="checkbox">
+                                    <input type="checkbox"
+                                           disabled={hasFsPermission(editPermissionsPermissions, p.fs, 'locked')}
+                                           checked={hasFsPermission(editPermissionsPermissions, p.fs, permission)}
+                                           on:click={(event)=>updatePermission(p.fs, permission, event.target.checked)}>
+                                    {permissionToString(permission)}
+                                </label>
+                            </li>
+                        {/each}
                         <li>
-                            <label class="checkbox">
-                                <input type="checkbox" disabled={hasFsPermission(editPermissionsPermissions, p.fs, 'locked')}
-                                       checked={hasFsPermission(editPermissionsPermissions, p.fs, permission)}
-                                       on:click={(event)=>updatePermission(p.fs, permission, event.target.checked)}>
-                                {permissionToString(permission)}
+                            <label class="checkbox" disabled>
+                                <input type="checkbox" disabled
+                                       checked={hasFsPermission(editPermissionsPermissions, p.fs, 'locked')}>
+                                {permissionToString('locked')}
                             </label>
                         </li>
-                    {/each}
-                    <li>
-                        <label class="checkbox" disabled>
-                            <input type="checkbox" disabled
-                                   checked={hasFsPermission(editPermissionsPermissions, p.fs, 'locked')}>
-                            {permissionToString('locked')}
-                        </label>
-                    </li>
-                </ul>
-            </details>
+                    </ul>
+                </details>
             {/if}
         {/each}
     {/if}
