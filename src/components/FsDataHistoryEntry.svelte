@@ -1,6 +1,6 @@
 <script type="ts">
     import type {IFsDataHistoryEntry} from "../Interfaces";
-    import {approveFsData, getFsData, putFsData, putProtectedFsData} from "../util";
+    import {approveFsData, getFsData, putFsData} from "../util";
     import {allFsData, token} from "../stores";
     import TS from "./TS.svelte";
 

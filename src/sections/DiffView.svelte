@@ -1,9 +1,8 @@
 <script type="ts">
-    import {getPayoutRequestData, getUrlParameter, pojoToIData} from "../util";
+    import {getBfsgPayoutRequestData, getPayoutRequestData, getUrlParameter, pojoToIData} from "../util";
     import {IData} from "../Interfaces";
     import IDataDiff from "../components/IDataDiff.svelte";
     import ErrorList from "../components/ErrorList.svelte";
-    import {payoutRequestData} from "../stores";
 
     const loadData = (url: string): Promise<IData> => {
         return fetch(url)
@@ -20,8 +19,12 @@
     let dataPromise = Promise.all([
         loadData(`/data/history/${dateStart}-data.json`),
         loadData(dateEndUrl),
-        getPayoutRequestData(dateStart),
-        getPayoutRequestData(dateEnd),
+        getPayoutRequestData('afsg', dateStart),
+        getPayoutRequestData('afsg', dateEnd),
+        getBfsgPayoutRequestData('bfsg', dateStart),
+        getBfsgPayoutRequestData('bfsg', dateEnd),
+        getBfsgPayoutRequestData('vorankuendigung', dateStart),
+        getBfsgPayoutRequestData('vorankuendigung', dateEnd),
     ]);
 </script>
 
@@ -34,7 +37,9 @@
                 Daten werden geladen…
             {:then results}
                 <IDataDiff {dateStart} {dateEnd} first={results[0]} second={results[1]}
-                           firstPayoutRequests="{results[2]}" secondPayoutRequests="{results[3]}"/>
+                           firstPayoutRequests="{results[2]}" secondPayoutRequests="{results[3]}"
+                           firstBfsg="{results[4]}" secondBfsg="{results[5]}"
+                            firstVorankuendigung="{results[6]}" secondVorankuendigung="{results[7]}"/>
             {:catch error}
                 <ErrorList errors={['Die Daten konnten leider nicht geladen werden.']}/>
             {/await}

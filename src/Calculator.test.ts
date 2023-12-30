@@ -1,5 +1,5 @@
 import {Interval} from "./Calculator";
-import type {IAnnotatedDocument, IAnnotation} from "./Interfaces";
+import type {IAnnotatedDocument} from "./Interfaces";
 
 const doc = (dateStart: string, dateEnd: string): IAnnotatedDocument => {
     return {

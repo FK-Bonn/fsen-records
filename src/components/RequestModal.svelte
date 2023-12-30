@@ -1,7 +1,7 @@
 <script type="ts">
     import {calculateSemesterId, calculateSemesterName, createPayoutRequest, getPayoutRequestData} from "../util";
     import type {Interval} from "../Calculator";
-    import {payoutRequestData, token} from "../stores";
+    import {afsgPayoutRequestData, token} from "../stores";
     import type {INewPayoutRequestData} from "../Interfaces";
     import PayoutRequestTable from "./PayoutRequestTable.svelte";
 
@@ -28,9 +28,9 @@
     }
 
     const reloadPayoutRequestData = () => {
-        getPayoutRequestData()
+        getPayoutRequestData('afsg')
             .then(data => {
-                $payoutRequestData = data;
+                $afsgPayoutRequestData = data;
             });
     }
 </script>

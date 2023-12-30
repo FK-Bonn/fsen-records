@@ -1,17 +1,20 @@
 <script type="ts">
-    import {editPayoutRequest, formatIsoDate, getPayoutRequestData} from "../util";
-    import {payoutRequestData, token} from "../stores";
+    import {editPayoutRequest, formatIsoDate, getBfsgPayoutRequestData, getPayoutRequestData} from "../util";
+    import {afsgPayoutRequestData, bfsgPayoutRequestData, token, vorankuendigungPayoutRequestData} from "../stores";
     import type {IFullPayoutRequestData, INewPayoutRequestData} from "../Interfaces";
     import PayoutRequestTable from "./PayoutRequestTable.svelte";
+    import RequestStatusOptions from "./RequestStatusOptions.svelte";
 
     export let payoutRequest: INewPayoutRequestData | IFullPayoutRequestData;
     export let editModal: boolean = true;
+    export let type: string = 'afsg';
 
     let status: string = payoutRequest.status;
     let status_date: string = payoutRequest.status_date;
     let amount_cents: number = payoutRequest.amount_cents;
     let comment: string = payoutRequest.comment;
     let completion_deadline: string = payoutRequest.completion_deadline;
+    let reference: string = payoutRequest.reference;
 
     let completedRequest: IFullPayoutRequestData | null = null;
     let message = '';
@@ -27,8 +30,8 @@
     }
 
     const yeetRequest = () => {
-        const data = {status, status_date, amount_cents, comment};
-        editPayoutRequest(payoutRequest.request_id, data, $token).then(value => {
+        const data = {status, status_date, amount_cents, comment, completion_deadline, reference};
+        editPayoutRequest(payoutRequest.request_id, type, data, $token).then(value => {
             message = value.message;
             completedRequest = value.payoutRequest;
             reloadPayoutRequestData();
@@ -56,10 +59,22 @@
     }
 
     const reloadPayoutRequestData = () => {
-        getPayoutRequestData()
-            .then(data => {
-                $payoutRequestData = data;
-            });
+        if (type === 'afsg') {
+            getPayoutRequestData(type)
+                .then(data => {
+                    $afsgPayoutRequestData = data;
+                });
+        } else if (type === 'bfsg') {
+            getBfsgPayoutRequestData(type)
+                .then(data => {
+                    $bfsgPayoutRequestData = data;
+                });
+        } else if (type === 'vorankuendigung') {
+            getBfsgPayoutRequestData(type)
+                .then(data => {
+                    $vorankuendigungPayoutRequestData = data;
+                });
+        }
     }
 
 </script>
@@ -69,7 +84,7 @@
         <div class="card">
             <header class="card-header">
                 <p class="card-header-title">
-                    AFSG-Antrag {payoutRequest.request_id} bearbeiten
+                    {type.toUpperCase()}-Antrag {payoutRequest.request_id} bearbeiten
                 </p>
             </header>
             {#if completedRequest || message}
@@ -105,6 +120,10 @@
                                 <td>{payoutRequest.request_id}</td>
                             </tr>
                             <tr>
+                                <th>kategorie</th>
+                                <td>{payoutRequest.category}</td>
+                            </tr>
+                            <tr>
                                 <th>Antragsdatum</th>
                                 <td>{payoutRequest.request_date}</td>
                             </tr>
@@ -112,12 +131,7 @@
                                 <th>Status</th>
                                 <td>
                                     <select class="select" bind:value={status} on:change={setStatusDateToToday}>
-                                        <option value='EINGEREICHT'>EINGEREICHT</option>
-                                        <option value='GESTELLT'>GESTELLT</option>
-                                        <option value='VOLLSTÄNDIG'>VOLLSTÄNDIG</option>
-                                        <option value='ANGEWIESEN'>ANGEWIESEN</option>
-                                        <option value='ÜBERWIESEN'>ÜBERWIESEN</option>
-                                        <option value='FAILED'>FAILED</option>
+                                        <RequestStatusOptions type="{payoutRequest.type}"/>
                                     </select>
                                 </td>
                             </tr>
@@ -143,6 +157,12 @@
                                 <th>Frist zur Vervollständigung</th>
                                 <td>
                                     <input class="input" type="text" bind:value={completion_deadline}>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Referenz</th>
+                                <td>
+                                    <input class="input" type="text" bind:value={reference}>
                                 </td>
                             </tr>
                             <tr>

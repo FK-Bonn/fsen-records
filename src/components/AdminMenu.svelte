@@ -4,7 +4,8 @@
     import {fsen, loggedInUser, token} from "../stores";
     import {
         createAccount,
-        editPermissions, hasAnyFsPermission,
+        editPermissions,
+        hasAnyFsPermission,
         hasFsPermission,
         loadUsersList,
         PERMISSIONS,

@@ -1,13 +1,18 @@
 <script lang="ts">
-    import type {IData, INewPayoutRequestData} from "./Interfaces";
-    import StudentBodyList from "./sections/StudentBodyList.svelte";
+    import type {IData} from "./Interfaces";
     import ErrorList from "./components/ErrorList.svelte";
     import {onDestroy, onMount} from "svelte";
     import {backendPrefix, refreshIntervalMilliseconds, siteTitle} from "./settings";
-    import PayoutRequestStatistics from "./sections/PayoutRequestStatistics.svelte";
-    import {allFsData, fsen, payoutRequestData, token} from "./stores";
+    import {
+        afsgPayoutRequestData,
+        allFsData,
+        bfsgPayoutRequestData,
+        fsen,
+        token,
+        vorankuendigungPayoutRequestData
+    } from "./stores";
     import UserMenu from "./sections/UserMenu.svelte";
-    import {getAllFsData, getPayoutRequestData, getUrlParameter, manglePayoutRequestData, pojoToIData} from "./util";
+    import {getAllFsData, getBfsgPayoutRequestData, getPayoutRequestData, getUrlParameter, pojoToIData} from "./util";
     import DiffView from "./sections/DiffView.svelte";
     import MainView from "./components/MainView.svelte";
 
@@ -34,12 +39,26 @@
     };
 
     const loadPayoutRequestData = () => {
-        getPayoutRequestData(fixedDate)
+      getPayoutRequestData('afsg', fixedDate)
+        .then(data => {
+          $afsgPayoutRequestData = data;
+          afsgPayoutRequestsDataError = null;
+        }, reason => {
+          afsgPayoutRequestsDataError = reason;
+        });
+      getBfsgPayoutRequestData('bfsg', fixedDate)
+        .then(data => {
+          $bfsgPayoutRequestData = data;
+          bfsgPayoutRequestsDataError = null;
+        }, reason => {
+          bfsgPayoutRequestsDataError = reason;
+        });
+      getBfsgPayoutRequestData('vorankuendigung', fixedDate)
             .then(data => {
-                $payoutRequestData = data;
-                payoutRequestsDataError = null;
+              $vorankuendigungPayoutRequestData = data;
+              vorankuendigungPayoutRequestsDataError = null;
             }, reason => {
-                payoutRequestsDataError = reason;
+              vorankuendigungPayoutRequestsDataError = reason;
             });
     };
 
@@ -61,7 +80,9 @@
 
     let fetchedData: IData | null = null;
     let fetchDataError: string | null = null;
-    let payoutRequestsDataError: string | null = null;
+    let afsgPayoutRequestsDataError: string | null = null;
+    let bfsgPayoutRequestsDataError: string | null = null;
+    let vorankuendigungPayoutRequestsDataError: string | null = null;
     let errors: string[] = [];
     let diffview = getUrlParameter('diff') !== null;
     const fixedDate = getUrlParameter('date');
@@ -99,8 +120,14 @@
         <pre>{fetchDataError}</pre>
     {/if}
 
-    {#if payoutRequestsDataError}
-        <pre>{payoutRequestsDataError}</pre>
+    {#if afsgPayoutRequestsDataError}
+        <pre>{afsgPayoutRequestsDataError}</pre>
+    {/if}
+    {#if bfsgPayoutRequestsDataError}
+        <pre>{bfsgPayoutRequestsDataError}</pre>
+    {/if}
+    {#if vorankuendigungPayoutRequestsDataError}
+        <pre>{vorankuendigungPayoutRequestsDataError}</pre>
     {/if}
 
     {#if !diffview}

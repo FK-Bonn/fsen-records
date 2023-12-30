@@ -1,13 +1,11 @@
 <script type="ts">
     import type {IStudentBody} from "../Interfaces";
-    import CurrentlyCanBePaidContent from "./CurrentlyCanBePaidContent.svelte";
+    import {INewPayoutRequestData} from "../Interfaces";
     import AngleIndicator from "../icons/AngleIndicator.svelte";
-    import DocumentsList from "./DocumentsList.svelte";
     import {Interval, SemesterCalculator} from "../Calculator";
     import DateRange from "../components/DateRange.svelte";
     import SemesterContent from "./SemesterContent.svelte";
     import IconForLevel from "../icons/IconForLevel.svelte";
-    import {INewPayoutRequestData, IPayoutRequestData} from "../Interfaces";
     import PayoutRequest from "../components/PayoutRequest.svelte";
     import AttentionStar from "../components/AttentionStar.svelte";
     import {showOnlySemestersWithPayoutRequests, showOnlySemestersWithStar} from "../stores";

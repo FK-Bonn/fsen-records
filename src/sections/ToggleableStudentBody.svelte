@@ -1,9 +1,16 @@
 <script type="ts">
     import StudentBody from "./StudentBody.svelte";
-    import type {INewPayoutRequestData, IPayoutRequestData, IStudentBody} from "../Interfaces";
+    import type {INewPayoutRequestData, IStudentBody} from "../Interfaces";
     import {AnnotationLevel} from "../Interfaces";
     import {CurrentlyCanBePaidCalculator, Interval, SemesterCalculator} from "../Calculator";
-    import {compactMode, payoutRequestData, showOnlySemestersWithStar, showOnlyWhoCurrentlyCanBePaid} from "../stores";
+    import {
+        afsgPayoutRequestData,
+        bfsgPayoutRequestData,
+        compactMode,
+        showOnlySemestersWithStar,
+        showOnlyWhoCurrentlyCanBePaid,
+        vorankuendigungPayoutRequestData
+    } from "../stores";
     import CompactStudentBody from "./CompactStudentBody.svelte";
     import {calculateSemesterId, shouldDisplayStar} from "../util";
 
@@ -37,10 +44,13 @@
     }
 
     export let budgetTitles: { [semester: string]: string };
+    export let budgetTitlesBfsg: { [semester: string]: string };
     export let semesters: Interval[];
     export let fixedDate: string | null;
     export let studentBody: IStudentBody;
-    $: payoutRequests = $payoutRequestData ? $payoutRequestData.get(studentBody.id) : undefined
+    $: payoutRequests = $afsgPayoutRequestData ? $afsgPayoutRequestData.get(studentBody.id) : undefined
+    $: bfsgPayoutRequests = $bfsgPayoutRequestData ? $bfsgPayoutRequestData.get(studentBody.id) : undefined
+    $: vorankuendigungPayoutRequests = $vorankuendigungPayoutRequestData ? $vorankuendigungPayoutRequestData.get(studentBody.id) : undefined
     $: calculator = new CurrentlyCanBePaidCalculator(studentBody, fixedDate);
     $: show = shouldShow($showOnlyWhoCurrentlyCanBePaid, $showOnlySemestersWithStar, studentBody, calculator, payoutRequests, semesters);
 </script>
@@ -49,6 +59,7 @@
     {#if $compactMode}
         <CompactStudentBody {studentBody} {semesters} {fixedDate}/>
     {:else}
-        <StudentBody {studentBody} {payoutRequests} {semesters} {budgetTitles} {fixedDate}/>
+        <StudentBody {studentBody} {payoutRequests} {bfsgPayoutRequests} {vorankuendigungPayoutRequests}
+                     {semesters} {budgetTitles} {budgetTitlesBfsg} {fixedDate}/>
     {/if}
 {/if}

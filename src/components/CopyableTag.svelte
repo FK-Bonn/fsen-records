@@ -1,6 +1,6 @@
 <script type="ts">
     import {fade} from 'svelte/transition';
-    import {copyRichContentToClipboard, copyToClipboard} from "../util";
+    import {copyToClipboard} from "../util";
 
     const clickCallback = () => {
         copyToClipboard(copyText || text);
@@ -29,6 +29,7 @@
 <style>
     .tag {
         margin-bottom: 0;
+        cursor: pointer;
     }
     .is-strikethrough {
         text-decoration: line-through;

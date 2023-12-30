@@ -52,6 +52,9 @@ export interface INewPayoutRequestData {
     request_id: string
     request_date: string
     completion_deadline: string
+    type: string
+    category: string
+    reference: string | null
 }
 
 export interface IFullPayoutRequestData extends INewPayoutRequestData {
@@ -67,6 +70,7 @@ export interface ISemester {
 
 export interface IData {
     budgetTitles: { [semester: string]: string }
+    budgetTitlesBfsg: { [semester: string]: string }
     payoutRequests: Map<string, Map<string, IPayoutRequestData>>
     semesters: ISemester[]
     studentBodies: Map<string, IStudentBody>
@@ -96,6 +100,7 @@ export interface IPermission {
 export interface IPayoutRequestDiff {
     fs: string;
     semester: string;
+    type: string;
     oldPR: IPayoutRequestData | null;
     newPR: IPayoutRequestData | null;
 }
@@ -122,6 +127,8 @@ export interface IStudentBodyDiff {
     financialYearAnnotationDiff: IStringDiff | null;
     statutesDiff: IStringDiff | null;
     modifiedPayoutRequests: IPayoutRequestDiff[];
+    modifiedBfsg: IPayoutRequestDiff[];
+    modifiedVorankuendigung: IPayoutRequestDiff[];
 }
 
 export interface IEmailAddress {

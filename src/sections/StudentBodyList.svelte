@@ -34,6 +34,7 @@
         <ToggleableStudentBody {studentBody}
                                {semesters}
                                budgetTitles={data.budgetTitles}
+                               budgetTitlesBfsg={data.budgetTitlesBfsg}
                                {fixedDate}/>
     {/each}
 </ul>

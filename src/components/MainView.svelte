@@ -1,6 +1,6 @@
 <script lang="ts">
 
-    import {payoutRequestData} from "../stores";
+    import {afsgPayoutRequestData} from "../stores";
     import StudentBodyList from "../sections/StudentBodyList.svelte";
     import PayoutRequestStatistics from "../sections/PayoutRequestStatistics.svelte";
     import type {IData} from "../Interfaces";
@@ -24,7 +24,7 @@
 {:else}
     <progress class="progress is-large is-info" max="100">60%</progress>
 {/if}
-{#if $payoutRequestData}
+{#if $afsgPayoutRequestData}
     <section class="section">
         <div class="container">
             <PayoutRequestStatistics/>

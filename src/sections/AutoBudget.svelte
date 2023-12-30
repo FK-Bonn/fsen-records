@@ -1,7 +1,7 @@
 <script type="ts">
     import {euroCents, scrollToHashIfPresent} from "../util";
     import type {INewPayoutRequestData} from "../Interfaces";
-    import {payoutRequestData} from "../stores";
+    import {afsgPayoutRequestData} from "../stores";
     import {onMount} from "svelte";
 
     interface SemesterSums {
@@ -72,7 +72,7 @@
     }
 
     export let fixedDate: string | null;
-    $: semesters = mangleData($payoutRequestData);
+    $: semesters = mangleData($afsgPayoutRequestData);
     $: nextFinancialYear = getNextFinancialYear();
     $: requestableSemesters = getRequestableSemestersForNextFinancialYear();
     $: transitionalSemesters = getTransitionalSemestersForNextFinancialYear();

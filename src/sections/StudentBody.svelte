@@ -11,9 +11,13 @@
     import {displayFsData, loggedInUser} from "../stores";
     import FsDataSection from "./FsDataSection.svelte";
     import {hasFsPermission} from "../util";
+    import BfsgSection from "./BfsgSection.svelte";
 
     export let payoutRequests: Map<string, INewPayoutRequestData> | undefined;
+    export let bfsgPayoutRequests: INewPayoutRequestData[] | undefined;
+    export let vorankuendigungPayoutRequests: INewPayoutRequestData[] | undefined;
     export let budgetTitles: { [semester: string]: string };
+    export let budgetTitlesBfsg: { [semester: string]: string };
     export let semesters: Interval[];
     export let studentBody: IStudentBody;
     export let fixedDate: string | null;
@@ -62,6 +66,8 @@
         {#each semesters as semester}
             <SemesterSection {semester} {studentBody} {payoutRequests} {budgetTitles}/>
         {/each}
+
+        <BfsgSection {studentBody} {bfsgPayoutRequests} {vorankuendigungPayoutRequests} {budgetTitlesBfsg}/>
 
         <DocumentsSection {studentBody}/>
 

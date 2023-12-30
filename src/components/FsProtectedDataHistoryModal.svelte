@@ -4,7 +4,6 @@
     import type {IProtectedFsDataHistoryEntry} from "../Interfaces";
     import {onMount} from "svelte";
     import ProtectedFsDataHistoryEntry from "./ProtectedFsDataHistoryEntry.svelte";
-    import FsDataHistoryEntry from "./FsDataHistoryEntry.svelte";
 
     export let fsProtectedDataHistoryModal: boolean = true;
     export let fs: string;

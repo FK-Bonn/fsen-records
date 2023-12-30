@@ -1,4 +1,4 @@
-import {calculateSemesterId, euro, formatDate, getWorstAnnotationLevel, stringToDate} from "./util";
+import {calculateSemesterId, euro, formatDate, getWorstAnnotationLevel} from "./util";
 import {AnnotationLevel} from "./Interfaces";
 import {Interval} from "./Calculator";
 

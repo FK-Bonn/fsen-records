@@ -9,7 +9,8 @@ import {
     IFullPayoutRequestData,
     INewPayoutRequestData,
     IPermission,
-    IProtectedFsData, IProtectedFsDataHistoryEntry,
+    IProtectedFsData,
+    IProtectedFsDataHistoryEntry,
     IProtectedFsDataResponse,
     IUserWithPermissions
 } from "./Interfaces";
@@ -137,10 +138,14 @@ export const getStatusTagClass = (payoutRequest: INewPayoutRequestData): string 
         return '';
     }
     const status = payoutRequest.status;
-    if (['ÜBERWIESEN', 'ANGEWIESEN'].includes(status)) {
+    const type = payoutRequest.type;
+    if (['ÜBERWIESEN', 'ANGEWIESEN', 'GENUTZT'].includes(status)) {
         return 'is-light';
     }
     if (status === 'VOLLSTÄNDIG') {
+        return type === 'afsg' ? 'is-success' : 'is-info';
+    }
+    if (status === 'ANGENOMMEN') {
         return 'is-success';
     }
     if (status === 'GESTELLT') {
@@ -148,6 +153,9 @@ export const getStatusTagClass = (payoutRequest: INewPayoutRequestData): string 
     }
     if (status === 'EINGEREICHT') {
         return 'is-info';
+    }
+    if (status === 'VORGESTELLT') {
+        return 'is-warning';
     }
     return 'is-danger';
 }
@@ -314,11 +322,97 @@ export const createPayoutRequest = async (fs: string, semester: string, token: s
         });
 }
 
-export const editPayoutRequest = async (request_id: string, payload: any, token: string): Promise<{
+export const createBfsgPayoutRequest = async (fs: string, semester: string, category: string, amount_cents: number,
+                                              status: string, status_date: string, comment: string,
+                                              completion_deadline: string, reference: string, request_date: string,
+                                              token: string): Promise<{ payoutRequest: INewPayoutRequestData | null, message: string | null }> => {
+    const body: any = {fs, semester, category, amount_cents};
+    if(status){
+        body.status = status;
+    }
+    if(status_date){
+        body.status_date = status_date;
+    }
+    if(comment){
+        body.comment = comment;
+    }
+    if(completion_deadline){
+        body.completion_deadline = completion_deadline;
+    }
+    if(reference){
+        body.reference = reference;
+    }
+    if(request_date){
+        body.request_date = request_date;
+    }
+    return fetch(backendPrefix + '/payout-request/bfsg/create',
+        {
+            method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+            body: JSON.stringify(body)
+        })
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
+            }
+        })
+        .then(json => {
+            return {payoutRequest: json, message: 'BFSG-Antrag gestellt.'};
+        }, reason => {
+            return {payoutRequest: null, message: reason};
+        });
+}
+
+
+export const createVorankuendigungPayoutRequest = async (fs: string, semester: string, category: string,
+                                                         amount_cents: number, status: string, status_date: string,
+                                                         comment: string, completion_deadline: string, reference: string,
+                                                         request_date: string, token: string): Promise<{ payoutRequest: INewPayoutRequestData | null, message: string | null }> => {
+
+    const body: any = {fs, semester, category, amount_cents};
+    if(status){
+        body.status = status;
+    }
+    if(status_date){
+        body.status_date = status_date;
+    }
+    if(comment){
+        body.comment = comment;
+    }
+    if(completion_deadline){
+        body.completion_deadline = completion_deadline;
+    }
+    if(reference){
+        body.reference = reference;
+    }
+    if(request_date){
+        body.request_date = request_date;
+    }
+    return fetch(backendPrefix + '/payout-request/vorankuendigung/create',
+        {
+            method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+            body: JSON.stringify(body)
+        })
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
+            }
+        })
+        .then(json => {
+            return {payoutRequest: json, message: 'Vorankündigung gestellt.'};
+        }, reason => {
+            return {payoutRequest: null, message: reason};
+        });
+}
+
+export const editPayoutRequest = async (request_id: string, type: string, payload: any, token: string): Promise<{
     payoutRequest: IFullPayoutRequestData | null,
     message: string | null
 }> => {
-    return fetch(backendPrefix + '/payout-request/afsg/' + request_id,
+    return fetch(backendPrefix + `/payout-request/${type}/` + request_id,
         {
             method: 'PATCH', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
             body: JSON.stringify(payload)
@@ -331,7 +425,7 @@ export const editPayoutRequest = async (request_id: string, payload: any, token:
             }
         })
         .then(json => {
-            return {payoutRequest: json, message: 'AFSG-Antrag aktualisiert.'};
+            return {payoutRequest: json, message: `${type.toUpperCase()}-Antrag aktualisiert.`};
         }, reason => {
             return {payoutRequest: null, message: reason};
         });
@@ -417,8 +511,19 @@ export const manglePayoutRequestData = (data: INewPayoutRequestData[]): Map<stri
     return retval;
 }
 
-export const getPayoutRequestData = async (fixedDate: string | null = null): Promise<Map<string, Map<string, INewPayoutRequestData>>> => {
-    let url = backendPrefix + '/payout-request/afsg';
+export const mangleBfsgPayoutRequestData = (data: INewPayoutRequestData[]): Map<string, INewPayoutRequestData[]> => {
+    const retval = new Map<string, INewPayoutRequestData[]>()
+    for (let datum of data) {
+        if(!retval.has(datum.fs)){
+            retval.set(datum.fs, []);
+        }
+        retval.get(datum.fs).push(datum);
+    }
+    return retval;
+}
+
+export const getPayoutRequestData = async (type: string, fixedDate: string | null = null): Promise<Map<string, Map<string, INewPayoutRequestData>>> => {
+    let url = backendPrefix + `/payout-request/${type}`;
     if (fixedDate) {
         url += '/' + fixedDate;
     }
@@ -431,8 +536,22 @@ export const getPayoutRequestData = async (fixedDate: string | null = null): Pro
         });
 };
 
-export const getPayoutRequestHistory = async (request_id: string, token: string): Promise<IFullPayoutRequestData[]> => {
-    let url = backendPrefix + `/payout-request/afsg/${request_id}/history`;
+export const getBfsgPayoutRequestData = async (type: string, fixedDate: string | null = null): Promise<Map<string, INewPayoutRequestData[]>> => {
+    let url = backendPrefix + `/payout-request/${type}`;
+    if (fixedDate) {
+        url += '/' + fixedDate;
+    }
+    return fetch(url)
+        .then(response => response.json(), () => {
+            return Promise.reject("Fetching data failed");
+        })
+        .then(rawdata => {
+            return mangleBfsgPayoutRequestData(rawdata);
+        });
+};
+
+export const getPayoutRequestHistory = async (request_id: string, type: string, token: string): Promise<IFullPayoutRequestData[]> => {
+    let url = backendPrefix + `/payout-request/${type}/${request_id}/history`;
     return fetch(url, {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
         .then(response => response.json(), () => {
             return Promise.reject("Fetching data failed");

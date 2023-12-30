@@ -6,6 +6,7 @@
     import {onMount} from "svelte";
 
     export let historyModal: boolean = true;
+    export let type: string = 'afsg';
     export let payoutRequest: IFullPayoutRequestData;
     let completedRequest: IFullPayoutRequestData[] | null = null;
     let message = '';
@@ -17,7 +18,7 @@
 
 
     const loadHistory = () => {
-        getPayoutRequestHistory(payoutRequest.request_id, $token)
+        getPayoutRequestHistory(payoutRequest.request_id, type, $token)
             .then(data => {
                 completedRequest = data;
             });
@@ -33,7 +34,7 @@
         <div class="card">
             <header class="card-header">
                 <p class="card-header-title">
-                    AFSG-Antrag {payoutRequest.request_id}: Bearbeitungsverlauf
+                    {type.toUpperCase()}-Antrag {payoutRequest.request_id}: Bearbeitungsverlauf
                 </p>
             </header>
             <div class="card-content">

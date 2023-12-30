@@ -3,7 +3,6 @@
     import {token} from "../stores";
     import type {IFsData} from "../Interfaces";
     import {onMount} from "svelte";
-    import FsDataDisplay from "./FsDataDisplay.svelte";
     import FsDataHistoryEntry from "./FsDataHistoryEntry.svelte";
 
     export let fsDataHistoryModal: boolean = true;

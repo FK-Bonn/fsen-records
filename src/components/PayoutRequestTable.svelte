@@ -4,15 +4,17 @@
     import CopyableTag from "./CopyableTag.svelte";
 
     export let payoutRequest: INewPayoutRequestData | IFullPayoutRequestData;
-    export let previous: INewPayoutRequestData | IFullPayoutRequestData | null;
+    export let previous: INewPayoutRequestData | IFullPayoutRequestData | null = null;
     $: tagClass = getStatusTagClass(payoutRequest);
     $: previousTagClass = getStatusTagClass(previous);
+    $: categoryChanged = previous && previous?.category !== payoutRequest.category;
     $: requestDateChanged = previous && previous?.request_date !== payoutRequest.request_date;
     $: statusChanged = previous && previous?.status !== payoutRequest.status;
     $: statusDateChanged = previous && previous?.status_date !== payoutRequest.status_date;
     $: amountCentsChanged = previous && previous?.amount_cents !== payoutRequest.amount_cents;
     $: commentChanged = previous && previous?.comment !== payoutRequest.comment;
     $: deadlineChanged = previous && previous?.completion_deadline !== payoutRequest.completion_deadline;
+    $: referenceChanged = previous && previous?.reference !== payoutRequest.reference;
 </script>
 
 <table class="table is-narrow">
@@ -29,6 +31,18 @@
         <td>
             <CopyableTag text={payoutRequest.request_id}/>
         </td>
+    </tr>
+    <tr class={categoryChanged ? 'has-background-warning' : ''}>
+        <th>Kategorie</th>
+        {#if !categoryChanged}
+            <td>{payoutRequest.category}</td>
+        {:else}
+            <td>
+                <del>{previous?.category}</del>
+                <br>
+                <b>{payoutRequest.category}</b>
+            </td>
+        {/if}
     </tr>
     <tr class={requestDateChanged ? 'has-background-warning' : ''}>
         <th>Antragsdatum</th>
@@ -100,6 +114,18 @@
                 <del>{previous?.completion_deadline}</del>
                 <br>
                 <b>{payoutRequest.completion_deadline}</b>
+            </td>
+        {/if}
+    </tr>
+    <tr class={referenceChanged ? 'has-background-warning' : ''}>
+        <th>Referenz</th>
+        {#if !referenceChanged}
+            <td>{payoutRequest.reference || ''}</td>
+        {:else}
+            <td>
+                <del>{previous?.reference || ''}</del>
+                <br>
+                <b>{payoutRequest.reference || ''}</b>
             </td>
         {/if}
     </tr>

@@ -1,8 +1,9 @@
 <script type="ts">
     import {euroCents, scrollToHashIfPresent} from "../util";
     import {INewPayoutRequestData} from "../Interfaces";
-    import {payoutRequestData} from "../stores";
+    import {afsgPayoutRequestData, bfsgPayoutRequestData, vorankuendigungPayoutRequestData} from "../stores";
     import {onMount} from "svelte";
+    import PayoutRequestsTable from "../components/PayoutRequestsTable.svelte";
 
     interface CountWithSum {
         count: number
@@ -76,13 +77,46 @@
         return count;
     }
 
-    $: semesters = mangleData($payoutRequestData);
-    $: headers = getHeaders($payoutRequestData);
+    const sortBfsg = (a: INewPayoutRequestData, b: INewPayoutRequestData) => {
+        if (a.status > b.status) {
+            return 1;
+        } else if (a.status < b.status) {
+            return -1;
+        } else if (a.fs > b.fs) {
+            return 1;
+        } else if (a.fs < b.fs) {
+            return -1;
+        } else if (a.request_id > b.request_id) {
+            return 1;
+        } else if (a.request_id < b.request_id) {
+            return -1;
+        }
+        return 0;
+    }
+
+    $: semesters = mangleData($afsgPayoutRequestData);
+    $: headers = getHeaders($afsgPayoutRequestData);
+    $: bfsgPayoutRequests = $bfsgPayoutRequestData ? [...$bfsgPayoutRequestData.values()].reduce((accumulator, value) => accumulator.concat(value), []).sort(sortBfsg) : [];
+    $: vorankuendigungPayoutRequests = $vorankuendigungPayoutRequestData ? [...$vorankuendigungPayoutRequestData.values()].reduce((accumulator, value)=>accumulator.concat(value), []).sort(sortBfsg) : [];
 
     onMount(() => {
         scrollToHashIfPresent();
     });
 </script>
+
+<h2 class="title is-2" id="vorankuendigunglist">
+    <a href="#vorankuendigunglist">👀</a>
+    Vorankündigungen-Liste
+</h2>
+
+<PayoutRequestsTable bfsgPayoutRequests="{vorankuendigungPayoutRequests}" type="vorankuendigung"/>
+
+<h2 class="title is-2" id="bfsglist">
+    <a href="#bfsglist">🐧</a>
+    BFSG-Liste
+</h2>
+
+<PayoutRequestsTable {bfsgPayoutRequests} type="bfsg"/>
 
 <h2 class="title is-2" id="finanicalstatus">
     <a href="#finanicalstatus">🤑</a>

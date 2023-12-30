@@ -1,6 +1,7 @@
 <script type="ts">
     import {
-        compactMode, displayFsData,
+        compactMode,
+        displayFsData,
         paleLowerDocuments,
         showFilenames,
         showOnlySemestersWithPayoutRequests,

@@ -1,11 +1,5 @@
 <script type="ts">
     import type {IStudentBody} from "../Interfaces";
-    import {CurrentlyCanBePaidCalculator} from "../Calculator";
-    import DateRange from "../components/DateRange.svelte";
-    import Checkmark from "../icons/Checkmark.svelte";
-    import Questionmark from "../icons/Questionmark.svelte";
-    import Warning from "../icons/Warning.svelte";
-    import Cross from "../icons/Cross.svelte";
     import SingleDocument from "../components/SingleDocument.svelte";
 
     export let studentBody: IStudentBody;

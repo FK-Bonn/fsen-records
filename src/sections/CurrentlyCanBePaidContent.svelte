@@ -3,10 +3,8 @@
     import {CurrentlyCanBePaidCalculator, Interval, VerdictCalculator} from "../Calculator";
     import DateRange from "../components/DateRange.svelte";
     import Checkmark from "../icons/Checkmark.svelte";
-    import Questionmark from "../icons/Questionmark.svelte";
     import Cross from "../icons/Cross.svelte";
     import SingleDocument from "../components/SingleDocument.svelte";
-    import SingleDocumentWithoutReferences from "../components/SingleDocumentWithoutReferences.svelte";
     import IconForLevel from "../icons/IconForLevel.svelte";
     import RelevantDocumentsWithProceedings from "../components/RelevantDocumentsWithProceedings.svelte";
     import {paleLowerDocuments} from "../stores";

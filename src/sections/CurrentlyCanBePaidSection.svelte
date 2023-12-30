@@ -3,7 +3,6 @@
     import CurrentlyCanBePaidContent from "./CurrentlyCanBePaidContent.svelte";
     import AngleIndicator from "../icons/AngleIndicator.svelte";
     import IconForLevel from "../icons/IconForLevel.svelte";
-    import {AnnotationLevel} from "../Interfaces";
     import {CurrentlyCanBePaidCalculator} from "../Calculator";
 
     const calculateLevel = (studentBody: IStudentBody, fixedDate: string | null) => {

@@ -1,19 +1,22 @@
 <script type="ts">
     import type {IAllFsData, INewPayoutRequestData} from "../Interfaces";
-    import {euroCents, getStatusTagClass, hasFsPermission, isBeforeOrOnLastDayForSubmission} from "../util";
+    import {euroCents, getStatusTagClass} from "../util";
     import CopyableTag from "./CopyableTag.svelte";
     import {allFsData, loggedInUser} from "../stores";
-    import type {Interval} from "../Calculator";
-    import RequestModal from "./RequestModal.svelte";
     import RequestEditModal from "./RequestEditModal.svelte";
     import RequestHistoryModal from "./RequestHistoryModal.svelte";
 
 
-    const getTableLine = (allData: IAllFsData, payoutRequest: INewPayoutRequestData, fsName: string, fsId: string, budgetTitle: string): string => {
+    const getTableLine = (allData: IAllFsData, payoutRequest: INewPayoutRequestData, budgetTitle: string): string => {
         if (!payoutRequest) {
             return '';
         }
+        if (payoutRequest.type === 'vorankuendigung') {
+            return 'Vorankündigungen können nicht ausgezahlt werden 🙃';
+        }
         let iban = 'IBAN';
+        const fsId = payoutRequest.fs;
+        const fsName = fsId;
         if (allData?.hasOwnProperty(fsId)) {
             const fsData = allData[fsId];
             if (fsData.protected_data) {
@@ -34,42 +37,45 @@
         ].join('\t')
     }
 
-    const showModal = (e) => {
-        modal = true;
-        editModal = false;
-        historyModal = false;
-    }
 
     const showEditModal = (e) => {
         editModal = true;
-        modal = false;
         historyModal = false;
     }
 
     const showHistoryModal = (e) => {
         editModal = false;
-        modal = false;
         historyModal = true;
     }
 
-    export let fsName: string = '';
-    export let fsId: string = '';
-    export let budgetTitle: string;
-    export let semester: Interval;
+    export let singleFS: boolean;
+    export let type: string;
     export let payoutRequest: INewPayoutRequestData;
-    let modal: boolean = false;
+    export let budgetTitlesBfsg: { [semester: string]: string };
     let editModal: boolean = false;
     let historyModal: boolean = false;
     $: tagClass = getStatusTagClass(payoutRequest);
-    $: tableLine = getTableLine($allFsData, payoutRequest, fsName, fsId, budgetTitle);
-    $: isRequestAllowed = isBeforeOrOnLastDayForSubmission(semester) && $loggedInUser && ($loggedInUser.admin || hasFsPermission($loggedInUser.permissions, fsId, 'submit_payout_request'));
+    $: budgetTitle = budgetTitlesBfsg ? budgetTitlesBfsg[payoutRequest.semester] : '';
+    $: tableLine = getTableLine($allFsData, payoutRequest, budgetTitle);
 </script>
-{#if payoutRequest}
-    <div class="tags card-header-icon">
-        <CopyableTag tagClass={tagClass} text={payoutRequest.status} copyText="{tableLine}"/>
+<tr>
+    <td>
         <CopyableTag text={payoutRequest.request_id}/>
+    </td>
+    {#if !singleFS}
+        <td>{payoutRequest.fs}</td>
+    {/if}
+    <td>{payoutRequest.category}</td>
+    <td>{payoutRequest.semester}</td>
+    <td>
         <CopyableTag text={euroCents(payoutRequest.amount_cents)} bold={true}/>
-        <button class="button is-small" on:click|stopPropagation={showHistoryModal} title="Bearbeitungsverlauf anzeigen">
+    </td>
+    <td>
+        <CopyableTag tagClass={tagClass} text={payoutRequest.status} copyText="{tableLine}"/>
+    </td>
+    <td>
+        <button class="button is-small" on:click|stopPropagation={showHistoryModal}
+                title="Bearbeitungsverlauf anzeigen">
             📜
         </button>
         {#if $loggedInUser && $loggedInUser.admin}
@@ -77,20 +83,13 @@
                 ✏️
             </button>
         {/if}
-    </div>
-{:else if isRequestAllowed}
-    <div class="card-header-icon">
-        <button class="button is-outlined is-small" on:click|stopPropagation={showModal}>Antrag stellen</button>
-    </div>
-{/if}
-{#if modal}
-    <RequestModal {fsName} {fsId} {semester} bind:modal={modal}/>
-{/if}
+    </td>
+</tr>
 {#if editModal && payoutRequest}
-    <RequestEditModal {payoutRequest} bind:editModal={editModal}/>
+    <RequestEditModal {payoutRequest} {type} bind:editModal={editModal}/>
 {/if}
 {#if historyModal && payoutRequest}
-    <RequestHistoryModal {payoutRequest} bind:historyModal={historyModal}/>
+    <RequestHistoryModal {payoutRequest} {type} bind:historyModal={historyModal}/>
 {/if}
 
 <style>

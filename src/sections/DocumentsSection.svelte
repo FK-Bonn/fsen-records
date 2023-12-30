@@ -1,6 +1,5 @@
 <script type="ts">
     import type {IStudentBody} from "../Interfaces";
-    import CurrentlyCanBePaidContent from "./CurrentlyCanBePaidContent.svelte";
     import AngleIndicator from "../icons/AngleIndicator.svelte";
     import DocumentsList from "./DocumentsList.svelte";
 

@@ -1,18 +1,12 @@
 <script type="ts">
-    import type {
-        IAnnotatedDocument, IAnnotatedDocumentDiff,
-        IData,
-        IPayoutRequestData,
-        IPayoutRequestDiff,
-        IStudentBodyDiff
-    } from "../Interfaces";
+    import type {IAnnotatedDocumentDiff, IData, IPayoutRequestDiff, IStudentBodyDiff} from "../Interfaces";
+    import {INewPayoutRequestData} from "../Interfaces";
     import People from "../icons/People.svelte";
     import {onMount} from "svelte";
     import {scrollToHashIfPresent} from "../util";
     import GenericDiff from "./diff/GenericDiff.svelte";
     import PayoutRequestDiff from "./diff/PayoutRequestDiff.svelte";
     import DocumentDiff from "./diff/DocumentDiff.svelte";
-    import {INewPayoutRequestData} from "../Interfaces";
 
     const DOCTYPES = {
         balances: 'Haushaltsrechnung',
@@ -33,13 +27,13 @@
             for (let semester of first.get(fs).keys()) {
                 const firstData = first.get(fs).get(semester);
                 if (!second.has(fs)) {
-                    modifiedPayoutRequests.push({fs, semester, oldPR: firstData, newPR: null});
+                    modifiedPayoutRequests.push({fs, semester, oldPR: firstData, newPR: null, type: 'AFSG'});
                 } else if (!second.get(fs).has(semester)) {
-                    modifiedPayoutRequests.push({fs, semester, oldPR: firstData, newPR: null});
+                    modifiedPayoutRequests.push({fs, semester, oldPR: firstData, newPR: null, type: 'AFSG'});
                 } else {
                     const secondData = second.get(fs).get(semester);
                     if (!isJsonEqual(firstData, secondData)) {
-                        modifiedPayoutRequests.push({fs, semester, oldPR: firstData, newPR: secondData});
+                        modifiedPayoutRequests.push({fs, semester, oldPR: firstData, newPR: secondData, type: 'AFSG'});
                     }
                 }
             }
@@ -51,6 +45,40 @@
                     modifiedPayoutRequests.push({fs, semester, oldPR: null, newPR: secondData});
                 } else if (!first.get(fs).has(semester)) {
                     modifiedPayoutRequests.push({fs, semester, oldPR: null, newPR: secondData});
+                }
+            }
+        }
+        return modifiedPayoutRequests;
+    }
+
+    const getModifiedBfsgPayoutRequests = (first: Map<string, INewPayoutRequestData[]>,
+                                           second: Map<string, INewPayoutRequestData[]>): IPayoutRequestDiff[] => {
+        const modifiedPayoutRequests = [];
+        for (let fs of first.keys()) {
+            for (let firstData of first.get(fs)) {
+                if (!second.has(fs)) {
+                    modifiedPayoutRequests.push({fs, semester: firstData.semester, oldPR: firstData, newPR: null,
+                        type: firstData.type.toUpperCase()});
+                } else if (!second.get(fs).some(value => value.request_id === firstData.request_id)) {
+                    modifiedPayoutRequests.push({fs, semester: firstData.semester, oldPR: firstData, newPR: null,
+                        type: firstData.type.toUpperCase()});
+                } else {
+                    const secondData = second.get(fs).find(value => value.request_id === firstData.request_id);
+                    if (!isJsonEqual(firstData, secondData)) {
+                        modifiedPayoutRequests.push({fs, semester: firstData.semester, oldPR: firstData, newPR: secondData,
+                            type: firstData.type.toUpperCase()});
+                    }
+                }
+            }
+        }
+        for (let fs of second.keys()) {
+            for (let secondData of second.get(fs)) {
+                if (!first.has(fs)) {
+                    modifiedPayoutRequests.push({fs, semester: secondData.semester, oldPR: null, newPR: secondData,
+                        type: secondData.type.toUpperCase()});
+                } else if (!first.get(fs).some(value => value.request_id === secondData.request_id)) {
+                    modifiedPayoutRequests.push({fs, semester: secondData.semester, oldPR: null, newPR: secondData,
+                        type: secondData.type.toUpperCase()});
                 }
             }
         }
@@ -69,6 +97,8 @@
             financialYearAnnotationDiff: null,
             statutesDiff: null,
             modifiedPayoutRequests: [],
+            modifiedBfsg: [],
+            modifiedVorankuendigung: [],
         };
     }
 
@@ -87,10 +117,16 @@
         first: IData,
         second: IData,
         firstPayoutRequests: Map<string, Map<string, INewPayoutRequestData>>,
-        secondPayoutRequests: Map<string, Map<string, INewPayoutRequestData>>
+        secondPayoutRequests: Map<string, Map<string, INewPayoutRequestData>>,
+        firstBfsg: Map<string, INewPayoutRequestData[]>,
+        secondBfsg: Map<string, INewPayoutRequestData[]>,
+        firstVorankuendigung: Map<string, INewPayoutRequestData[]>,
+        secondVorankuendigung: Map<string, INewPayoutRequestData[]>,
     ): IStudentBodyDiff[] => {
         const diffs = [];
         const modifiedPayoutRequests = getModifiedPayoutRequests(firstPayoutRequests, secondPayoutRequests);
+        const modifiedBfsg = getModifiedBfsgPayoutRequests(firstBfsg, secondBfsg);
+        const modifiedVorankuendigung = getModifiedBfsgPayoutRequests(firstVorankuendigung, secondVorankuendigung);
         for (let fs of first.studentBodies.keys()) {
             const firstStudentBody = first.studentBodies.get(fs);
             const secondStudentBody = second.studentBodies.get(fs);
@@ -125,6 +161,16 @@
                     diff.modifiedPayoutRequests.push(modifiedPayoutRequest);
                 }
             }
+            for (let item of modifiedBfsg) {
+                if (item.fs === fs) {
+                    diff.modifiedBfsg.push(item);
+                }
+            }
+            for (let item of modifiedVorankuendigung) {
+                if (item.fs === fs) {
+                    diff.modifiedVorankuendigung.push(item);
+                }
+            }
             if (!isJsonEqual(diff, emptyStudentBodyDiff(fs, firstStudentBody.name))) {
                 diffs.push(diff);
             }
@@ -139,7 +185,12 @@
     export let second: IData;
     export let firstPayoutRequests: Map<string, Map<string, INewPayoutRequestData>>;
     export let secondPayoutRequests: Map<string, Map<string, INewPayoutRequestData>>;
-    $: modifiedStudentBodies = getModifiedStudentBodies(first, second, firstPayoutRequests, secondPayoutRequests);
+    export let firstBfsg: Map<string, INewPayoutRequestData[]>;
+    export let secondBfsg: Map<string, INewPayoutRequestData[]>;
+    export let firstVorankuendigung: Map<string, INewPayoutRequestData[]>;
+    export let secondVorankuendigung: Map<string, INewPayoutRequestData[]>;
+    $: modifiedStudentBodies = getModifiedStudentBodies(first, second, firstPayoutRequests, secondPayoutRequests,
+        firstBfsg, secondBfsg, firstVorankuendigung, secondVorankuendigung);
 
     onMount(() => {
         scrollToHashIfPresent();
@@ -171,7 +222,19 @@
             <tbody>
             {#each studentBody.modifiedPayoutRequests as request}
                 <tr>
-                    <td>Antrag<br>{request.semester}</td>
+                    <td>{request.type}<br>{request.semester}</td>
+                    <PayoutRequestDiff before={request.oldPR} after={request.newPR}/>
+                </tr>
+            {/each}
+            {#each studentBody.modifiedBfsg as request}
+                <tr>
+                    <td>{request.type}<br>{request.semester}</td>
+                    <PayoutRequestDiff before={request.oldPR} after={request.newPR}/>
+                </tr>
+            {/each}
+            {#each studentBody.modifiedVorankuendigung as request}
+                <tr>
+                    <td>{request.type}<br>{request.semester}</td>
                     <PayoutRequestDiff before={request.oldPR} after={request.newPR}/>
                 </tr>
             {/each}
