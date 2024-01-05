@@ -4,6 +4,7 @@
     import type {INewPayoutRequestData} from "../Interfaces";
     import PayoutRequestTable from "./PayoutRequestTable.svelte";
     import RequestStatusOptions from "./RequestStatusOptions.svelte";
+    import RequestCategoryOptions from "./RequestCategoryOptions.svelte";
 
     export let fsName: string = '';
     export let fsId: string = '';
@@ -119,20 +120,7 @@
                             <label class="label" for="category">Kategorie*</label>
                             <div class="control">
                                 <select class="select" id="category" bind:value={category}>
-                                    <option value='2.1.1 Erstsemesterarbeit'>2.1.1 Erstsemesterarbeit</option>
-                                    <option value='2.1.2 Inhaltliche Veranstaltungen'>2.1.2 Inhaltliche
-                                        Veranstaltungen
-                                    </option>
-                                    <option value='3.1.1 Erstsemesterfahrt'>3.1.1 Erstsemesterfahrt</option>
-                                    <option value='3.1.2 Klausurfahrten'>3.1.2 Klausurfahrten</option>
-                                    <option value='3.1.3 Teilnahme BuFaTa'>3.1.3 Teilnahme BuFaTa</option>
-                                    <option value='4.2 Bildungsfahrt'>4.2 Bildungsfahrt</option>
-                                    <option value='4.3 Tagesexkursion'>4.3 Tagesexkursion</option>
-                                    <option value='5.1.1 Computer und Zubehör'>5.1.1 Computer und Zubehör</option>
-                                    <option value='5.1.2 Ausrichtung BuFaTa'>5.1.2 Ausrichtung BuFaTa</option>
-                                    <option value='5.1.3 Fachschaftsneugründung'>5.1.3 Fachschaftsneugründung</option>
-                                    <option value='5.1.4 Schulungen'>5.1.4 Schulungen</option>
-                                    <option value='Außerhalb KritKat'>Außerhalb KritKat</option>
+                                    <RequestCategoryOptions/>
                                 </select>
                             </div>
                         </div>

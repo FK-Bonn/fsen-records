@@ -120,7 +120,7 @@
                                 <td>{payoutRequest.request_id}</td>
                             </tr>
                             <tr>
-                                <th>kategorie</th>
+                                <th>Kategorie</th>
                                 <td>{payoutRequest.category}</td>
                             </tr>
                             <tr>
