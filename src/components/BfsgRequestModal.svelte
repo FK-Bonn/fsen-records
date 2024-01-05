@@ -140,7 +140,7 @@
                             <label class="label" for="status">Status</label>
                             <div class="control">
                                 <select class="select" id="status" bind:value={status}>
-                                    <RequestStatusOptions type="vorankuendigung"/>
+                                    <RequestStatusOptions type="bfsg"/>
                                 </select>
                             </div>
                         </div>
