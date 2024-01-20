@@ -1,7 +1,7 @@
 <script type="ts">
     import {euroCents, scrollToHashIfPresent} from "../util";
     import type {INewPayoutRequestData} from "../Interfaces";
-    import {afsgPayoutRequestData} from "../stores";
+    import {afsgPayoutRequestData, bfsgPayoutRequestData} from "../stores";
     import {onMount} from "svelte";
 
     interface SemesterSums {
@@ -28,6 +28,21 @@
                     newValue = {open: oldValue.open, completed: oldValue.completed + semesterdata.amount_cents};
                 }
                 retval.set(semesterkey, newValue);
+            }
+        }
+        return retval;
+    }
+
+    const getSumForStatus = (data: Map<string, INewPayoutRequestData[]>, status: string): number => {
+        if (!data) {
+            return 0;
+        }
+        let retval = 0;
+        for (let [fs, requests] of data) {
+            for (let request of requests) {
+                if(request.status === status){
+                    retval += request.amount_cents;
+                }
             }
         }
         return retval;
@@ -82,6 +97,7 @@
         completed: 0
     }).completed), 0);
     $: completableSum = remainingSemesters.reduce((intermediateSum, semester) => intermediateSum + semesters.get(semester).open, 0);
+    $: acceptedBfsg = getSumForStatus($bfsgPayoutRequestData, 'ANGENOMMEN');
 
     onMount(() => {
         scrollToHashIfPresent();
@@ -131,7 +147,7 @@
             </tr>
             <tr>
                 <td>BFSG</td>
-                <td>???</td>
+                <td>{euroCents(acceptedBfsg)}</td>
                 <td>Bereits zugesprochene, aber noch nicht überwiesene BFSG</td>
             </tr>
             <tr>
