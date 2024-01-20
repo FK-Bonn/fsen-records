@@ -27,6 +27,24 @@
         }
         return retval;
     }
+    const mangleBfsgData = (data: Map<string, INewPayoutRequestData[]>): Map<string, Map<string, CountWithSum>> => {
+        if (!data) {
+            return new Map();
+        }
+        const retval: Map<string, Map<string, CountWithSum>> = new Map<>();
+        for (let [fs, requests] of data) {
+            for (let request of requests) {
+                const semesterkey = request.semester;
+                if (!retval.has(semesterkey)) {
+                    retval.set(semesterkey, new Map<string, number>());
+                }
+                const oldValue = retval.get(semesterkey).get(request.status) || {count: 0, sum: 0}
+                const newValue = {count: oldValue.count + 1, sum: oldValue.sum + request.amount_cents};
+                retval.get(semesterkey).set(request.status, newValue);
+            }
+        }
+        return retval;
+    }
     const getHeaders = (data: Map<string, Map<string, INewPayoutRequestData>>): string[] => {
         if (!data) {
             return [];
@@ -36,6 +54,21 @@
             for (let [semesterkey, semesterdata] of semester) {
                 if (!headers.includes(semesterdata.status)) {
                     headers.push(semesterdata.status);
+                }
+            }
+        }
+        return headers;
+    }
+
+    const getBfsgHeaders = (data: Map<string, INewPayoutRequestData[]>): string[] => {
+        if (!data) {
+            return [];
+        }
+        const headers: string[] = ['GESTELLT', 'VOLLSTÄNDIG', 'VORGESTELLT', 'ANGENOMMEN', 'ANGEWIESEN', 'ÜBERWIESEN', 'ABGELEHNT', 'FAILED'];
+        for (let [fs, requests] of data) {
+            for (let request of requests) {
+                if (!headers.includes(request.status)) {
+                    headers.push(request.status);
                 }
             }
         }
@@ -54,6 +87,18 @@
         return {sum, count};
     }
 
+    const totalBfsgSum = (status: string) => {
+        let sum = 0;
+        let count = 0;
+        if (bfsgSemesters) {
+            for (let semester of bfsgSemesters.values()) {
+                sum += semester.get(status)?.sum || 0;
+                count += semester.get(status)?.count || 0;
+            }
+        }
+        return {sum, count};
+    }
+
     const rowCountSum = (semester: string) => {
         let count = 0;
         if (semesters) {
@@ -65,10 +110,33 @@
         return count;
     }
 
+    const bfsgRowCountSum = (semester: string) => {
+        let count = 0;
+        if (bfsgSemesters) {
+            const semesterData = bfsgSemesters.get(semester);
+            for (let statusValues of semesterData.values()) {
+                count += statusValues.count;
+            }
+        }
+        return count;
+    }
+
     const totalPayoutRequestCount = () => {
         let count = 0;
         if (semesters) {
             for (let semester of semesters.values()) {
+                for (let statusValues of semester.values()) {
+                    count += statusValues.count;
+                }
+            }
+        }
+        return count;
+    }
+
+    const totalBfsgPayoutRequestCount = () => {
+        let count = 0;
+        if (bfsgSemesters) {
+            for (let semester of bfsgSemesters.values()) {
                 for (let statusValues of semester.values()) {
                     count += statusValues.count;
                 }
@@ -96,6 +164,8 @@
 
     $: semesters = mangleData($afsgPayoutRequestData);
     $: headers = getHeaders($afsgPayoutRequestData);
+    $: bfsgSemesters = mangleBfsgData($bfsgPayoutRequestData);
+    $: bfsgHeaders = getBfsgHeaders($bfsgPayoutRequestData);
     $: bfsgPayoutRequests = $bfsgPayoutRequestData ? [...$bfsgPayoutRequestData.values()].reduce((accumulator, value) => accumulator.concat(value), []).sort(sortBfsg) : [];
     $: vorankuendigungPayoutRequests = $vorankuendigungPayoutRequestData ? [...$vorankuendigungPayoutRequestData.values()].reduce((accumulator, value)=>accumulator.concat(value), []).sort(sortBfsg) : [];
 
@@ -122,6 +192,8 @@
     <a href="#finanicalstatus">🤑</a>
     Antrags-Finanzübersicht
 </h2>
+
+<h3 class="title is-3">AFSG</h3>
 
 <table class="table is-striped is-hoverable">
     <thead>
@@ -160,6 +232,49 @@
             <th>{euroCents(totalSum(header).sum)}</th>
         {/each}
         <td><span class="tag is-info is-light">{totalPayoutRequestCount()}</span></td>
+    </tr>
+    </tfoot>
+</table>
+
+<h3 class="title is-3">BFSG</h3>
+
+<table class="table is-striped is-hoverable">
+    <thead>
+    <tr>
+        <th>Semester</th>
+        {#each bfsgHeaders as header}
+            <th colspan="2">{header}</th>
+        {/each}
+        <th>#</th>
+    </tr>
+    </thead>
+    <tbody>
+    {#each [...bfsgSemesters.keys()].sort().reverse() as semester}
+        <tr>
+            <th><nobr>{semester}</nobr></th>
+            {#each bfsgHeaders as status}
+                <td><span class="tag is-light">{bfsgSemesters.get(semester).get(status)?.count || 0}</span></td>
+                <td>{euroCents(bfsgSemesters.get(semester).get(status)?.sum)}</td>
+            {/each}
+            <td><span class="tag is-info is-light">{bfsgRowCountSum(semester)}</span></td>
+        </tr>
+    {/each}
+    </tbody>
+    <tfoot>
+    <tr>
+        <th>Semester</th>
+        {#each bfsgHeaders as header}
+            <th colspan="2">{header}</th>
+        {/each}
+        <th>#</th>
+    </tr>
+    <tr>
+        <th>Gesamt</th>
+        {#each bfsgHeaders as header}
+            <th><span class="tag is-light">{totalBfsgSum(header).count}</span></th>
+            <th>{euroCents(totalBfsgSum(header).sum)}</th>
+        {/each}
+        <td><span class="tag is-info is-light">{totalBfsgPayoutRequestCount()}</span></td>
     </tr>
     </tfoot>
 </table>
