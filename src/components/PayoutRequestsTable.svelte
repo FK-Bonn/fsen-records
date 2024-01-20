@@ -15,6 +15,7 @@
         {#if !singleFS}
             <th>Fachschaft</th>
         {/if}
+        <th>Referenz</th>
         <th>Kategorie</th>
         <th>Semester</th>
         <th>Betrag</th>

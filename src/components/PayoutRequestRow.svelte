@@ -63,8 +63,13 @@
         <CopyableTag text={payoutRequest.request_id}/>
     </td>
     {#if !singleFS}
-        <td>{payoutRequest.fs}</td>
+        <td><span class="fs-name">{payoutRequest.fs}</span></td>
     {/if}
+    <td>
+        {#if payoutRequest.reference}
+            <CopyableTag text={payoutRequest.reference}/>
+        {/if}
+    </td>
     <td>{payoutRequest.category}</td>
     <td>{payoutRequest.semester}</td>
     <td>
@@ -99,5 +104,13 @@
 
     .tag {
         margin-bottom: 0;
+    }
+
+    .fs-name {
+        display: inline-block;
+        max-width: 20rem;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 </style>
