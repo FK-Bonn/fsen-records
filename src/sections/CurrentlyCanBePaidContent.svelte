@@ -99,7 +99,7 @@
         </ul>
 
         <RelevantDocumentsWithProceedings
-                title="Kassenprüfungen"
+                title="Kassenprüfungen über das vorherige Haushaltsjahr"
                 proceedingsTitle="Wahl der Kassenprüfer*innen"
                 overallLevel={calculator.getCashAuditLevel()}
                 documents={calculator.getRelevantCashAuditsForPreviousFinancialYear()}
