@@ -11,12 +11,14 @@ import DateRange from "@/components/DateRange.vue";
 import BfsgSection from "@/components/studentbody/BfsgSection.vue";
 import DocumentsSection from "@/components/studentbody/DocumentsSection.vue";
 import IconPeople from "@/components/icons/IconPeople.vue";
+import {usePageSettingsStore} from "@/stores/pageSettings";
 
 const props = defineProps<{
   studentBody: IStudentBody,
 }>()
 
 const sciebo = useScieboDataStore();
+const settings = usePageSettingsStore();
 
 const fixedDate = ref(null);
 
@@ -54,7 +56,7 @@ const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fr
         Vergangenes Haushaltsjahr:
         <DateRange :interval="calculator.getPreviousFinancialYear()"/>
 
-        <FsDataSection :studentBody="studentBody"/>
+        <FsDataSection v-if="settings.displayFsData" :studentBody="studentBody"/>
       </div>
 
       <CurrentlyCanBePaidSection :studentBody="studentBody"/>

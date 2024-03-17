@@ -9,12 +9,13 @@ import IconCross from "@/components/icons/IconCross.vue";
 import DateRange from "@/components/DateRange.vue";
 import SingleDocument from "@/components/document/SingleDocument.vue";
 import RelevantDocumentsWithProceedings from "@/components/document/RelevantDocumentsWithProceedings.vue";
+import {usePageSettingsStore} from "@/stores/pageSettings";
 
 const props = defineProps<{
   studentBody: IStudentBody,
 }>()
 
-const paleLowerDocuments = true;
+const settings = usePageSettingsStore();
 
 const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.studentBody, null));
 const mostRecentElection = computed(() => calculator.value.getMostRecentElection());
@@ -90,7 +91,7 @@ const mostRecentInauguralMeetingProceedings = computed(() => calculator.value.ge
         <IconForLevel :level="calculator.getBalanceLevel()"/>
         Haushaltsrechnung des vorherigen Haushaltsjahres
       </h5>
-      <ul :class="'documents level-'+calculator.getBalanceLevel()+ paleLowerDocuments ? ' pale' : ''">
+      <ul :class="('documents level-'+calculator.getBalanceLevel())+ (settings.paleLowerDocuments ? ' pale' : '')">
         <template v-for="balance in calculator.getRelevantBalancesForPreviousFinancialYear()" :key="balance.filename">
           <li :class="'document level-'+VerdictCalculator.getWorstAnnotationLevel(balance.annotations)">
             <SingleDocument :document="balance" :studentBody="studentBody"/>

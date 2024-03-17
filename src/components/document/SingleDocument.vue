@@ -9,6 +9,7 @@ import DownloadButton from "@/components/document/DownloadButton.vue";
 import {computed} from "vue";
 import {useAccountStore} from "@/stores/account";
 import {hasFsPermission} from "@/util";
+import {usePageSettingsStore} from "@/stores/pageSettings";
 
 const props = defineProps<{
   document: IAnnotatedDocument,
@@ -17,8 +18,7 @@ const props = defineProps<{
 }>()
 
 const account = useAccountStore();
-
-const showFilenames = true;
+const settings = usePageSettingsStore();
 
 const displayDownloadButton = computed(() => account && (account.user?.admin || hasFsPermission(account.user?.permissions, props.studentBody.id, 'read_files')))
 
@@ -27,7 +27,7 @@ const displayDownloadButton = computed(() => account && (account.user?.admin || 
 <template>
   <IconForLevel v-if="document.checked" :level="VerdictCalculator.getWorstAnnotationLevel(document.annotations)"/>
   <IconQuestionmark v-else/>
-  <template v-if="showFilenames">
+  <template v-if="settings.showFilenames">
     <code>{{ document.filename }}</code>
     (
     <DateRange :interval="Interval.fromStrings(document.dateStart, document.dateEnd || document.dateStart)"/>

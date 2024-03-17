@@ -6,6 +6,7 @@ import StudentBody from "@/components/studentbody/StudentBody.vue";
 import {computed, ref} from "vue";
 import {AnnotationLevel} from "@/interfaces";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
+import FilterSettings from "@/components/FilterSettings.vue";
 
 const studentBodies = useStudentBodiesStore();
 const sciebo = useScieboDataStore();
@@ -30,7 +31,7 @@ const lastUpdateLevel = computed(() => {
         </p>
 
         <TopLegend/>
-        <!--<Filters/>-->
+        <FilterSettings/>
       </div>
     </div>
 

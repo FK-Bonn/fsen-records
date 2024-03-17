@@ -7,6 +7,7 @@ import IconQuestionmark from "@/components/icons/IconQuestionmark.vue";
 import SingleDocument from "@/components/document/SingleDocument.vue";
 import {VerdictCalculator} from "@/Calculator";
 import SingleDocumentWithoutReferences from "@/components/document/SingleDocumentWithoutReferences.vue";
+import {usePageSettingsStore} from "@/stores/pageSettings";
 
 defineProps<{
   title: string,
@@ -17,7 +18,7 @@ defineProps<{
   studentBody: IStudentBody,
 }>()
 
-const paleLowerDocuments = true;
+const settings = usePageSettingsStore();
 
 </script>
 
@@ -26,7 +27,7 @@ const paleLowerDocuments = true;
     <IconForLevel :level="overallLevel"/>
     {{ title }}
   </h5>
-  <div :class="'documents level-'+overallLevel + paleLowerDocuments ? ' pale' : ''">
+  <div :class="('documents level-'+overallLevel) + (settings.paleLowerDocuments ? ' pale' : '')">
     <ul v-if="documents.length > 0 && !covered">
       <li>
         <IconCross/>
