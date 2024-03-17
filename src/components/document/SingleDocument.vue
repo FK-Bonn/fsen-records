@@ -48,12 +48,10 @@ const displayDownloadButton = computed(() => account && (account.user?.admin || 
     </template>
   </template>
   <ul v-if="document.annotations.length > 0">
-    <template>
       <li v-for="annotation in document.annotations" :key="annotation.text">
         <IconForLevel :level="annotation.level"/>
         {{ annotation.text }}
       </li>
-    </template>
   </ul>
 </template>
 
