@@ -1,7 +1,7 @@
 # fsen-records
-Document sorter for AFSG payout requests.
+FS data and payout request management
 
-This Frontend is written in Svelte and is part of a three-component 
+This Frontend is written in Vue3 and is part of a three-component 
 application.
 The other two components are:
 - A folder structure full of documents, with a Python script that turns 
@@ -28,6 +28,6 @@ This starts a local development server.
 
 ```
 npm run build
-rsync -avzP --exclude data --exclude dataupdate public/* fsen-dds:/opt/datendrehscheibe/frontend
+rsync -avzP --exclude data --exclude dataupdate dist/* fsen-dds:/opt/datendrehscheibe/frontend
 ssh fsen-dds 'cd /opt/datendrehscheibe && docker compose down && docker compose build && docker compose up -d'
 ```

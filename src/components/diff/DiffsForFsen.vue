@@ -1,0 +1,249 @@
+<script setup lang="ts">
+
+import IconPeople from "@/components/icons/IconPeople.vue";
+import type {
+  IAnnotatedDocumentDiff,
+  IData,
+  INewPayoutRequestData,
+  IPayoutRequestDiff,
+  IStudentBodyDiff,
+  IStudentBodyDocumentsKey
+} from "@/interfaces";
+import {computed} from "vue";
+import PayoutRequestDiff from "@/components/diff/PayoutRequestDiff.vue";
+import GenericDiff from "@/components/diff/GenericDiff.vue";
+import DocumentDiff from "@/components/diff/DocumentDiff.vue";
+
+const props = defineProps<{
+  scieboStart: null | IData,
+  afsgStart: null | Map<string, INewPayoutRequestData[]>,
+  bfsgStart: null | Map<string, INewPayoutRequestData[]>,
+  vorankuendigungStart: null | Map<string, INewPayoutRequestData[]>,
+  scieboEnd: null | IData,
+  afsgEnd: null | Map<string, INewPayoutRequestData[]>,
+  bfsgEnd: null | Map<string, INewPayoutRequestData[]>,
+  vorankuendigungEnd: null | Map<string, INewPayoutRequestData[]>,
+}>();
+
+
+const DOCTYPES = {
+  balances: 'Haushaltsrechnung',
+  budgets: 'Haushaltsplan',
+  cashAudits: 'Kassenprüfung',
+  electionResults: 'Wahlergebnis',
+  proceedings: 'Protokoll',
+}
+
+const isJsonEqual = (first: any, second: any): boolean => {
+  return JSON.stringify(first) === JSON.stringify(second);
+}
+
+
+const getModifiedPayoutRequests = (first: Map<string, INewPayoutRequestData[]> | null,
+                                   second: Map<string, INewPayoutRequestData[]> | null): IPayoutRequestDiff[] => {
+  const modifiedPayoutRequests: IPayoutRequestDiff[] = [];
+  if (!first || !second) {
+    return modifiedPayoutRequests
+  }
+  for (let fs of first.keys()) {
+    for (let firstData of first.get(fs) || []) {
+      if (!second.has(fs)) {
+        modifiedPayoutRequests.push({
+          fs, semester: firstData.semester, oldPR: firstData, newPR: null,
+          type: firstData.type.toUpperCase()
+        });
+      } else if (!second.get(fs)?.some(value => value.request_id === firstData.request_id)) {
+        modifiedPayoutRequests.push({
+          fs, semester: firstData.semester, oldPR: firstData, newPR: null,
+          type: firstData.type.toUpperCase()
+        });
+      } else {
+        const secondData = second.get(fs)?.find(value => value.request_id === firstData.request_id);
+        if (!isJsonEqual(firstData, secondData)) {
+          modifiedPayoutRequests.push({
+            fs, semester: firstData.semester, oldPR: firstData, newPR: secondData || null,
+            type: firstData.type.toUpperCase()
+          });
+        }
+      }
+    }
+  }
+  for (let fs of second.keys()) {
+    for (let secondData of second.get(fs) || []) {
+      if (!first.has(fs)) {
+        modifiedPayoutRequests.push({
+          fs, semester: secondData.semester, oldPR: null, newPR: secondData,
+          type: secondData.type.toUpperCase()
+        });
+      } else if (!first.get(fs)?.some(value => value.request_id === secondData.request_id)) {
+        modifiedPayoutRequests.push({
+          fs, semester: secondData.semester, oldPR: null, newPR: secondData,
+          type: secondData.type.toUpperCase()
+        });
+      }
+    }
+  }
+  return modifiedPayoutRequests;
+}
+
+const emptyStudentBodyDiff = (fs: string, name: string | undefined): IStudentBodyDiff => {
+  return {
+    fs,
+    name: name || '?',
+    balances: [],
+    budgets: [],
+    cashAudits: [],
+    electionResults: [],
+    proceedings: [],
+    financialYearAnnotationDiff: null,
+    statutesDiff: null,
+    modifiedPayoutRequests: [],
+    modifiedBfsg: [],
+    modifiedVorankuendigung: [],
+  };
+}
+
+const annotatedDocumentComparator = (first: IAnnotatedDocumentDiff, second: IAnnotatedDocumentDiff) => {
+  const firstFilename = first.oldDocument ? first.oldDocument.filename : first.newDocument ? first.newDocument.filename : '';
+  const secondFilename = second.oldDocument ? second.oldDocument.filename : second.newDocument ? second.newDocument.filename : '';
+  if (firstFilename > secondFilename) {
+    return 1;
+  } else if (firstFilename < secondFilename) {
+    return -1;
+  }
+  return 0;
+}
+
+const getModifiedStudentBodies = (): IStudentBodyDiff[] => {
+  const diffs = [];
+  const modifiedAfsg = getModifiedPayoutRequests(props.afsgStart, props.afsgEnd);
+  const modifiedBfsg = getModifiedPayoutRequests(props.bfsgStart, props.bfsgEnd);
+  const modifiedVorankuendigung = getModifiedPayoutRequests(props.vorankuendigungStart, props.vorankuendigungEnd);
+  for (let fs of props.scieboStart?.studentBodies.keys() || []) {
+    const firstStudentBody = props.scieboStart?.studentBodies.get(fs);
+    const secondStudentBody = props.scieboEnd?.studentBodies.get(fs);
+    const diff = emptyStudentBodyDiff(fs, firstStudentBody?.name);
+    if (!secondStudentBody) {
+      diff.name += ' (not found)';
+      diffs.push(diff);
+      continue;
+    }
+
+    if (firstStudentBody && secondStudentBody) {
+
+      for (let documentType of ['balances', 'budgets', 'cashAudits', 'electionResults', 'proceedings'] as IStudentBodyDocumentsKey[]) {
+        for (let document of (firstStudentBody[documentType] || [])) {
+          const filename = document.filename;
+          let secondDocument = secondStudentBody[documentType].find(value => value.filename === filename);
+          if (!secondDocument) {
+            diff[documentType].push({filename, oldDocument: document, newDocument: null});
+          } else if (!isJsonEqual(document, secondDocument)) {
+            diff[documentType].push({filename, oldDocument: document, newDocument: secondDocument});
+          }
+        }
+        for (let document of secondStudentBody[documentType]) {
+          const filename = document.filename;
+          let firstDocument = firstStudentBody[documentType].find(value => value.filename === filename);
+          if (!firstDocument) {
+            diff[documentType].push({filename, oldDocument: null, newDocument: document});
+          }
+        }
+        diff[documentType].sort(annotatedDocumentComparator);
+      }
+      for (let modifiedPayoutRequest of modifiedAfsg) {
+        if (modifiedPayoutRequest.fs === fs) {
+          diff.modifiedPayoutRequests.push(modifiedPayoutRequest);
+        }
+      }
+      for (let item of modifiedBfsg) {
+        if (item.fs === fs) {
+          diff.modifiedBfsg.push(item);
+        }
+      }
+      for (let item of modifiedVorankuendigung) {
+        if (item.fs === fs) {
+          diff.modifiedVorankuendigung.push(item);
+        }
+      }
+    }
+    if (!isJsonEqual(diff, emptyStudentBodyDiff(fs, firstStudentBody?.name))) {
+      diffs.push(diff);
+    }
+  }
+
+  return diffs;
+}
+
+const modifiedStudentBodies = computed(() => getModifiedStudentBodies())
+</script>
+
+<template>
+  <h2 class="title is-2" id="studentBodies">Fachschaften</h2>
+  <template v-for="studentBody in modifiedStudentBodies" :key="studentBody.id">
+    <h3 class="title is-3">
+      <a :id="studentBody.fs" :href="'#'+studentBody.fs">
+        <IconPeople/>
+      </a>
+      {{ studentBody.name }}
+    </h3>
+    <table class="table">
+      <thead>
+      <tr>
+        <th>typ</th>
+        <th>alt</th>
+        <th>neu</th>
+      </tr>
+      </thead>
+      <tbody>
+      <template v-for="request in studentBody.modifiedPayoutRequests"
+                :key="request.newPR?.request_id||request.oldPR?.request_id">
+        <tr>
+          <td>{{ request.type }}<br>{{ request.semester }}</td>
+          <PayoutRequestDiff :before="request.oldPR" :after="request.newPR"/>
+        </tr>
+      </template>
+      <template v-for="request in studentBody.modifiedBfsg" :key="request.newPR?.request_id||request.oldPR?.request_id">
+        <tr>
+          <td>{{ request.type }}<br>{{request.semester}}</td>
+          <PayoutRequestDiff :before="request.oldPR" :after="request.newPR"/>
+        </tr>
+      </template>
+      <template v-for="request in studentBody.modifiedVorankuendigung"
+                :key="request.newPR?.request_id||request.oldPR?.request_id">
+        <tr>
+          <td>{{ request.type }}<br>{{ request.semester }}</td>
+          <PayoutRequestDiff :before="request.oldPR" :after="request.newPR"/>
+        </tr>
+      </template>
+      <template
+          v-for="docType in ['balances', 'budgets', 'cashAudits', 'electionResults', 'proceedings'] as IStudentBodyDocumentsKey[]"
+          :key="docType">
+        <template v-for="singleDiff in studentBody[docType]" :key="singleDiff.filename">
+          <tr>
+            <td>{{ DOCTYPES[docType] }}</td>
+            <DocumentDiff :before="singleDiff.oldDocument" :after="singleDiff.newDocument"/>
+          </tr>
+        </template>
+      </template>
+      <template v-if="studentBody.financialYearAnnotationDiff">
+        <tr>
+          <td>Haushaltsjahr</td>
+          <GenericDiff :before="studentBody.financialYearAnnotationDiff.oldString"
+                       :after="studentBody.financialYearAnnotationDiff.newString"/>
+        </tr>
+      </template>
+      <template v-if="studentBody.statutesDiff">
+        <tr>
+          <td>Fachschaftssatzung</td>
+          <GenericDiff :before="studentBody.statutesDiff.oldString"
+                       :after="studentBody.statutesDiff.newString"/>
+        </tr>
+      </template>
+      </tbody>
+    </table>
+  </template>
+</template>
+
+<style scoped>
+
+</style>

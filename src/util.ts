@@ -1,5 +1,4 @@
-import {
-    AnnotationLevel,
+import type {
     IAllFsData,
     IAnnotatedDocument,
     IAnnotation,
@@ -9,24 +8,24 @@ import {
     IFullPayoutRequestData,
     INewPayoutRequestData,
     IPermission,
+    IPermissionKey,
     IProtectedFsData,
     IProtectedFsDataHistoryEntry,
     IProtectedFsDataResponse,
     IUserWithPermissions
-} from "./Interfaces";
-import type {Interval} from "./Calculator";
-import {backendPrefix} from "./settings";
+} from "@/interfaces";
+import {AnnotationLevel} from "@/interfaces";
+import type {Interval} from "@/Calculator";
 
-
-export const PERMISSIONS: (keyof IPermission)[] = [
-    'read_files' as keyof IPermission,
-    'read_permissions' as keyof IPermission,
-    'write_permissions' as keyof IPermission,
-    'read_public_data' as keyof IPermission,
-    'write_public_data' as keyof IPermission,
-    'read_protected_data' as keyof IPermission,
-    'write_protected_data' as keyof IPermission,
-    'submit_payout_request' as keyof IPermission,
+export const PERMISSIONS: (IPermissionKey)[] = [
+    'read_files',
+    'read_permissions',
+    'write_permissions',
+    'read_public_data',
+    'write_public_data',
+    'read_protected_data',
+    'write_protected_data',
+    'submit_payout_request',
 ]
 
 export const stringToDate = (input: string) => {
@@ -44,7 +43,7 @@ export const getWorstDocumentAnnotationLevel = (annotations: IAnnotation[]): Ann
 }
 
 export const getWorstAnnotationLevel = (levels: AnnotationLevel[]): AnnotationLevel => {
-    for (let level of [AnnotationLevel.Error, AnnotationLevel.Unchecked, AnnotationLevel.Warning]) {
+    for (const level of [AnnotationLevel.Error, AnnotationLevel.Unchecked, AnnotationLevel.Warning]) {
         if (levels.some(value => value === level)) {
             return level
         }
@@ -62,7 +61,7 @@ export const getDocumentAnnotationLevel = (document: IAnnotatedDocument, require
     const worstDocumentLevel = getWorstDocumentAnnotationLevel(document.annotations);
     const referenceLevels = [];
     if (document.resolvedReferences) {
-        for (let reference of document.resolvedReferences) {
+        for (const reference of document.resolvedReferences) {
             let worstReferenceLevel = getWorstDocumentAnnotationLevel(reference.annotations);
             if (!reference.checked) {
                 worstReferenceLevel = AnnotationLevel.Unchecked;
@@ -75,7 +74,7 @@ export const getDocumentAnnotationLevel = (document: IAnnotatedDocument, require
 
 export const getDocumentsWithLevels = (documents: IAnnotatedDocument[], allowedLevels: AnnotationLevel[], requireResolvedReference = false): IAnnotatedDocument[] => {
     const documentsWithLevels = [];
-    for (let document of documents) {
+    for (const document of documents) {
         const level = getDocumentAnnotationLevel(document, requireResolvedReference);
         if (allowedLevels.includes(level)) {
             documentsWithLevels.push(document);
@@ -85,6 +84,9 @@ export const getDocumentsWithLevels = (documents: IAnnotatedDocument[], allowedL
 }
 
 export const euroCents = (value: number | undefined): string => {
+    if (value === undefined) {
+        return '';
+    }
     return euro(value / 100);
 }
 export const euro = (value: number | undefined): string => {
@@ -133,7 +135,7 @@ export const calculateSemesterId = (interval?: Interval) => {
     }
 }
 
-export const getStatusTagClass = (payoutRequest: INewPayoutRequestData): string => {
+export const getStatusTagClass = (payoutRequest: INewPayoutRequestData | IFullPayoutRequestData | null): string => {
     if (!payoutRequest) {
         return '';
     }
@@ -167,8 +169,14 @@ export const copyToClipboard = (str: string) => {
     return Promise.reject('The Clipboard API is not available.');
 };
 
-export const loadLoggedInUser = async (token: string): Promise<IUserWithPermissions | null> => {
-    return fetch(backendPrefix + '/user/me', {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
+export const loadLoggedInUser = async (token: string | null): Promise<IUserWithPermissions | null> => {
+    if (!token) {
+        return null;
+    }
+    return fetch(import.meta.env.VITE_API_URL + '/user/me', {
+        method: 'GET',
+        headers: {'Authorization': `Bearer ${token}`}
+    })
         .then(resp => {
             if (resp.ok) {
                 return resp.json();
@@ -184,8 +192,11 @@ export const loadLoggedInUser = async (token: string): Promise<IUserWithPermissi
         });
 }
 
-export const loadUsersList = async (token: string): Promise<Map<string, IUserWithPermissions> | null> => {
-    return fetch(backendPrefix + '/user', {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
+export const loadUsersList = async (token: string|null): Promise<Map<string, IUserWithPermissions> | null> => {
+    if(!token){
+        return null;
+    }
+    return fetch(import.meta.env.VITE_API_URL + '/user', {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
         .then(resp => {
             if (resp.ok) {
                 return resp.json();
@@ -194,15 +205,21 @@ export const loadUsersList = async (token: string): Promise<Map<string, IUserWit
             }
         })
         .then(json => {
-            return new Map(Object.entries(json));
+            return new Map(Object.entries(json)) as Map<string, IUserWithPermissions>;
         })
         .catch(() => {
             return null
         });
 }
 
-export const createAccount = async (username: string, password: string, admin: boolean, permissions: IPermission[], token: string): Promise<{ user: IUserWithPermissions | null, message: string | null }> => {
-    return fetch(backendPrefix + '/user/create',
+export const createAccount = async (username: string, password: string, admin: boolean, permissions: IPermission[], token: string | null): Promise<{
+    user: IUserWithPermissions | null,
+    message: string | null
+} | undefined> => {
+    if (!token) {
+        return;
+    }
+    return fetch(import.meta.env.VITE_API_URL + '/user/create',
         {
             method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
             body: JSON.stringify({username, password, admin, permissions})
@@ -223,15 +240,24 @@ export const createAccount = async (username: string, password: string, admin: b
         });
 }
 
-export const editPermissions = async (isAdmin: boolean, username: string, admin: boolean, permissions: IPermission[], token: string): Promise<{ user: IUserWithPermissions | null, message: string | null }> => {
+export const editPermissions = async (isAdmin: boolean | undefined, username: string, admin: boolean, permissions: IPermission[], token: string | null): Promise<{
+    user: IUserWithPermissions | null,
+    message: string | null
+} | undefined> => {
+    if (!token) {
+        return;
+    }
     if (isAdmin) {
         return editPermissionsPost(username, admin, permissions, token);
     } else {
         return editPermissionsPatch(username, permissions, token);
     }
 }
-export const editPermissionsPost = async (username: string, admin: boolean, permissions: IPermission[], token: string): Promise<{ user: IUserWithPermissions | null, message: string | null }> => {
-    return fetch(backendPrefix + '/user/permissions',
+export const editPermissionsPost = async (username: string, admin: boolean, permissions: IPermission[], token: string): Promise<{
+    user: IUserWithPermissions | null,
+    message: string | null
+}> => {
+    return fetch(import.meta.env.VITE_API_URL + '/user/permissions',
         {
             method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
             body: JSON.stringify({username, admin, permissions})
@@ -250,8 +276,11 @@ export const editPermissionsPost = async (username: string, admin: boolean, perm
         });
 }
 
-export const editPermissionsPatch = async (username: string, permissions: IPermission[], token: string): Promise<{ user: IUserWithPermissions | null, message: string | null }> => {
-    return fetch(backendPrefix + '/user/permissions',
+export const editPermissionsPatch = async (username: string, permissions: IPermission[], token: string): Promise<{
+    user: IUserWithPermissions | null,
+    message: string | null
+}> => {
+    return fetch(import.meta.env.VITE_API_URL + '/user/permissions',
         {
             method: 'PATCH', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
             body: JSON.stringify({username, permissions})
@@ -270,8 +299,11 @@ export const editPermissionsPatch = async (username: string, permissions: IPermi
         });
 }
 
-export const resetPassword = async (username: string, password: string, token: string): Promise<string> => {
-    return fetch(backendPrefix + '/user/password/' + username,
+export const resetPassword = async (username: string, password: string, token: string | null): Promise<string> => {
+    if (!token) {
+        return 'missing token';
+    }
+    return fetch(import.meta.env.VITE_API_URL + '/user/password/' + username,
         {
             method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
             body: JSON.stringify({new_password: password})
@@ -285,8 +317,11 @@ export const resetPassword = async (username: string, password: string, token: s
         });
 }
 
-export const changePassword = async (current_password: string, new_password: string, token: string): Promise<string> => {
-    return fetch(backendPrefix + '/user/password',
+export const changePassword = async (current_password: string, new_password: string, token: string | null): Promise<string | undefined> => {
+    if (!token) {
+        return;
+    }
+    return fetch(import.meta.env.VITE_API_URL + '/user/password',
         {
             method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
             body: JSON.stringify({current_password, new_password})
@@ -302,8 +337,14 @@ export const changePassword = async (current_password: string, new_password: str
         });
 }
 
-export const createPayoutRequest = async (fs: string, semester: string, token: string): Promise<{ payoutRequest: INewPayoutRequestData | null, message: string | null }> => {
-    return fetch(backendPrefix + '/payout-request/afsg/create',
+export const createPayoutRequest = async (fs: string, semester: string | undefined, token: string | null): Promise<{
+    payoutRequest: INewPayoutRequestData | null,
+    message: string | null
+} | undefined> => {
+    if (!token || !semester) {
+        return;
+    }
+    return fetch(import.meta.env.VITE_API_URL + '/payout-request/afsg/create',
         {
             method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
             body: JSON.stringify({fs, semester})
@@ -325,27 +366,33 @@ export const createPayoutRequest = async (fs: string, semester: string, token: s
 export const createBfsgPayoutRequest = async (fs: string, semester: string, category: string, amount_cents: number,
                                               status: string, status_date: string, comment: string,
                                               completion_deadline: string, reference: string, request_date: string,
-                                              token: string): Promise<{ payoutRequest: INewPayoutRequestData | null, message: string | null }> => {
+                                              token: string | null): Promise<{
+    payoutRequest: INewPayoutRequestData | null,
+    message: string | null
+} | undefined> => {
+    if (!token) {
+        return;
+    }
     const body: any = {fs, semester, category, amount_cents};
-    if(status){
+    if (status) {
         body.status = status;
     }
-    if(status_date){
+    if (status_date) {
         body.status_date = status_date;
     }
-    if(comment){
+    if (comment) {
         body.comment = comment;
     }
-    if(completion_deadline){
+    if (completion_deadline) {
         body.completion_deadline = completion_deadline;
     }
-    if(reference){
+    if (reference) {
         body.reference = reference;
     }
-    if(request_date){
+    if (request_date) {
         body.request_date = request_date;
     }
-    return fetch(backendPrefix + '/payout-request/bfsg/create',
+    return fetch(import.meta.env.VITE_API_URL + '/payout-request/bfsg/create',
         {
             method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
             body: JSON.stringify(body)
@@ -368,28 +415,33 @@ export const createBfsgPayoutRequest = async (fs: string, semester: string, cate
 export const createVorankuendigungPayoutRequest = async (fs: string, semester: string, category: string,
                                                          amount_cents: number, status: string, status_date: string,
                                                          comment: string, completion_deadline: string, reference: string,
-                                                         request_date: string, token: string): Promise<{ payoutRequest: INewPayoutRequestData | null, message: string | null }> => {
-
+                                                         request_date: string, token: string | null): Promise<{
+    payoutRequest: INewPayoutRequestData | null,
+    message: string | null
+} | undefined> => {
+    if (!token) {
+        return;
+    }
     const body: any = {fs, semester, category, amount_cents};
-    if(status){
+    if (status) {
         body.status = status;
     }
-    if(status_date){
+    if (status_date) {
         body.status_date = status_date;
     }
-    if(comment){
+    if (comment) {
         body.comment = comment;
     }
-    if(completion_deadline){
+    if (completion_deadline) {
         body.completion_deadline = completion_deadline;
     }
-    if(reference){
+    if (reference) {
         body.reference = reference;
     }
-    if(request_date){
+    if (request_date) {
         body.request_date = request_date;
     }
-    return fetch(backendPrefix + '/payout-request/vorankuendigung/create',
+    return fetch(import.meta.env.VITE_API_URL + '/payout-request/vorankuendigung/create',
         {
             method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
             body: JSON.stringify(body)
@@ -408,11 +460,14 @@ export const createVorankuendigungPayoutRequest = async (fs: string, semester: s
         });
 }
 
-export const editPayoutRequest = async (request_id: string, type: string, payload: any, token: string): Promise<{
+export const editPayoutRequest = async (request_id: string, type: string, payload: any, token: string | null): Promise<{
     payoutRequest: IFullPayoutRequestData | null,
     message: string | null
-}> => {
-    return fetch(backendPrefix + `/payout-request/${type}/` + request_id,
+} | undefined> => {
+    if (!token) {
+        return;
+    }
+    return fetch(import.meta.env.VITE_API_URL + `/payout-request/${type}/` + request_id,
         {
             method: 'PATCH', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
             body: JSON.stringify(payload)
@@ -440,7 +495,7 @@ export const formatIsoDate = (date: Date): string => {
     return date.toISOString().substring(0, 10);
 }
 
-export const getUrlParameter = (key: string): string|null => {
+export const getUrlParameter = (key: string): string | null => {
     const url = new URL(window.location.toString());
     return url.searchParams.get(key);
 }
@@ -462,7 +517,7 @@ export const scrollToHashIfPresent = () => {
 }
 
 const getProceeding = (proceedings: IAnnotatedDocument[], key: string): IAnnotatedDocument => {
-    for (let proceeding of proceedings) {
+    for (const proceeding of proceedings) {
         if (proceeding.filename === key) {
             return proceeding;
         }
@@ -470,29 +525,29 @@ const getProceeding = (proceedings: IAnnotatedDocument[], key: string): IAnnotat
     throw new Error('No proceeding with filename "' + key + '" found.');
 }
 
-export const pojoToIData = (data: any):IData=>{
+export const pojoToIData = (data: any): IData => {
     data.studentBodies = new Map(Object.entries(data.studentBodies));
     data.payoutRequests = new Map(Object.entries(data.payoutRequests));
-    for (let fsId of data.payoutRequests.keys()) {
+    for (const fsId of data.payoutRequests.keys()) {
         data.payoutRequests.set(fsId, new Map(Object.entries(data.payoutRequests.get(fsId))));
     }
-    for (let studentBody of data.studentBodies.keys()) {
+    for (const studentBody of data.studentBodies.keys()) {
         const proceedings = data.studentBodies.get(studentBody).proceedings;
-        for (let budget of data.studentBodies.get(studentBody).budgets) {
+        for (const budget of data.studentBodies.get(studentBody).budgets) {
             budget.resolvedReferences = [];
-            for (let reference of budget.references) {
+            for (const reference of budget.references) {
                 budget.resolvedReferences.push(getProceeding(proceedings, reference));
             }
         }
-        for (let balances of data.studentBodies.get(studentBody).balances) {
+        for (const balances of data.studentBodies.get(studentBody).balances) {
             balances.resolvedReferences = [];
-            for (let reference of balances.references) {
+            for (const reference of balances.references) {
                 balances.resolvedReferences.push(getProceeding(proceedings, reference));
             }
         }
-        for (let cashAudit of data.studentBodies.get(studentBody).cashAudits) {
+        for (const cashAudit of data.studentBodies.get(studentBody).cashAudits) {
             cashAudit.resolvedReferences = [];
-            for (let reference of cashAudit.references) {
+            for (const reference of cashAudit.references) {
                 cashAudit.resolvedReferences.push(getProceeding(proceedings, reference));
             }
         }
@@ -500,44 +555,19 @@ export const pojoToIData = (data: any):IData=>{
     return data as IData;
 }
 
-export const manglePayoutRequestData = (data: INewPayoutRequestData[]): Map<string, Map<string, INewPayoutRequestData>> => {
-    const retval = new Map<string, Map<string, INewPayoutRequestData>>()
-    for (let datum of data) {
-        if(!retval.has(datum.fs)){
-            retval.set(datum.fs, new Map<string, INewPayoutRequestData>());
-        }
-        retval.get(datum.fs).set(datum.semester, datum);
-    }
-    return retval;
-}
-
 export const mangleBfsgPayoutRequestData = (data: INewPayoutRequestData[]): Map<string, INewPayoutRequestData[]> => {
     const retval = new Map<string, INewPayoutRequestData[]>()
-    for (let datum of data) {
-        if(!retval.has(datum.fs)){
+    for (const datum of data) {
+        if (!retval.has(datum.fs)) {
             retval.set(datum.fs, []);
         }
-        retval.get(datum.fs).push(datum);
+        retval.get(datum.fs)?.push(datum);
     }
     return retval;
 }
 
-export const getPayoutRequestData = async (type: string, fixedDate: string | null = null): Promise<Map<string, Map<string, INewPayoutRequestData>>> => {
-    let url = backendPrefix + `/payout-request/${type}`;
-    if (fixedDate) {
-        url += '/' + fixedDate;
-    }
-    return fetch(url)
-        .then(response => response.json(), () => {
-            return Promise.reject("Fetching data failed");
-        })
-        .then(rawdata => {
-            return manglePayoutRequestData(rawdata);
-        });
-};
-
-export const getBfsgPayoutRequestData = async (type: string, fixedDate: string | null = null): Promise<Map<string, INewPayoutRequestData[]>> => {
-    let url = backendPrefix + `/payout-request/${type}`;
+export const getPayoutRequestData = async (type: string, fixedDate: string | null = null): Promise<Map<string, INewPayoutRequestData[]>> => {
+    let url = import.meta.env.VITE_API_URL + `/payout-request/${type}`;
     if (fixedDate) {
         url += '/' + fixedDate;
     }
@@ -550,8 +580,23 @@ export const getBfsgPayoutRequestData = async (type: string, fixedDate: string |
         });
 };
 
-export const getPayoutRequestHistory = async (request_id: string, type: string, token: string): Promise<IFullPayoutRequestData[]> => {
-    let url = backendPrefix + `/payout-request/${type}/${request_id}/history`;
+export const getPayoutRequestHistory = async (request_id: string, type: string, token: string | null): Promise<IFullPayoutRequestData[] | undefined> => {
+    const headers = token ? {'Authorization': `Bearer ${token}`} : undefined;
+    const url = import.meta.env.VITE_API_URL + `/payout-request/${type}/${request_id}/history`;
+    return fetch(url, {method: 'GET', headers})
+        .then(response => response.json(), () => {
+            return Promise.reject("Fetching data failed");
+        })
+        .then(rawdata => {
+            return rawdata;
+        });
+}
+
+export const getFsDataHistory = async (fs: string, token: string | null): Promise<IFsData[] | null> => {
+    if (!token) {
+        return null;
+    }
+    const url = import.meta.env.VITE_API_URL + `/data/${fs}/history`;
     return fetch(url, {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
         .then(response => response.json(), () => {
             return Promise.reject("Fetching data failed");
@@ -561,8 +606,11 @@ export const getPayoutRequestHistory = async (request_id: string, type: string, 
         });
 };
 
-export const getFsDataHistory = async (fs: string, token: string): Promise<IFsData[]> => {
-    let url = backendPrefix + `/data/${fs}/history`;
+export const getProtectedFsDataHistory = async (fs: string, token: string | null): Promise<IProtectedFsDataHistoryEntry[] | null> => {
+    if (!token) {
+        return null;
+    }
+    const url = import.meta.env.VITE_API_URL + `/data/${fs}/protected/history`;
     return fetch(url, {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
         .then(response => response.json(), () => {
             return Promise.reject("Fetching data failed");
@@ -572,20 +620,12 @@ export const getFsDataHistory = async (fs: string, token: string): Promise<IFsDa
         });
 };
 
-export const getProtectedFsDataHistory = async (fs: string, token: string): Promise<IProtectedFsDataHistoryEntry[]> => {
-    let url = backendPrefix + `/data/${fs}/protected/history`;
-    return fetch(url, {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
-        .then(response => response.json(), () => {
-            return Promise.reject("Fetching data failed");
-        })
-        .then(rawdata => {
-            return rawdata;
-        });
-};
 
-
-export const approveFsData = async (id: number, token: string): Promise<{ message: string }> => {
-    let url = backendPrefix + `/data/approve/${id}`;
+export const approveFsData = async (id: number, token: string | null): Promise<{ message: string } | null> => {
+    if (!token) {
+        return null;
+    }
+    const url = import.meta.env.VITE_API_URL + `/data/approve/${id}`;
     return fetch(url,
         {
             method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
@@ -606,8 +646,11 @@ export const approveFsData = async (id: number, token: string): Promise<{ messag
         });
 }
 
-export const approveProtectedFsData = async (id: number, token: string): Promise<{ message: string }> => {
-    let url = backendPrefix + `/data/approve/protected/${id}`;
+export const approveProtectedFsData = async (id: number, token: string | null): Promise<{ message: string } | null> => {
+    if (!token) {
+        return null;
+    }
+    const url = import.meta.env.VITE_API_URL + `/data/approve/protected/${id}`;
     return fetch(url,
         {
             method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
@@ -628,11 +671,11 @@ export const approveProtectedFsData = async (id: number, token: string): Promise
         });
 }
 
-export const getAllFsData = async (token: string): Promise<IAllFsData | null> => {
-    if(!token){
+export const getAllFsData = async (token: string | null): Promise<IAllFsData | null> => {
+    if (!token) {
         return null;
     }
-    return fetch(backendPrefix + '/data', {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
+    return fetch(import.meta.env.VITE_API_URL + '/data', {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
         .then(resp => {
             if (resp.ok) {
                 return resp.json();
@@ -644,8 +687,14 @@ export const getAllFsData = async (token: string): Promise<IAllFsData | null> =>
             return json;
         });
 }
-export const getFsData = async (fs: string, token: string): Promise<IFsDataResponse | null> => {
-    return fetch(backendPrefix + '/data/' + fs, {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
+export const getFsData = async (fs: string, token: string | null): Promise<IFsDataResponse | null> => {
+    if (!token) {
+        return null;
+    }
+    return fetch(import.meta.env.VITE_API_URL + '/data/' + fs, {
+        method: 'GET',
+        headers: {'Authorization': `Bearer ${token}`}
+    })
         .then(resp => {
             if (resp.ok) {
                 return resp.json();
@@ -661,8 +710,11 @@ export const getFsData = async (fs: string, token: string): Promise<IFsDataRespo
         });
 }
 
-export const putFsData = async (fs: string, data: IFsData, token: string): Promise<void> => {
-    return fetch(backendPrefix + '/data/' + fs, {
+export const putFsData = async (fs: string, data: IFsData, token: string | null): Promise<void> => {
+    if (!token) {
+        return;
+    }
+    return fetch(import.meta.env.VITE_API_URL + '/data/' + fs, {
         method: 'PUT',
         headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
         body: JSON.stringify(data)
@@ -676,8 +728,11 @@ export const putFsData = async (fs: string, data: IFsData, token: string): Promi
         });
 }
 
-export const getProtectedFsData = async (fs: string, token: string): Promise<IProtectedFsDataResponse | null> => {
-    return fetch(backendPrefix + '/data/' + fs + '/protected', {
+export const getProtectedFsData = async (fs: string, token: string | null): Promise<IProtectedFsDataResponse | null> => {
+    if (!token) {
+        return null;
+    }
+    return fetch(import.meta.env.VITE_API_URL + '/data/' + fs + '/protected', {
         method: 'GET',
         headers: {'Authorization': `Bearer ${token}`}
     })
@@ -693,8 +748,11 @@ export const getProtectedFsData = async (fs: string, token: string): Promise<IPr
         });
 }
 
-export const putProtectedFsData = async (fs: string, data: IProtectedFsData, token: string): Promise<void> => {
-    return fetch(backendPrefix + '/data/' + fs + '/protected', {
+export const putProtectedFsData = async (fs: string, data: IProtectedFsData, token: string | null): Promise<void> => {
+    if (!token) {
+        return;
+    }
+    return fetch(import.meta.env.VITE_API_URL + '/data/' + fs + '/protected', {
         method: 'PUT',
         headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
         body: JSON.stringify(data)
@@ -749,7 +807,7 @@ export const permissionToString = (key: keyof IPermission) => {
 
 const collectPermissions = (permission: IPermission) => {
     const permissions = [];
-    for (let prop of PERMISSIONS) {
+    for (const prop of PERMISSIONS) {
         if (permission[prop]) {
             permissions.push(permissionToString(prop));
         }
@@ -770,7 +828,10 @@ export const hasAnyFsPermission = (permissions: IPermission[], fs: string): bool
 }
 
 
-export const hasFsPermission = (permissions: IPermission[], fs: string, key: keyof IPermission): boolean => {
+export const hasFsPermission = (permissions: IPermission[] | undefined, fs: string, key: IPermissionKey): boolean => {
+    if (!permissions) {
+        return false;
+    }
     return permissions.filter(p => p.fs === fs && p[key]).length > 0;
 }
 
@@ -780,8 +841,63 @@ export const getLastDayForSubmission = (interval: Interval): Date => {
     return lastDayForSubmission;
 }
 
-export const isBeforeOrOnLastDayForSubmission = (interval: Interval): boolean => {
-    const yesterday = new Date();
+export const isBeforeOrOnLastDayForSubmission = (interval: Interval, fixedDate: string | null): boolean => {
+    const yesterday = fixedDate ? new Date(fixedDate) : new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     return yesterday < getLastDayForSubmission(interval);
+}
+
+export const sortPayoutRequests = (a: INewPayoutRequestData, b: INewPayoutRequestData) => {
+    if (a.status > b.status) {
+        return 1;
+    } else if (a.status < b.status) {
+        return -1;
+    } else if (a.fs > b.fs) {
+        return 1;
+    } else if (a.fs < b.fs) {
+        return -1;
+    } else if (a.request_id > b.request_id) {
+        return 1;
+    } else if (a.request_id < b.request_id) {
+        return -1;
+    }
+    return 0;
+}
+
+export const getUsernameFromUrl = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('user') || '';
+}
+
+export const actualDateOrNull = (date: string | undefined | null) => {
+    if (date) {
+        try {
+            const d = new Date(date);
+            return d.toISOString().substring(0, 10);
+        } catch (e) {
+            return null;
+        }
+    }
+    return null;
+}
+
+export const getFixedDateFromUrl = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const fixedDate = urlParams.get('date') || null;
+    return actualDateOrNull(fixedDate);
+}
+
+export const resetFixedDateInUrl = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.delete('date');
+    window.location.search = urlParams.toString();
+    console.log(urlParams.toString())
+}
+
+export const updatePageTitle = (title?: string) => {
+    if (title) {
+        document.title = title + ' · ' + import.meta.env.VITE_SITE_TITLE;
+    } else {
+        document.title = import.meta.env.VITE_SITE_TITLE;
+    }
 }
