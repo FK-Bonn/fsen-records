@@ -1,8 +1,18 @@
-import App from './App.svelte';
+import "bulma/css/bulma.css"
+import './assets/main.css'
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
-const app = new App({
-	target: document.body,
-	props: {}
-});
+import App from './App.vue'
+import router from './router'
 
-export default app;
+const app = createApp(App)
+
+const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate)
+
+app.use(pinia)
+app.use(router)
+
+app.mount('#app')

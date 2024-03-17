@@ -1,6 +1,6 @@
-import type {IAnnotatedDocument, IAnnotation, IStudentBody} from "./Interfaces";
-import {AnnotationLevel} from "./Interfaces";
-import {getDocumentAnnotationLevel, getDocumentsWithLevels, getWorstAnnotationLevel, stringToDate} from "./util";
+import type {IAnnotatedDocument, IAnnotation, IStudentBody} from "@/interfaces";
+import {AnnotationLevel} from "@/interfaces";
+import {getDocumentAnnotationLevel, getDocumentsWithLevels, getWorstAnnotationLevel, stringToDate} from "@/util";
 
 export class Interval {
     start: Date
@@ -11,7 +11,10 @@ export class Interval {
         this.end = end;
     }
 
-    static fromStrings(start: string, end: string): Interval {
+    static fromStrings(start?: string, end?: string): Interval | undefined {
+        if (!start || !end) {
+            return;
+        }
         const startDate = stringToDate(start);
         const endDate = stringToDate(end);
         return new Interval(startDate, endDate);
@@ -19,7 +22,7 @@ export class Interval {
 
     public getOverlapping(others: IAnnotatedDocument[]): IAnnotatedDocument[] {
         const overlapping: IAnnotatedDocument[] = [];
-        for (let other of others) {
+        for (const other of others) {
             const otherStart = stringToDate(other.dateStart);
             if (!other.dateEnd) {
                 if (this.start <= otherStart && this.end >= otherStart) {
@@ -40,7 +43,7 @@ export class Interval {
         let remainingStart = this.start;
         const sortedOthers = [...others];
         sortedOthers.sort((a, b) => a.dateStart.localeCompare(b.dateStart))
-        for (let other of sortedOthers) {
+        for (const other of sortedOthers) {
             const otherStart = stringToDate(other.dateStart);
             if (otherStart > remainingStart) {
                 return false;
@@ -60,8 +63,8 @@ export class Interval {
 
 export class VerdictCalculator {
     public static getWorstAnnotationLevel(annotations: IAnnotation[]): AnnotationLevel {
-        for (let level of [AnnotationLevel.Error, AnnotationLevel.Warning, AnnotationLevel.Unchecked]) {
-            for (let annotation of annotations) {
+        for (const level of [AnnotationLevel.Error, AnnotationLevel.Warning, AnnotationLevel.Unchecked]) {
+            for (const annotation of annotations) {
                 if (annotation.level === level) {
                     return level;
                 }
@@ -111,7 +114,7 @@ export class CurrentlyCanBePaidCalculator {
 
     public getProceedingsOfLastInauguralMeetingLevel(): AnnotationLevel {
         const levels = [];
-        let proceedings = this.getProceedingsOfMostRecentInauguralMeeting();
+        const proceedings = this.getProceedingsOfMostRecentInauguralMeeting();
         if (!proceedings) {
             levels.push(AnnotationLevel.Error);
         } else {
@@ -121,9 +124,9 @@ export class CurrentlyCanBePaidCalculator {
         return getWorstAnnotationLevel(levels);
     }
 
-    public areProceedingsOfLastInauguralMeetingYoungerThanLastElectionLevel(proceedings: IAnnotatedDocument): AnnotationLevel {
+    public areProceedingsOfLastInauguralMeetingYoungerThanLastElectionLevel(proceedings: IAnnotatedDocument|null): AnnotationLevel {
         const election = this.getMostRecentElection();
-        if (election) {
+        if (election && election.dateEnd && proceedings) {
             if (election.dateEnd > proceedings.dateStart) {
                 return AnnotationLevel.Error;
             } else {
@@ -168,7 +171,7 @@ export class CurrentlyCanBePaidCalculator {
 
     private getLevelForDocuments(interval: Interval, documents: IAnnotatedDocument[], requireResolvedReference: boolean = false): AnnotationLevel {
         const allowedLevels = [];
-        for (let level of [AnnotationLevel.Ok, AnnotationLevel.Warning, AnnotationLevel.Unchecked]) {
+        for (const level of [AnnotationLevel.Ok, AnnotationLevel.Warning, AnnotationLevel.Unchecked]) {
             allowedLevels.push(level);
             const budgets = interval.getOverlapping(getDocumentsWithLevels(documents, allowedLevels, requireResolvedReference));
             if (interval.isCoveredBy(budgets)) {
@@ -183,7 +186,7 @@ export class CurrentlyCanBePaidCalculator {
             return null;
         }
         let mostRecentProceeding = null;
-        for (let proceeding of this.studentBody.proceedings) {
+        for (const proceeding of this.studentBody.proceedings) {
             if (proceeding.filename.includes('Konsti')) {
                 if (!mostRecentProceeding || mostRecentProceeding.dateStart < proceeding.dateStart) {
                     mostRecentProceeding = proceeding;
@@ -209,7 +212,7 @@ export class CurrentlyCanBePaidCalculator {
             return null;
         }
         let mostRecentElection = null;
-        for (let electionResult of this.studentBody.electionResults) {
+        for (const electionResult of this.studentBody.electionResults) {
             if (!mostRecentElection || electionResult.dateEnd > mostRecentElection.dateEnd) {
                 mostRecentElection = electionResult;
             }
@@ -366,7 +369,7 @@ export class SemesterCalculator {
         }
         const searchArea = new Interval(new Date(this.semester.end.getFullYear() - 1, this.semester.end.getMonth(), this.semester.end.getDate() + 1), this.semester.end);
         let mostRecentElection = null;
-        for (let electionResult of searchArea.getOverlapping(this.studentBody.electionResults)) {
+        for (const electionResult of searchArea.getOverlapping(this.studentBody.electionResults)) {
             if (!mostRecentElection || electionResult.dateEnd > mostRecentElection.dateEnd) {
                 mostRecentElection = electionResult;
             }
