@@ -75,7 +75,10 @@ export const getDocumentsWithLevels = (documents: IAnnotatedDocument[], allowedL
     return documentsWithLevels;
 }
 
-export const euroCents = (value: number): string => {
+export const euroCents = (value: number | undefined): string => {
+    if (value === undefined) {
+        return '';
+    }
     return euro(value / 100);
 }
 export const euro = (value: number | undefined): string => {
@@ -124,7 +127,7 @@ export const calculateSemesterId = (interval?: Interval) => {
     }
 }
 
-export const getStatusTagClass = (payoutRequest: INewPayoutRequestData): string => {
+export const getStatusTagClass = (payoutRequest: INewPayoutRequestData | IFullPayoutRequestData | null): string => {
     if (!payoutRequest) {
         return '';
     }
@@ -311,10 +314,13 @@ export const changePassword = async (current_password: string, new_password: str
         });
 }
 
-export const createPayoutRequest = async (fs: string, semester: string, token: string): Promise<{
+export const createPayoutRequest = async (fs: string, semester: string | undefined, token: string | null): Promise<{
     payoutRequest: INewPayoutRequestData | null,
     message: string | null
-}> => {
+} | undefined> => {
+    if (!token || !semester) {
+        return;
+    }
     return fetch(import.meta.env.VITE_API_URL + '/payout-request/afsg/create',
         {
             method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
@@ -426,10 +432,13 @@ export const createVorankuendigungPayoutRequest = async (fs: string, semester: s
         });
 }
 
-export const editPayoutRequest = async (request_id: string, type: string, payload: any, token: string): Promise<{
+export const editPayoutRequest = async (request_id: string, type: string, payload: any, token: string | null): Promise<{
     payoutRequest: IFullPayoutRequestData | null,
     message: string | null
-}> => {
+} | undefined> => {
+    if (!token) {
+        return;
+    }
     return fetch(import.meta.env.VITE_API_URL + `/payout-request/${type}/` + request_id,
         {
             method: 'PATCH', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
@@ -543,7 +552,10 @@ export const getPayoutRequestData = async (type: string, fixedDate: string | nul
         });
 };
 
-export const getPayoutRequestHistory = async (request_id: string, type: string, token: string): Promise<IFullPayoutRequestData[]> => {
+export const getPayoutRequestHistory = async (request_id: string, type: string, token: string | null): Promise<IFullPayoutRequestData[] | undefined> => {
+    if (!token) {
+        return;
+    }
     const url = import.meta.env.VITE_API_URL + `/payout-request/${type}/${request_id}/history`;
     return fetch(url, {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
         .then(response => response.json(), () => {
@@ -552,7 +564,7 @@ export const getPayoutRequestHistory = async (request_id: string, type: string, 
         .then(rawdata => {
             return rawdata;
         });
-};
+}
 
 export const getFsDataHistory = async (fs: string, token: string | null): Promise<IFsData[] | null> => {
     if (!token) {
@@ -790,7 +802,7 @@ export const hasAnyFsPermission = (permissions: IPermission[], fs: string): bool
 }
 
 
-export const hasFsPermission = (permissions?: IPermission[], fs: string, key: keyof IPermission): boolean => {
+export const hasFsPermission = (permissions: IPermission[] | undefined, fs: string, key: keyof IPermission): boolean => {
     if (!permissions) {
         return false;
     }

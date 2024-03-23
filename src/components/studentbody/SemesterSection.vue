@@ -12,6 +12,8 @@ import DeadlineIcons from "@/components/icons/DeadlineIcons.vue";
 import IconStar from "@/components/icons/IconStar.vue";
 import AngleIndicator from "@/components/icons/AngleIndicator.vue";
 import SemesterContent from "@/components/studentbody/SemesterContent.vue";
+import PayoutRequest from "@/components/payoutrequest/PayoutRequest.vue";
+import {useScieboDataStore} from "@/stores/scieboData";
 
 const props = defineProps<{
   studentBody: IStudentBody,
@@ -20,6 +22,7 @@ const props = defineProps<{
 
 const settings = usePageSettingsStore();
 const payoutRequests = usePayoutRequestStore();
+const sciebo = useScieboDataStore();
 
 const opened = ref(false);
 
@@ -34,6 +37,7 @@ const toggle = () => {
 const semesterName = computed(() => calculateSemesterName(props.semester))
 const semesterId = computed(() => calculateSemesterId(props.semester))
 const payoutRequestForSemester = computed(() => payoutRequests.afsg?.get(props.studentBody.id)?.find(value => value.semester === semesterId.value))
+const budgetTitle = computed(() => semesterId.value ? sciebo.data?.budgetTitles[semesterId.value] : null)
 const level = computed(() => calculateLevel(props.studentBody, props.semester))
 const displayStar = computed(() => shouldDisplayStar(level.value, payoutRequestForSemester.value))
 </script>
@@ -52,8 +56,11 @@ const displayStar = computed(() => shouldDisplayStar(level.value, payoutRequestF
               <DeadlineIcons :interval="semester"/>
         </p>
         <IconStar v-if="displayStar"/>
-<!--        TODO -->
-<!--          <PayoutRequest {payoutRequest} :fsName="studentBody.name" :fsId="studentBody.id" :budgetTitle="budgetTitle" :semester="semester"/>-->
+          <PayoutRequest :payoutRequest="payoutRequestForSemester"
+                         :fsName="studentBody.name"
+                         :fsId="studentBody.id"
+                         :budgetTitle="budgetTitle"
+                         :semester="semester"/>
           <button class="card-header-icon" aria-label="more options">
             <AngleIndicator :opened="opened"/>
           </button>
