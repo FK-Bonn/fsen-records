@@ -111,15 +111,21 @@ const referenceChanged = computed(() => props.previous && props.previous?.refere
     </tr>
     <tr>
       <th>Antrag gestellt von</th>
-      <td>{{ payoutRequest.requester || '(versteckt)' }}</td>
+      <td>{{ (('requester' in payoutRequest) ? (payoutRequest.requester || '(versteckt)') : '(versteckt)') }}</td>
     </tr>
     <tr>
       <th>Zuletzt modifiziert am</th>
-      <td>{{ payoutRequest.last_modified_timestamp || '(versteckt)' }}</td>
+      <td>{{
+          (('last_modified_timestamp' in payoutRequest) ? (payoutRequest.last_modified_timestamp || '(versteckt)') : '(versteckt)')
+        }}
+      </td>
     </tr>
     <tr>
       <th>Zuletzt modifiziert von</th>
-      <td>{{ payoutRequest.last_modified_by || '(versteckt)' }}</td>
+      <td>{{
+          (('last_modified_by' in payoutRequest) ? (payoutRequest.last_modified_by || '(versteckt)') : '(versteckt)')
+        }}
+      </td>
     </tr>
   </table>
 </template>

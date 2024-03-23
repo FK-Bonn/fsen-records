@@ -66,8 +66,9 @@ const formatter = new Intl.NumberFormat(locale, {maximumFractionDigits: numDecim
 
 const valueFormatted = computed(() => formatter.format(amount_cents.value / 100));
 
-function moneyInputHandler(e) {
-  const tempValue = parseNumber(e.currentTarget.value);
+function moneyInputHandler(e: KeyboardEvent) {
+  const eventTarget = e.currentTarget as HTMLInputElement;
+  const tempValue = parseNumber(eventTarget.value);
   if (isNaN(tempValue)) {
     amount_cents.value = 0;
     return;
@@ -189,15 +190,24 @@ const reloadPayoutRequestData = () => {
                 </tr>
                 <tr>
                   <th>Antrag gestellt von</th>
-                  <td>{{ payoutRequest.requester || '(versteckt)' }}</td>
+                  <td>{{
+                      (('requester' in payoutRequest) ? (payoutRequest.requester || '(versteckt)') : '(versteckt)')
+                    }}
+                  </td>
                 </tr>
                 <tr>
                   <th>Zuletzt modifiziert am</th>
-                  <td>{{ payoutRequest.last_modified_timestamp || '(versteckt)' }}</td>
+                  <td>{{
+                      (('last_modified_timestamp' in payoutRequest) ? (payoutRequest.last_modified_timestamp || '(versteckt)') : '(versteckt)')
+                    }}
+                  </td>
                 </tr>
                 <tr>
                   <th>Zuletzt modifiziert von</th>
-                  <td>{{ payoutRequest.last_modified_by || '(versteckt)' }}</td>
+                  <td>{{
+                      (('last_modified_by' in payoutRequest) ? (payoutRequest.last_modified_by || '(versteckt)') : '(versteckt)')
+                    }}
+                  </td>
                 </tr>
               </table>
             </div>

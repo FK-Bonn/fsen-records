@@ -194,7 +194,7 @@ export const loadUsersList = async (token: string): Promise<Map<string, IUserWit
             }
         })
         .then(json => {
-            return new Map(Object.entries(json));
+            return new Map(Object.entries(json)) as Map<string, IUserWithPermissions>;
         })
         .catch(() => {
             return null

@@ -51,7 +51,7 @@ const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fr
         <br>
         Aktuelles Haushaltsjahr:
         <DateRange :interval="calculator.getCurrentFinancialYear()"/>
-        <IconWarning v-if="calculator.getCurrentFinancialYear().end < (fixedDate ? new Date(fixedDate) : new Date())"/>
+        <IconWarning v-if="(calculator.getCurrentFinancialYear()?.end || new Date()) < (fixedDate ? new Date(fixedDate) : new Date())"/>
         <br>
         Vergangenes Haushaltsjahr:
         <DateRange :interval="calculator.getPreviousFinancialYear()"/>
