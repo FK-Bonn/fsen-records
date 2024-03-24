@@ -826,3 +826,19 @@ export const isBeforeOrOnLastDayForSubmission = (interval: Interval): boolean =>
     return yesterday < getLastDayForSubmission(interval);
 }
 
+export const sortPayoutRequests = (a: INewPayoutRequestData, b: INewPayoutRequestData) => {
+    if (a.status > b.status) {
+        return 1;
+    } else if (a.status < b.status) {
+        return -1;
+    } else if (a.fs > b.fs) {
+        return 1;
+    } else if (a.fs < b.fs) {
+        return -1;
+    } else if (a.request_id > b.request_id) {
+        return 1;
+    } else if (a.request_id < b.request_id) {
+        return -1;
+    }
+    return 0;
+}

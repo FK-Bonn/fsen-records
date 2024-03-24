@@ -75,7 +75,7 @@ const tableLine = computed(() => getTableLine(fsData.data, props.payoutRequest, 
     <td>
       <CopyableTag :text="payoutRequest.request_id"/>
     </td>
-    <td v-if="!singleFS"><span class="fs-name">{payoutRequest.fs}</span></td>
+    <td v-if="!singleFS"><span class="fs-name">{{payoutRequest.fs}}</span></td>
     <td>
       <CopyableTag v-if="payoutRequest.reference" :text="payoutRequest.reference"/>
     </td>
