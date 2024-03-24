@@ -11,6 +11,7 @@ import {onBeforeMount, type Ref, ref} from "vue";
 import type {IData} from "@/interfaces";
 import {useScieboDataStore} from "@/stores/scieboData";
 import {useStudentBodiesStore} from "@/stores/studentBodies";
+import ErrorList from "@/components/ErrorList.vue";
 
 
 const token = useTokenStore();
@@ -110,9 +111,7 @@ onBeforeMount(() => {
     </aside>
 
     <div class="container column is-10">
-      <template v-if="errors.length">
-        {{errors}}
-      </template>
+      <ErrorList v-if="errors.length" :errors="errors"/>
       <pre v-if="fetchDataError">{{fetchDataError}}</pre>
       <pre v-if="afsgPayoutRequestsDataError">{{afsgPayoutRequestsDataError}}</pre>
       <pre v-if="bfsgPayoutRequestsDataError">{{bfsgPayoutRequestsDataError}}</pre>
