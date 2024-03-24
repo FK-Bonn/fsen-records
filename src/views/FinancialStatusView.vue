@@ -11,7 +11,7 @@ const bfsgActive = computed(()=>route.name === 'finanzuebersicht-bfsg' ? 'is-act
 <template>
   <div class="section">
 
-    <h1 class="title">Antrags-Finanzübersicht</h1>
+    <h1 class="title is-1">Antrags-Finanzübersicht</h1>
 
     <div class="tabs">
       <ul>

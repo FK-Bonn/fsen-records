@@ -11,7 +11,7 @@ const sortedPayoutRequests = computed(() => payoutRequests.bfsg ? [...payoutRequ
 
 <template>
   <div class="section">
-    <h2 class="title">BFSG-Anträge</h2>
+    <h1 class="title is-1">BFSG-Anträge</h1>
     <PayoutRequestsTable :bfsgPayoutRequests="sortedPayoutRequests" :singleFS="false" type="vorankuendigung"/>
   </div>
 </template>
