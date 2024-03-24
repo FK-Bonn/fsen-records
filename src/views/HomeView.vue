@@ -87,7 +87,6 @@ const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fr
       </div>
     </div>
 
-    <h2 class="title">sciebo</h2>
     <ul>
       <template v-for="[key, studentBody] in sciebo.data?.studentBodies" :key="key">
         <li v-if="shouldShow(studentBody, payoutRequests.afsg, semesters)">
@@ -95,11 +94,5 @@ const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fr
       </li>
       </template>
     </ul>
-
-    <h2 class="title">studentbodies</h2>
-    <ul>
-      <li v-for="sb in studentBodies.studentBodies" :key="sb">{{ sb }}</li>
-    </ul>
-
   </div>
 </template>

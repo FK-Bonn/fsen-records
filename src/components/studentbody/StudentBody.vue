@@ -12,6 +12,7 @@ import BfsgSection from "@/components/studentbody/BfsgSection.vue";
 import DocumentsSection from "@/components/studentbody/DocumentsSection.vue";
 import IconPeople from "@/components/icons/IconPeople.vue";
 import {usePageSettingsStore} from "@/stores/pageSettings";
+import CompactStudentBody from "@/components/studentbody/CompactStudentBody.vue";
 
 const props = defineProps<{
   studentBody: IStudentBody,
@@ -28,7 +29,11 @@ const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fr
 </script>
 
 <template>
-  <li>
+  <template v-if="settings.compactMode">
+    <CompactStudentBody :studentBody="studentBody"/>
+  </template>
+  <template v-else>
+  <li class="full-student-body">
     <div class="box">
       <h2 class="title is-2" :id="studentBody.id">
         <a :href="'#'+studentBody.id">
@@ -70,10 +75,14 @@ const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fr
 
     </div>
   </li>
+  </template>
 </template>
 
 <style scoped>
-.box {
+.full-student-body .box {
   margin-bottom: 1rem;
+}
+.column {
+  padding: 0;
 }
 </style>
