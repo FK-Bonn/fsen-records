@@ -81,6 +81,7 @@ export interface IUserWithPermissions {
     username: string
     admin: boolean
     permissions: IPermission[]
+    created_by: string
 }
 
 export interface IPermission {

@@ -184,7 +184,10 @@ export const loadLoggedInUser = async (token: string | null): Promise<IUserWithP
         });
 }
 
-export const loadUsersList = async (token: string): Promise<Map<string, IUserWithPermissions> | null> => {
+export const loadUsersList = async (token: string|null): Promise<Map<string, IUserWithPermissions> | null> => {
+    if(!token){
+        return null;
+    }
     return fetch(import.meta.env.VITE_API_URL + '/user', {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
         .then(resp => {
             if (resp.ok) {
