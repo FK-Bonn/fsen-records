@@ -343,10 +343,13 @@ export const createPayoutRequest = async (fs: string, semester: string | undefin
 export const createBfsgPayoutRequest = async (fs: string, semester: string, category: string, amount_cents: number,
                                               status: string, status_date: string, comment: string,
                                               completion_deadline: string, reference: string, request_date: string,
-                                              token: string): Promise<{
+                                              token: string | null): Promise<{
     payoutRequest: INewPayoutRequestData | null,
     message: string | null
-}> => {
+} | undefined> => {
+    if (!token) {
+        return;
+    }
     const body: any = {fs, semester, category, amount_cents};
     if (status) {
         body.status = status;
@@ -389,11 +392,13 @@ export const createBfsgPayoutRequest = async (fs: string, semester: string, cate
 export const createVorankuendigungPayoutRequest = async (fs: string, semester: string, category: string,
                                                          amount_cents: number, status: string, status_date: string,
                                                          comment: string, completion_deadline: string, reference: string,
-                                                         request_date: string, token: string): Promise<{
+                                                         request_date: string, token: string | null): Promise<{
     payoutRequest: INewPayoutRequestData | null,
     message: string | null
-}> => {
-
+} | undefined> => {
+    if (!token) {
+        return;
+    }
     const body: any = {fs, semester, category, amount_cents};
     if (status) {
         body.status = status;
