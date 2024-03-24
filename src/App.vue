@@ -110,7 +110,7 @@ onBeforeMount(() => {
       <NavbarView/>
     </aside>
 
-    <div class="container column is-10">
+    <div class="column is-10">
       <ErrorList v-if="errors.length" :errors="errors"/>
       <pre v-if="fetchDataError">{{fetchDataError}}</pre>
       <pre v-if="afsgPayoutRequestsDataError">{{afsgPayoutRequestsDataError}}</pre>

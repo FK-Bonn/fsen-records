@@ -74,7 +74,7 @@ const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fr
 </script>
 
 <template>
-  <div class="section">
+  <div class="container section">
     <div class="message is-info">
       <div class="message-body">
         <p class="is-pulled-right">Letzte Aktualisierung:
