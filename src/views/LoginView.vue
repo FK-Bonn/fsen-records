@@ -4,6 +4,7 @@ import {useAccountStore} from "@/stores/account";
 import {ref} from "vue";
 import {getAllFsData, loadLoggedInUser} from "@/util";
 import {useAllFsData} from "@/stores/allFsData";
+import {useRouter} from "vue-router";
 
 const token = useTokenStore();
 const account = useAccountStore();
@@ -11,6 +12,8 @@ const allFsData = useAllFsData();
 
 const username = ref('');
 const password = ref('');
+
+const router = useRouter();
 
 
 const login = () => {
@@ -35,6 +38,7 @@ const login = () => {
         return getAllFsData(token.apiToken);
       }).then(fsData => {
         allFsData.set(fsData);
+        router.push({name: 'home'});
   }, (message) => {
     alert(message);
   });

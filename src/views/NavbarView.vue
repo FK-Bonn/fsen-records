@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {useTokenStore} from "@/stores/token";
 import {useAccountStore} from "@/stores/account";
+import {useRoute} from "vue-router";
 
 const token = useTokenStore();
 const account = useAccountStore();
@@ -18,27 +19,27 @@ const account = useAccountStore();
   </p>
   <ul class="menu-list">
     <li>
-      <RouterLink to="/">Fachschaften</RouterLink>
+      <RouterLink :to="{name: 'home'}">Fachschaften</RouterLink>
     </li>
     <li>
-      <RouterLink to="/vorankuendigung">Vorankündigungen</RouterLink>
+      <RouterLink :to="{name: 'vorankuendigung'}">Vorankündigungen</RouterLink>
     </li>
     <li>
-      <RouterLink to="/bfsg">BFSG-Anträge</RouterLink>
+      <RouterLink :to="{name: 'bfsg'}">BFSG-Anträge</RouterLink>
     </li>
     <li>
-      <RouterLink to="/finanzuebersicht">Antrags-Finanzübersicht</RouterLink>
+      <RouterLink :to="{name: 'finanzuebersicht'}">Antrags-Finanzübersicht</RouterLink>
       <ul>
         <li>
-          <RouterLink to="/finanzuebersicht/afsg">AFSG</RouterLink>
+          <RouterLink :to="{name: 'finanzuebersicht-afsg'}">AFSG</RouterLink>
         </li>
         <li>
-          <RouterLink to="/finanzuebersicht/bfsg">BFSG</RouterLink>
+          <RouterLink :to="{name: 'finanzuebersicht-bfsg'}">BFSG</RouterLink>
         </li>
       </ul>
     </li>
     <li>
-      <RouterLink to="/hhp">Haushaltsplansentwurf</RouterLink>
+      <RouterLink :to="{name: 'hhp'}">Haushaltsplansentwurf</RouterLink>
     </li>
   </ul>
   <p class="menu-label">
@@ -47,34 +48,41 @@ const account = useAccountStore();
   <ul class="menu-list">
     <template v-if="!token.isLoggedIn()">
       <li>
-        <RouterLink to="/login">Anmelden</RouterLink>
+        <RouterLink :to="{name: 'login'}">Anmelden</RouterLink>
       </li>
     </template>
     <template v-if="token.isLoggedIn()">
       <li>
-        <RouterLink to="/accounts">Accounts</RouterLink>
+        <RouterLink :to="{name: 'accounts'}">Accounts</RouterLink>
         <ul>
           <li>
-            <RouterLink to="/accounts/create">Account anlegen</RouterLink>
+            <RouterLink :to="{name: 'accounts-create'}">Account anlegen</RouterLink>
           </li>
           <li>
-            <RouterLink to="/accounts/edit-permissions">Rechte bearbeiten</RouterLink>
+            <RouterLink :to="{name: 'accounts-edit-permissions'}">Rechte bearbeiten</RouterLink>
           </li>
           <li>
-            <RouterLink to="/accounts/reset-password">Passwort zurücksetzen</RouterLink>
+            <RouterLink :to="{name: 'accounts-reset-password'}">Passwort zurücksetzen</RouterLink>
           </li>
         </ul>
       </li>
       <li>
-        <RouterLink to="/change-password">Passwort ändern</RouterLink>
+        <RouterLink :to="{name: 'change-password'}">Passwort ändern</RouterLink>
       </li>
       <li>
-        <RouterLink to="/logout">Abmelden</RouterLink>
+        <RouterLink :to="{name: 'logout'}">Abmelden</RouterLink>
       </li>
     </template>
   </ul>
 </template>
 
 <style scoped>
-
+.router-link-exact-active {
+  background-color: #485fc7;
+  color: #fff;
+}
+.router-link-exact-active:hover {
+  background-color: #2942ff;
+  color: #fff;
+}
 </style>
