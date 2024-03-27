@@ -21,15 +21,6 @@ const hasEditPermission = () => {
   return account.user.admin || account.user.permissions.some(permission => permission.write_permissions);
 }
 
-const loadEditPermissions = (user: IUserWithPermissions) => {
-  alert('todo');
-}
-
-const loadResetPassword = (user: IUserWithPermissions) => {
-  alert('todo');
-}
-
-
 onBeforeMount(async () => {
   usersList.value = await loadUsersList(token.apiToken);
 })
@@ -56,14 +47,13 @@ const users: ComputedRef<IUserWithPermissions[]> = computed(() => [...(usersList
           <br><small class="has-text-grey-light">erstellt von {{ user.created_by }}</small>
         </td>
         <td>
-          <button v-if="hasEditPermission()" class="button is-small"
-                  @click="()=>loadEditPermissions(user)">
+          <RouterLink v-if="hasEditPermission()" class="is-inline-block"
+                      :to="{name: 'accounts-edit-permissions', query: {'user': user.username}}">
             Rechte bearbeiten
-          </button>
-          <button v-if="account.user?.admin" class="button is-small"
-                  @click="()=>loadResetPassword(user)">
+          </RouterLink>
+          <RouterLink class="is-inline-block" :to="{name: 'accounts-reset-password', query: {'user': user.username}}">
             Passwort zurücksetzen
-          </button>
+          </RouterLink>
         </td>
         <td>
           <span v-if="user.admin" class="tag is-info">Admin</span>

@@ -61,7 +61,7 @@ const account = useAccountStore();
           <li>
             <RouterLink :to="{name: 'accounts-edit-permissions'}">Rechte bearbeiten</RouterLink>
           </li>
-          <li>
+          <li v-if="account.user?.admin">
             <RouterLink :to="{name: 'accounts-reset-password'}">Passwort zurücksetzen</RouterLink>
           </li>
         </ul>

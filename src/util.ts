@@ -3,21 +3,21 @@ import type {
     IAnnotatedDocument,
     IAnnotation, IData, IFsData, IFsDataResponse, IFullPayoutRequestData,
     INewPayoutRequestData,
-    IPermission, IProtectedFsData, IProtectedFsDataHistoryEntry, IProtectedFsDataResponse,
+    IPermission, IPermissionKey, IProtectedFsData, IProtectedFsDataHistoryEntry, IProtectedFsDataResponse,
     IUserWithPermissions
 } from "@/interfaces";
 import {AnnotationLevel} from "@/interfaces";
 import type {Interval} from "@/Calculator";
 
-export const PERMISSIONS: (keyof IPermission)[] = [
-    'read_files' as keyof IPermission,
-    'read_permissions' as keyof IPermission,
-    'write_permissions' as keyof IPermission,
-    'read_public_data' as keyof IPermission,
-    'write_public_data' as keyof IPermission,
-    'read_protected_data' as keyof IPermission,
-    'write_protected_data' as keyof IPermission,
-    'submit_payout_request' as keyof IPermission,
+export const PERMISSIONS: (IPermissionKey)[] = [
+    'read_files',
+    'read_permissions',
+    'write_permissions',
+    'read_public_data',
+    'write_public_data',
+    'read_protected_data',
+    'write_protected_data',
+    'submit_payout_request',
 ]
 
 export const stringToDate = (input: string) => {
@@ -204,10 +204,13 @@ export const loadUsersList = async (token: string|null): Promise<Map<string, IUs
         });
 }
 
-export const createAccount = async (username: string, password: string, admin: boolean, permissions: IPermission[], token: string): Promise<{
+export const createAccount = async (username: string, password: string, admin: boolean, permissions: IPermission[], token: string | null): Promise<{
     user: IUserWithPermissions | null,
     message: string | null
-}> => {
+} | undefined> => {
+    if (!token) {
+        return;
+    }
     return fetch(import.meta.env.VITE_API_URL + '/user/create',
         {
             method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
@@ -229,10 +232,13 @@ export const createAccount = async (username: string, password: string, admin: b
         });
 }
 
-export const editPermissions = async (isAdmin: boolean, username: string, admin: boolean, permissions: IPermission[], token: string): Promise<{
+export const editPermissions = async (isAdmin: boolean | undefined, username: string, admin: boolean, permissions: IPermission[], token: string | null): Promise<{
     user: IUserWithPermissions | null,
     message: string | null
-}> => {
+} | undefined> => {
+    if (!token) {
+        return;
+    }
     if (isAdmin) {
         return editPermissionsPost(username, admin, permissions, token);
     } else {
@@ -285,7 +291,10 @@ export const editPermissionsPatch = async (username: string, permissions: IPermi
         });
 }
 
-export const resetPassword = async (username: string, password: string, token: string): Promise<string> => {
+export const resetPassword = async (username: string, password: string, token: string | null): Promise<string> => {
+    if (!token) {
+        return 'missing token';
+    }
     return fetch(import.meta.env.VITE_API_URL + '/user/password/' + username,
         {
             method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
@@ -300,7 +309,10 @@ export const resetPassword = async (username: string, password: string, token: s
         });
 }
 
-export const changePassword = async (current_password: string, new_password: string, token: string): Promise<string> => {
+export const changePassword = async (current_password: string, new_password: string, token: string | null): Promise<string | undefined> => {
+    if (!token) {
+        return;
+    }
     return fetch(import.meta.env.VITE_API_URL + '/user/password',
         {
             method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
@@ -810,7 +822,7 @@ export const hasAnyFsPermission = (permissions: IPermission[], fs: string): bool
 }
 
 
-export const hasFsPermission = (permissions: IPermission[] | undefined, fs: string, key: keyof IPermission): boolean => {
+export const hasFsPermission = (permissions: IPermission[] | undefined, fs: string, key: IPermissionKey): boolean => {
     if (!permissions) {
         return false;
     }
@@ -844,4 +856,10 @@ export const sortPayoutRequests = (a: INewPayoutRequestData, b: INewPayoutReques
         return -1;
     }
     return 0;
+}
+
+export const getUsernameFromUrl = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('user') || '';
+    return username;
 }

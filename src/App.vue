@@ -106,7 +106,7 @@ onBeforeMount(() => {
 
 <template>
   <section class="main-content columns is-fullheight">
-    <aside class="column is-2 is-narrow-mobile is-fullheight section is-hidden-mobile has-background-white-bis">
+    <aside class="column is-2 is-narrow-mobile is-fullheight section has-background-white-bis menu">
       <NavbarView/>
     </aside>
 
