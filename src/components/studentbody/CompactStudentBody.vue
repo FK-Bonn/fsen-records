@@ -6,16 +6,16 @@ import {useScieboDataStore} from "@/stores/scieboData";
 import IconPeople from "@/components/icons/IconPeople.vue";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
 import {calculateSemesterId} from "@/util";
+import {useFixedDateStore} from "@/stores/fixedDate";
 
 const props = defineProps<{
   studentBody: IStudentBody,
 }>()
 
 const sciebo = useScieboDataStore();
+const fixedDate = useFixedDateStore();
 
-const fixedDate = ref(null);
-
-const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.studentBody, fixedDate.value));
+const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.studentBody, fixedDate.date));
 const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fromStrings(value.start, value.end)))
 
 </script>

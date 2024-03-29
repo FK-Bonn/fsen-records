@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {RouterView, useRoute} from "vue-router";
 import {computed} from "vue";
+import FixedDateBanner from "@/components/FixedDateBanner.vue";
 
 const route = useRoute()
 
@@ -10,6 +11,7 @@ const bfsgActive = computed(()=>route.name === 'finanzuebersicht-bfsg' ? 'is-act
 
 <template>
   <div class="section">
+    <FixedDateBanner/>
 
     <h1 class="title is-1">Antrags-Finanzübersicht</h1>
 

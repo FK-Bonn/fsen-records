@@ -5,10 +5,13 @@ import {CurrentlyCanBePaidCalculator} from "@/Calculator";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
 import AngleIndicator from "@/components/icons/AngleIndicator.vue";
 import CurrentlyCanBePaidContent from "@/components/studentbody/CurrentlyCanBePaidContent.vue";
+import {useFixedDateStore} from "@/stores/fixedDate";
 
 const props = defineProps<{
   studentBody: IStudentBody,
 }>()
+
+const fixedDate = useFixedDateStore();
 
 const opened = ref(false);
 const toggle = () => {
@@ -19,7 +22,7 @@ const calculateLevel = (studentBody: IStudentBody, fixedDate: string | null) => 
   return calculator.calculateOverallLevel();
 }
 
-const level = computed(() => calculateLevel(props.studentBody, null))
+const level = computed(() => calculateLevel(props.studentBody, fixedDate.date))
 </script>
 
 <template>

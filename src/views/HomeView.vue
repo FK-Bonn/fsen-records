@@ -11,6 +11,7 @@ import {CurrentlyCanBePaidCalculator, Interval, SemesterCalculator} from "@/Calc
 import {calculateSemesterId, shouldDisplayStar} from "@/util";
 import {usePageSettingsStore} from "@/stores/pageSettings";
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
+import FixedDateBanner from "@/components/FixedDateBanner.vue";
 
 const studentBodies = useStudentBodiesStore();
 const sciebo = useScieboDataStore();
@@ -75,6 +76,8 @@ const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fr
 
 <template>
   <div class="container section">
+    <FixedDateBanner/>
+
     <div class="message is-info">
       <div class="message-body">
         <p class="is-pulled-right">Letzte Aktualisierung:

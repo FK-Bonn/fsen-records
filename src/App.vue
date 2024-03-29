@@ -7,11 +7,13 @@ import {getAllFsData, getPayoutRequestData, loadLoggedInUser, pojoToIData} from 
 import {useAccountStore} from "@/stores/account";
 import {useAllFsData} from "@/stores/allFsData";
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
-import {onBeforeMount, type Ref, ref} from "vue";
+import {computed, onBeforeMount, type Ref, ref, watch} from "vue";
 import type {IData} from "@/interfaces";
 import {useScieboDataStore} from "@/stores/scieboData";
 import {useStudentBodiesStore} from "@/stores/studentBodies";
 import ErrorList from "@/components/ErrorList.vue";
+import {useFixedDateStore} from "@/stores/fixedDate";
+import FixedDateBanner from "@/components/FixedDateBanner.vue";
 
 
 const token = useTokenStore();
@@ -20,6 +22,7 @@ const allFsData = useAllFsData();
 const payoutRequests = usePayoutRequestStore();
 const sciebo = useScieboDataStore();
 const studentBodies = useStudentBodiesStore();
+const fixedDate = useFixedDateStore();
 
 
 const fetchDataError: Ref<null | string> = ref(null);
@@ -29,8 +32,7 @@ const vorankuendigungPayoutRequestsDataError: Ref<null | string> = ref(null);
 const errors: Ref<string[]> = ref([]);
 
 const loadData = () => {
-  const fixedDate = null;
-  const url = fixedDate ? `/data/history/${fixedDate}-data.json` : "/data/data.json";
+  const url = fixedDate.date ? `/data/history/${fixedDate.date}-data.json` : "/data/data.json";
   fetch(url)
       .then(response => response.json(), () => {
         fetchDataError.value = "Fetching data failed";
@@ -52,21 +54,21 @@ const loadData = () => {
 
 
 const loadPayoutRequestData = () => {
-  getPayoutRequestData('afsg', null)
+  getPayoutRequestData('afsg', fixedDate.date)
       .then(data => {
         payoutRequests.afsg = data;
         afsgPayoutRequestsDataError.value = null;
       }, reason => {
         afsgPayoutRequestsDataError.value = reason;
       });
-  getPayoutRequestData('bfsg', null)
+  getPayoutRequestData('bfsg', fixedDate.date)
       .then(data => {
         payoutRequests.bfsg = data;
         bfsgPayoutRequestsDataError.value = null;
       }, reason => {
         bfsgPayoutRequestsDataError.value = reason;
       });
-  getPayoutRequestData('vorankuendigung', null)
+  getPayoutRequestData('vorankuendigung', fixedDate.date)
       .then(data => {
         payoutRequests.vorankuendigung = data;
         vorankuendigungPayoutRequestsDataError.value = null;
@@ -102,6 +104,13 @@ onBeforeMount(() => {
   loadAllFsData();
 });
 
+watch(fixedDate, async () => {
+  loadData();
+  loadPayoutRequestData();
+});
+
+const backgroundColourIfFixed = computed(()=>fixedDate.date ? ' has-background-grey-light' : '');
+
 </script>
 
 <template>
@@ -110,7 +119,7 @@ onBeforeMount(() => {
       <NavbarView/>
     </aside>
 
-    <div class="column is-10">
+    <div :class="'column is-10' + backgroundColourIfFixed">
       <ErrorList v-if="errors.length" :errors="errors"/>
       <pre v-if="fetchDataError">{{fetchDataError}}</pre>
       <pre v-if="afsgPayoutRequestsDataError">{{afsgPayoutRequestsDataError}}</pre>

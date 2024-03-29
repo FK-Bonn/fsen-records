@@ -13,6 +13,7 @@ import DocumentsSection from "@/components/studentbody/DocumentsSection.vue";
 import IconPeople from "@/components/icons/IconPeople.vue";
 import {usePageSettingsStore} from "@/stores/pageSettings";
 import CompactStudentBody from "@/components/studentbody/CompactStudentBody.vue";
+import {useFixedDateStore} from "@/stores/fixedDate";
 
 const props = defineProps<{
   studentBody: IStudentBody,
@@ -20,10 +21,9 @@ const props = defineProps<{
 
 const sciebo = useScieboDataStore();
 const settings = usePageSettingsStore();
+const fixedDate = useFixedDateStore();
 
-const fixedDate = ref(null);
-
-const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.studentBody, fixedDate.value));
+const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.studentBody, fixedDate.date));
 const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fromStrings(value.start, value.end)))
 
 </script>
@@ -56,7 +56,7 @@ const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fr
         <br>
         Aktuelles Haushaltsjahr:
         <DateRange :interval="calculator.getCurrentFinancialYear()"/>
-        <IconWarning v-if="(calculator.getCurrentFinancialYear()?.end || new Date()) < (fixedDate ? new Date(fixedDate) : new Date())"/>
+        <IconWarning v-if="(calculator.getCurrentFinancialYear()?.end || new Date()) < (fixedDate.date ? new Date(fixedDate.date) : new Date())"/>
         <br>
         Vergangenes Haushaltsjahr:
         <DateRange :interval="calculator.getPreviousFinancialYear()"/>

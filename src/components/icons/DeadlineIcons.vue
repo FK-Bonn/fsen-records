@@ -3,10 +3,13 @@ import type {Interval} from "@/Calculator";
 import {formatDate, getLastDayForSubmission, isBeforeOrOnLastDayForSubmission, stringToDate} from "@/util";
 import {computed} from "vue";
 import IconCalendar from "@/components/icons/IconCalendar.vue";
+import {useFixedDateStore} from "@/stores/fixedDate";
 
 const props = defineProps<{
   interval: Interval,
 }>()
+
+const fixedDate = useFixedDateStore();
 
 const completionDeadlineOverrides: { [key: string]: string } = {
   "2018-09-30": "2022-03-31",
@@ -15,8 +18,8 @@ const completionDeadlineOverrides: { [key: string]: string } = {
   "2020-03-31": "2022-05-31",
 }
 
-const isFutureSemester = (interval: Interval): boolean => {
-  const today = new Date();
+const isFutureSemester = (interval: Interval, fixedDate: string | null): boolean => {
+  const today = fixedDate ? new Date(fixedDate) : new Date();
   return today < interval.start;
 }
 
@@ -32,8 +35,8 @@ const getLastDayForCompletion = (interval: Interval): Date => {
   return lastDayForCompletion;
 }
 
-const isBeforeLastDayForCompletion = (interval: Interval): boolean => {
-  const today = new Date();
+const isBeforeLastDayForCompletion = (interval: Interval, fixedDate: string | null): boolean => {
+  const today = fixedDate ? new Date(fixedDate) : new Date();
   return today < getLastDayForCompletion(interval);
 }
 
@@ -45,21 +48,21 @@ const getCompletionDeadline = (interval: Interval): string => {
   return 'Frist zur Vervollständigung: ' + formatDate(getLastDayForCompletion(interval));
 }
 
-const getColourClassForSubmission = (interval: Interval): string => {
-  if (isFutureSemester(interval)) {
+const getColourClassForSubmission = (interval: Interval, fixedDate: string | null): string => {
+  if (isFutureSemester(interval, fixedDate)) {
     return 'has-text-danger';
   }
-  if (isBeforeOrOnLastDayForSubmission(interval)) {
+  if (isBeforeOrOnLastDayForSubmission(interval, fixedDate)) {
     return 'has-text-info';
   }
   return 'has-text-secondary';
 }
 
-const getColourClassForCompletion = (interval: Interval): string => {
-  if (isFutureSemester(interval)) {
+const getColourClassForCompletion = (interval: Interval, fixedDate: string | null): string => {
+  if (isFutureSemester(interval, fixedDate)) {
     return 'has-text-danger';
   }
-  if (isBeforeLastDayForCompletion(interval)) {
+  if (isBeforeLastDayForCompletion(interval, fixedDate)) {
     return 'has-text-warning';
   }
   return 'has-text-secondary';
@@ -73,8 +76,8 @@ const shouldDisplay = (interval: Interval): boolean => {
 const display = computed(() => shouldDisplay(props.interval));
 const submissionDeadline = computed(() => getSubmissionDeadline(props.interval));
 const completionDeadline = computed(() => getCompletionDeadline(props.interval));
-const submissionClass = computed(() => getColourClassForSubmission(props.interval));
-const completionClass = computed(() => getColourClassForCompletion(props.interval));
+const submissionClass = computed(() => getColourClassForSubmission(props.interval, fixedDate.date));
+const completionClass = computed(() => getColourClassForCompletion(props.interval, fixedDate.date));
 
 </script>
 

@@ -3,13 +3,15 @@ import type {INewPayoutRequestData} from "@/interfaces";
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
 import {computed} from "vue";
 import {euroCents} from "../util";
+import {useFixedDateStore} from "@/stores/fixedDate";
+import FixedDateBanner from "@/components/FixedDateBanner.vue";
 
 interface SemesterSums {
   open: number
   completed: number
 }
 
-const fixedDate = null;
+const fixedDate = useFixedDateStore();
 
 const mangleData = (data: Map<string, INewPayoutRequestData[]> | null): Map<string, SemesterSums> => {
   if (!data) {
@@ -51,7 +53,7 @@ const getSumForStatus = (data: Map<string, INewPayoutRequestData[]> | null, stat
 }
 
 const getNextFinancialYear = () => {
-  const today = fixedDate ? new Date(fixedDate) : new Date();
+  const today = fixedDate.date ? new Date(fixedDate.date) : new Date();
   if (today.getMonth() > 5) {
     return `${today.getFullYear() + 1}/${(today.getFullYear() + 2).toString().substring(2)}`;
   }
@@ -59,7 +61,7 @@ const getNextFinancialYear = () => {
 }
 
 const getRequestableSemestersForNextFinancialYear: () => string[] = () => {
-  const today = fixedDate ? new Date(fixedDate) : new Date();
+  const today = fixedDate.date ? new Date(fixedDate.date) : new Date();
   const semesters = [];
   semesters.push(`${today.getFullYear()}-SoSe`);
   semesters.push(`${today.getFullYear()}-WiSe`);
@@ -75,7 +77,7 @@ const getRequestableSemestersForNextFinancialYear: () => string[] = () => {
 }
 
 const getTransitionalSemestersForNextFinancialYear: () => string[] = () => {
-  const today = fixedDate ? new Date(fixedDate) : new Date();
+  const today = fixedDate.date ? new Date(fixedDate.date) : new Date();
   const semesters = [];
   if (today.getMonth() > 5) {
     semesters.push(`${today.getFullYear() - 1}-SoSe`);
@@ -106,6 +108,8 @@ const acceptedBfsg = computed(() => getSumForStatus(payoutRequests.bfsg, 'ANGENO
 
 <template>
   <div class="container section">
+    <FixedDateBanner/>
+
     <h1 class="title is-1">💸 Haushaltsplansentwurf</h1>
     <h3 class="title is-3">HHP für nächstes Haushaltsjahr ({{ nextFinancialYear }})</h3>
 

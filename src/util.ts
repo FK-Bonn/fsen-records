@@ -835,8 +835,8 @@ export const getLastDayForSubmission = (interval: Interval): Date => {
     return lastDayForSubmission;
 }
 
-export const isBeforeOrOnLastDayForSubmission = (interval: Interval): boolean => {
-    const yesterday = new Date();
+export const isBeforeOrOnLastDayForSubmission = (interval: Interval, fixedDate: string | null): boolean => {
+    const yesterday = fixedDate ? new Date(fixedDate) : new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     return yesterday < getLastDayForSubmission(interval);
 }
@@ -862,4 +862,26 @@ export const getUsernameFromUrl = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const username = urlParams.get('user') || '';
     return username;
+}
+
+export const getFixedDateFromUrl = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    let fixedDate = urlParams.get('date') || null;
+    if (fixedDate) {
+        try {
+            const d = new Date(fixedDate);
+            fixedDate = d.toISOString().substring(0, 10);
+        } catch (e) {
+            console.log(e);
+            fixedDate = null;
+        }
+    }
+    return fixedDate;
+}
+
+export const resetFixedDateInUrl = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.delete('date');
+    window.location.search = urlParams.toString();
+    console.log(urlParams.toString())
 }

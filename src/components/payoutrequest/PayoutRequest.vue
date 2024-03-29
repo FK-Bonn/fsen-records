@@ -9,6 +9,7 @@ import {useAllFsData} from "@/stores/allFsData";
 import RequestModal from "@/components/payoutrequest/RequestModal.vue";
 import RequestHistoryModal from "@/components/payoutrequest/RequestHistoryModal.vue";
 import RequestEditModal from "@/components/payoutrequest/RequestEditModal.vue";
+import {useFixedDateStore} from "@/stores/fixedDate";
 
 const props = defineProps<{
   payoutRequest: INewPayoutRequestData | undefined,
@@ -20,6 +21,7 @@ const props = defineProps<{
 
 const account = useAccountStore();
 const allFsData = useAllFsData();
+const fixedDate = useFixedDateStore();
 
 const modal = ref(false);
 const editModal = ref(false);
@@ -76,7 +78,7 @@ const isRequestAllowed = computed(() => isBeforeOrOnLastDayForSubmission(props.s
       <button class="button is-small" @click.stop="showHistoryModal" title="Bearbeitungsverlauf anzeigen">
         📜
       </button>
-      <button v-if="account.user?.admin" class="button is-small" @click.stop="showEditModal" title="Antrag bearbeiten">
+      <button v-if="account.user?.admin && !fixedDate.date" class="button is-small" @click.stop="showEditModal" title="Antrag bearbeiten">
         ✏️
       </button>
     </div>
