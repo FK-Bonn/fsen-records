@@ -78,11 +78,10 @@ const account = useAccountStore();
 
 <style scoped>
 .router-link-exact-active {
-  background-color: #485fc7;
-  color: #fff;
-}
-.router-link-exact-active:hover {
-  background-color: #2942ff;
-  color: #fff;
+  --bulma-menu-item-h: var(--bulma-menu-item-selected-h);
+  --bulma-menu-item-s: var(--bulma-menu-item-selected-s);
+  --bulma-menu-item-l: var(--bulma-menu-item-selected-l);
+  --bulma-menu-item-background-l: var(--bulma-menu-item-selected-background-l);
+  --bulma-menu-item-color-l: var(--bulma-menu-item-selected-color-l);
 }
 </style>
