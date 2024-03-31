@@ -65,7 +65,7 @@ const showEditModal = () => {
 }
 const tagClass = computed(() => props.payoutRequest ? getStatusTagClass(props.payoutRequest) : '');
 const tableLine = computed(() => getTableLine(allFsData.data, props.payoutRequest, props.fsName, props.fsId, props.budgetTitle));
-const isRequestAllowed = computed(() => isBeforeOrOnLastDayForSubmission(props.semester) && (account.user?.admin || hasFsPermission(account.user?.permissions, props.fsId, 'submit_payout_request')));
+const isRequestAllowed = computed(() => fixedDate.date === null && isBeforeOrOnLastDayForSubmission(props.semester, null) && (account.user?.admin || hasFsPermission(account.user?.permissions, props.fsId, 'submit_payout_request')));
 
 </script>
 

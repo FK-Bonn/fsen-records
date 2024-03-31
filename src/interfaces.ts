@@ -35,6 +35,8 @@ export interface IStudentBody {
     electionResults: IAnnotatedDocument[]
 }
 
+export type IStudentBodyDocumentsKey = 'balances' | 'budgets' | 'cashAudits' | 'electionResults' | 'proceedings';
+
 export interface IPayoutRequestData {
     id: string
     status: string
@@ -105,8 +107,8 @@ export interface IPayoutRequestDiff {
     fs: string;
     semester: string;
     type: string;
-    oldPR: IPayoutRequestData | null;
-    newPR: IPayoutRequestData | null;
+    oldPR: INewPayoutRequestData | null;
+    newPR: INewPayoutRequestData | null;
 }
 
 export interface IStringDiff {

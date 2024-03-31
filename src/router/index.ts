@@ -34,6 +34,11 @@ const router = createRouter({
       component: () => import('../views/BudgetView.vue'),
     },
     {
+      path: '/diff/:dateStart/:dateEnd?',
+      name: 'diff',
+      component: () => import('../views/DiffView.vue'),
+    },
+    {
       path: '/login',
       name: 'login',
       component: () => import('../views/LoginView.vue'),

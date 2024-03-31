@@ -3,20 +3,32 @@ import TopLegend from "@/components/TopLegend.vue";
 import {useStudentBodiesStore} from "@/stores/studentBodies";
 import {useScieboDataStore} from "@/stores/scieboData";
 import StudentBody from "@/components/studentbody/StudentBody.vue";
-import {computed} from "vue";
+import {computed, nextTick, onBeforeMount, onMounted, watch} from "vue";
 import {AnnotationLevel, type INewPayoutRequestData, type IStudentBody} from "@/interfaces";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
 import FilterSettings from "@/components/FilterSettings.vue";
 import {CurrentlyCanBePaidCalculator, Interval, SemesterCalculator} from "@/Calculator";
-import {calculateSemesterId, shouldDisplayStar} from "@/util";
+import {calculateSemesterId, scrollToHashIfPresent, shouldDisplayStar} from "@/util";
 import {usePageSettingsStore} from "@/stores/pageSettings";
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
 import FixedDateBanner from "@/components/FixedDateBanner.vue";
+import {useRouter} from "vue-router";
+import {useAllFsData} from "@/stores/allFsData";
 
-const studentBodies = useStudentBodiesStore();
 const sciebo = useScieboDataStore();
+const fsData = useAllFsData();
 const payoutRequests = usePayoutRequestStore();
 const settings = usePageSettingsStore();
+const router = useRouter();
+
+const redirectToDiffIfNecessary = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('diff')) {
+    const dateStart = urlParams.get('dateStart') || '';
+    const dateEnd = urlParams.get('dateEnd') || '';
+    router.push({name: 'diff', params: {dateStart, dateEnd}, hash: window.location.hash});
+  }
+}
 
 const anySemesterHasStar = (studentBody: IStudentBody, payoutRequests: Map<string, INewPayoutRequestData> | null,
                             semesters: (Interval | undefined)[] | undefined) => {
@@ -72,6 +84,12 @@ const lastUpdateLevel = computed(() => {
   return (Date.now() / 1000 - sciebo.data.timestamp) > 3600 ? AnnotationLevel.Warning : AnnotationLevel.Ok;
 });
 const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fromStrings(value.start, value.end)))
+
+onBeforeMount(()=>redirectToDiffIfNecessary());
+watch(() => (sciebo.data !== null && fsData.data !== null), async () => {
+  await nextTick();
+  scrollToHashIfPresent();
+});
 </script>
 
 <template>

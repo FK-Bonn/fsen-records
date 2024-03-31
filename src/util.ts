@@ -1,9 +1,17 @@
 import type {
     IAllFsData,
     IAnnotatedDocument,
-    IAnnotation, IData, IFsData, IFsDataResponse, IFullPayoutRequestData,
+    IAnnotation,
+    IData,
+    IFsData,
+    IFsDataResponse,
+    IFullPayoutRequestData,
     INewPayoutRequestData,
-    IPermission, IPermissionKey, IProtectedFsData, IProtectedFsDataHistoryEntry, IProtectedFsDataResponse,
+    IPermission,
+    IPermissionKey,
+    IProtectedFsData,
+    IProtectedFsDataHistoryEntry,
+    IProtectedFsDataResponse,
     IUserWithPermissions
 } from "@/interfaces";
 import {AnnotationLevel} from "@/interfaces";
@@ -860,23 +868,25 @@ export const sortPayoutRequests = (a: INewPayoutRequestData, b: INewPayoutReques
 
 export const getUsernameFromUrl = () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const username = urlParams.get('user') || '';
-    return username;
+    return urlParams.get('user') || '';
+}
+
+export const actualDateOrNull = (date: string | undefined | null) => {
+    if (date) {
+        try {
+            const d = new Date(date);
+            return d.toISOString().substring(0, 10);
+        } catch (e) {
+            return null;
+        }
+    }
+    return null;
 }
 
 export const getFixedDateFromUrl = () => {
     const urlParams = new URLSearchParams(window.location.search);
-    let fixedDate = urlParams.get('date') || null;
-    if (fixedDate) {
-        try {
-            const d = new Date(fixedDate);
-            fixedDate = d.toISOString().substring(0, 10);
-        } catch (e) {
-            console.log(e);
-            fixedDate = null;
-        }
-    }
-    return fixedDate;
+    const fixedDate = urlParams.get('date') || null;
+    return actualDateOrNull(fixedDate);
 }
 
 export const resetFixedDateInUrl = () => {
