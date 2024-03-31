@@ -73,7 +73,7 @@ onBeforeMount(() => {
         dass eine auf dieser Webseite dargestellte Information falsch ist?</dt>
       <dd>Sende dann bitte eine E-Mail an das
         <a href="https://asta-bonn.de/Fachschaftenreferat">Fachschaftenreferat</a>, in der du dies schilderst.</dd>
-      
+
     </dl>
 
 
