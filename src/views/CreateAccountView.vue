@@ -1,6 +1,13 @@
 <script setup lang="ts">
-import {computed, type Ref, ref} from "vue";
-import {createAccount, hasAnyFsPermission, hasFsPermission, PERMISSIONS, permissionToString} from "@/util";
+import {computed, onBeforeMount, type Ref, ref} from "vue";
+import {
+  createAccount,
+  hasAnyFsPermission,
+  hasFsPermission,
+  PERMISSIONS,
+  permissionToString,
+  updatePageTitle
+} from "@/util";
 import {useAccountStore} from "@/stores/account";
 import {useScieboDataStore} from "@/stores/scieboData";
 import type {IPermission, IPermissionKey} from "@/interfaces";
@@ -52,6 +59,11 @@ const createAccountWithData = async () => {
   createdMessage.value = createResult?.message || null;
 }
 
+const canCreateAccount = computed(()=>account.user?.admin || account.user?.permissions.some(value => value.write_permissions));
+
+onBeforeMount(()=>{
+  updatePageTitle('Account anlegen');
+});
 </script>
 
 <template>
@@ -136,7 +148,9 @@ const createAccountWithData = async () => {
       </template>
     </template>
 
-    <button class="button is-primary" @click="createAccountWithData">Account erstellen</button>
+    <button class="button is-primary" @click="createAccountWithData" :disabled="!canCreateAccount">
+      Account erstellen
+    </button>
     <article v-if="createdMessage" class="message">
       <div class="message-body">
         {{ createdMessage }}

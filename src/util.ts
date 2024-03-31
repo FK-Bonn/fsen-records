@@ -895,3 +895,11 @@ export const resetFixedDateInUrl = () => {
     window.location.search = urlParams.toString();
     console.log(urlParams.toString())
 }
+
+export const updatePageTitle = (title?: string) => {
+    if (title) {
+        document.title = title + ' · ' + import.meta.env.VITE_SITE_TITLE;
+    } else {
+        document.title = import.meta.env.VITE_SITE_TITLE;
+    }
+}

@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import {RouterView, useRoute} from "vue-router";
-import {computed} from "vue";
+import {computed, onBeforeMount} from "vue";
 import FixedDateBanner from "@/components/FixedDateBanner.vue";
+import {updatePageTitle} from "@/util";
 
 const route = useRoute()
 
-const afsgActive = computed(()=>route.name === 'finanzuebersicht-afsg' ? 'is-active' : '')
-const bfsgActive = computed(()=>route.name === 'finanzuebersicht-bfsg' ? 'is-active' : '')
+const afsgActive = computed(()=>route.name === 'finanzuebersicht-afsg' ? 'is-active' : '');
+const bfsgActive = computed(()=>route.name === 'finanzuebersicht-bfsg' ? 'is-active' : '');
+
+onBeforeMount(()=>{
+  updatePageTitle('Antrags-Finanzübersicht');
+});
 </script>
 
 <template>

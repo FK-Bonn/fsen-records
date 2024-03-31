@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
-import {type Ref, ref} from "vue";
-import {changePassword} from "@/util";
+import {onBeforeMount, type Ref, ref} from "vue";
+import {changePassword, updatePageTitle} from "@/util";
 import {useTokenStore} from "@/stores/token";
 
 const token = useTokenStore();
@@ -18,6 +18,10 @@ const changePasswordWithData = async () => {
       token.apiToken,
   ) || null;
 }
+
+onBeforeMount(()=>{
+  updatePageTitle('Passwort ändern');
+});
 </script>
 
 <template>

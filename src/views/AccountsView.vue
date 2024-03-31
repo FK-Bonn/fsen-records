@@ -3,7 +3,7 @@
 
 import {computed, type ComputedRef, onBeforeMount, type Ref, ref} from "vue";
 import type {IUserWithPermissions} from "@/interfaces";
-import {loadUsersList, permissionsToString} from "@/util";
+import {loadUsersList, permissionsToString, updatePageTitle} from "@/util";
 import {useTokenStore} from "@/stores/token";
 import {useAccountStore} from "@/stores/account";
 import CopyableTag from "@/components/CopyableTag.vue";
@@ -26,6 +26,10 @@ onBeforeMount(async () => {
 })
 
 const users: ComputedRef<IUserWithPermissions[]> = computed(() => [...(usersList.value?.values() || [])].sort((a, b) => a.username > b.username ? 1 : b.username > a.username ? -1 : 0) || [])
+
+onBeforeMount(()=>{
+  updatePageTitle('Accounts');
+});
 </script>
 
 <template>
@@ -51,7 +55,8 @@ const users: ComputedRef<IUserWithPermissions[]> = computed(() => [...(usersList
                       :to="{name: 'accounts-edit-permissions', query: {'user': user.username}}">
             Rechte bearbeiten
           </RouterLink>
-          <RouterLink class="is-inline-block" :to="{name: 'accounts-reset-password', query: {'user': user.username}}">
+          <RouterLink v-if="account.user?.admin" class="is-inline-block"
+                      :to="{name: 'accounts-reset-password', query: {'user': user.username}}">
             Passwort zurücksetzen
           </RouterLink>
         </td>

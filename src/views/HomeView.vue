@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import TopLegend from "@/components/TopLegend.vue";
-import {useStudentBodiesStore} from "@/stores/studentBodies";
 import {useScieboDataStore} from "@/stores/scieboData";
 import StudentBody from "@/components/studentbody/StudentBody.vue";
-import {computed, nextTick, onBeforeMount, onMounted, watch} from "vue";
+import {computed, nextTick, onBeforeMount, watch} from "vue";
 import {AnnotationLevel, type INewPayoutRequestData, type IStudentBody} from "@/interfaces";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
 import FilterSettings from "@/components/FilterSettings.vue";
 import {CurrentlyCanBePaidCalculator, Interval, SemesterCalculator} from "@/Calculator";
-import {calculateSemesterId, scrollToHashIfPresent, shouldDisplayStar} from "@/util";
+import {calculateSemesterId, scrollToHashIfPresent, shouldDisplayStar, updatePageTitle} from "@/util";
 import {usePageSettingsStore} from "@/stores/pageSettings";
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
 import FixedDateBanner from "@/components/FixedDateBanner.vue";
@@ -85,7 +84,10 @@ const lastUpdateLevel = computed(() => {
 });
 const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fromStrings(value.start, value.end)))
 
-onBeforeMount(()=>redirectToDiffIfNecessary());
+onBeforeMount(()=>{
+  redirectToDiffIfNecessary();
+  updatePageTitle();
+});
 watch(() => (sciebo.data !== null && fsData.data !== null), async () => {
   await nextTick();
   scrollToHashIfPresent();

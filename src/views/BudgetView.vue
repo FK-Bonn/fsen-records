@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type {INewPayoutRequestData} from "@/interfaces";
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
-import {computed} from "vue";
-import {euroCents} from "../util";
+import {computed, onBeforeMount} from "vue";
+import {euroCents, updatePageTitle} from "../util";
 import {useFixedDateStore} from "@/stores/fixedDate";
 import FixedDateBanner from "@/components/FixedDateBanner.vue";
 
@@ -104,6 +104,9 @@ const requestableSum = computed(() => requestableSemesters.value.reduce((interme
 const completableSum = computed(() => remainingSemesters.value.reduce((intermediateSum, semester) => intermediateSum + (semesters.value.get(semester)?.open || 0), 0));
 const acceptedBfsg = computed(() => getSumForStatus(payoutRequests.bfsg, 'ANGENOMMEN'));
 
+onBeforeMount(()=>{
+  updatePageTitle('Haushaltsplansentwurf');
+});
 </script>
 
 <template>

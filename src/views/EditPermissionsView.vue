@@ -9,7 +9,7 @@ import {
   hasFsPermission,
   loadUsersList,
   PERMISSIONS,
-  permissionToString
+  permissionToString, updatePageTitle
 } from "@/util";
 import {useAccountStore} from "@/stores/account";
 import {useScieboDataStore} from "@/stores/scieboData";
@@ -81,6 +81,10 @@ onBeforeMount(async () => {
     loadEditPermissions(usersList.value?.get(editPermissionsUsername.value));
   }
 })
+
+onBeforeMount(()=>{
+  updatePageTitle('Berechtigungen bearbeiten');
+});
 
 </script>
 

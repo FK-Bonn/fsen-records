@@ -2,6 +2,8 @@
 import {useTokenStore} from "@/stores/token";
 import {useAccountStore} from "@/stores/account";
 import {useRouter} from "vue-router";
+import {onBeforeMount} from "vue";
+import {updatePageTitle} from "@/util";
 
 const token = useTokenStore();
 const account = useAccountStore();
@@ -12,6 +14,10 @@ const logout = ()=>{
   account.logout();
   router.push({name: 'home'});
 }
+
+onBeforeMount(()=>{
+  updatePageTitle('Logout');
+});
 </script>
 
 <template>

@@ -46,6 +46,9 @@ const account = useAccountStore();
     Verwaltung
   </p>
   <ul class="menu-list">
+    <li>
+      <RouterLink :to="{name: 'help'}">Hilfe</RouterLink>
+    </li>
     <template v-if="!token.isLoggedIn()">
       <li>
         <RouterLink :to="{name: 'login'}">Anmelden</RouterLink>
@@ -57,9 +60,6 @@ const account = useAccountStore();
         <ul>
           <li>
             <RouterLink :to="{name: 'accounts-create'}">Account anlegen</RouterLink>
-          </li>
-          <li>
-            <RouterLink :to="{name: 'accounts-edit-permissions'}">Rechte bearbeiten</RouterLink>
           </li>
           <li v-if="account.user?.admin">
             <RouterLink :to="{name: 'accounts-reset-password'}">Passwort zurücksetzen</RouterLink>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 
 import {useRoute} from "vue-router";
-import {nextTick, onMounted, type Ref, ref, watch} from "vue";
-import {actualDateOrNull, getPayoutRequestData, pojoToIData, scrollToHashIfPresent} from "@/util";
+import {nextTick, onBeforeMount, onMounted, type Ref, ref, watch} from "vue";
+import {actualDateOrNull, getPayoutRequestData, pojoToIData, scrollToHashIfPresent, updatePageTitle} from "@/util";
 import type {IData, INewPayoutRequestData} from "@/interfaces";
 import DiffsForFsen from "@/components/diff/DiffsForFsen.vue";
 
@@ -65,6 +65,10 @@ watch(() => (scieboStart.value !== null
     && vorankuendigungEnd.value !== null), async () => {
   await nextTick();
   scrollToHashIfPresent();
+});
+
+onBeforeMount(()=>{
+  updatePageTitle('Änderungen');
 });
 
 </script>

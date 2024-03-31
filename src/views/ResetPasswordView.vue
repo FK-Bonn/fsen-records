@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
-import {type Ref, ref} from "vue";
-import {getUsernameFromUrl, resetPassword} from "@/util";
+import {onBeforeMount, type Ref, ref} from "vue";
+import {getUsernameFromUrl, resetPassword, updatePageTitle} from "@/util";
 import {useTokenStore} from "@/stores/token";
 
 const token = useTokenStore();
@@ -19,6 +19,10 @@ const resetPasswordWithData = async () => {
       token.apiToken,
   );
 }
+
+onBeforeMount(()=>{
+  updatePageTitle('Passwort zurücksetzen');
+});
 </script>
 
 <template>

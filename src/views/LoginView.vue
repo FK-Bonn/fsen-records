@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {useTokenStore} from "@/stores/token";
 import {useAccountStore} from "@/stores/account";
-import {ref} from "vue";
-import {getAllFsData, loadLoggedInUser} from "@/util";
+import {onBeforeMount, ref} from "vue";
+import {getAllFsData, loadLoggedInUser, updatePageTitle} from "@/util";
 import {useAllFsData} from "@/stores/allFsData";
 import {useRouter} from "vue-router";
 
@@ -43,6 +43,10 @@ const login = () => {
     alert(message);
   });
 }
+
+onBeforeMount(()=>{
+  updatePageTitle('Login');
+});
 </script>
 
 <template>
