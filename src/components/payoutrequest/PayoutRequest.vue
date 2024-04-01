@@ -85,7 +85,7 @@ const isRequestAllowed = computed(() => fixedDate.date === null && isBeforeOrOnL
   </template>
   <template v-else-if="isRequestAllowed">
     <div class="card-header-icon">
-      <button class="button is-outlined is-small" @click.stop="showModal">Antrag stellen</button>
+      <button class="button is-small" @click.stop="showModal">Antrag stellen</button>
     </div>
   </template>
   <template v-if="modal">

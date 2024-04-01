@@ -51,7 +51,7 @@ const bfsgPayoutRequests = computed(() => payoutRequests.bfsg?.get(props.student
     <div v-if="opened" class="card-content">
       <div class="content">
         <h3 class="heading is-3">Vorankündigungen</h3>
-        <button v-if="account.user?.admin" class="button is-outlined is-small" @click.stop="showVorankuendigungModal">
+        <button v-if="account.user?.admin" class="button is-small" @click.stop="showVorankuendigungModal">
           Antrag stellen
         </button>
         <PayoutRequestsTable v-if="vorankuendigungPayoutRequests" :singleFS="true"
@@ -60,7 +60,7 @@ const bfsgPayoutRequests = computed(() => payoutRequests.bfsg?.get(props.student
         <p v-else class="has-text-grey-dark">Keine vorhanden.</p>
 
         <h3 class="heading is-3">BFSG-Anträge</h3>
-        <button v-if="account.user?.admin" class="button is-outlined is-small" @click.stop="showBfsgModal">
+        <button v-if="account.user?.admin" class="button is-small" @click.stop="showBfsgModal">
           Antrag stellen
         </button>
         <PayoutRequestsTable v-if="bfsgPayoutRequests" :singleFS="true" :bfsgPayoutRequests="bfsgPayoutRequests"
