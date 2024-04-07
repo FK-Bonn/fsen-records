@@ -581,11 +581,9 @@ export const getPayoutRequestData = async (type: string, fixedDate: string | nul
 };
 
 export const getPayoutRequestHistory = async (request_id: string, type: string, token: string | null): Promise<IFullPayoutRequestData[] | undefined> => {
-    if (!token) {
-        return;
-    }
+    const headers = token ? {'Authorization': `Bearer ${token}`} : undefined;
     const url = import.meta.env.VITE_API_URL + `/payout-request/${type}/${request_id}/history`;
-    return fetch(url, {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
+    return fetch(url, {method: 'GET', headers})
         .then(response => response.json(), () => {
             return Promise.reject("Fetching data failed");
         })
