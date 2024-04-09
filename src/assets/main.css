@@ -1,3 +1,30 @@
 .full-student-body .card {
     margin-bottom: 0;
 }
+
+@media (prefers-color-scheme: dark) {
+    .tag.is-light{
+        color: #444;
+    }
+    aside.menu.has-background-white-bis {
+        background-color: #242424 !important;
+    }
+    .box.has-background-warning-light,
+    .box.has-background-warning-light th {
+        color: #444 !important;
+    }
+}
+
+[data-theme=dark],
+.theme-dark {
+    .tag.is-light{
+        color: #444;
+    }
+    aside.menu.has-background-white-bis {
+        background-color: #242424 !important;
+    }
+    .box.has-background-warning-light,
+    .box.has-background-warning-light th {
+        color: #444 !important;
+    }
+}
