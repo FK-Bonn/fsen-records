@@ -18,6 +18,6 @@ onBeforeMount(()=>{
     <FixedDateBanner/>
 
     <h1 class="title is-1">BFSG-Anträge</h1>
-    <PayoutRequestsTable :bfsgPayoutRequests="sortedPayoutRequests" :singleFS="false" type="vorankuendigung"/>
+    <PayoutRequestsTable :bfsgPayoutRequests="sortedPayoutRequests" :singleFS="false" type="bfsg"/>
   </div>
 </template>
