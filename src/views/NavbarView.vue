@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useTokenStore} from "@/stores/token";
 import {useAccountStore} from "@/stores/account";
-import {useRoute} from "vue-router";
+import ColourSchemeSwitcher from "@/components/ColourSchemeSwitcher.vue";
 
 const token = useTokenStore();
 const account = useAccountStore();
@@ -74,6 +74,7 @@ const account = useAccountStore();
       </li>
     </template>
   </ul>
+  <ColourSchemeSwitcher/>
 </template>
 
 <style scoped>
