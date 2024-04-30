@@ -11,6 +11,8 @@ interface SemesterSums {
   completed: number
 }
 
+const AFSG_PER_SEMESTER = 60_000;
+
 const fixedDate = useFixedDateStore();
 
 const mangleData = (data: Map<string, INewPayoutRequestData[]> | null): Map<string, SemesterSums> => {
@@ -97,7 +99,7 @@ const nextFinancialYear = computed(() => getNextFinancialYear());
 const requestableSemesters = computed(() => getRequestableSemestersForNextFinancialYear());
 const transitionalSemesters = computed(() => getTransitionalSemestersForNextFinancialYear());
 const remainingSemesters = computed(() => [...semesters.value.keys()].filter(key => !requestableSemesters.value.includes(key)).sort().reverse());
-const requestableSum = computed(() => requestableSemesters.value.reduce((intermediateSum, semester) => intermediateSum + ((60_000 * 100) - (semesters.value.get(semester) || {
+const requestableSum = computed(() => requestableSemesters.value.reduce((intermediateSum, semester) => intermediateSum + ((AFSG_PER_SEMESTER * 100) - (semesters.value.get(semester) || {
   open: 0,
   completed: 0
 }).completed), 0));
@@ -147,8 +149,8 @@ onBeforeMount(()=>{
           </tr>
           <tr>
             <td>AFSG</td>
-            <td>{{ euroCents(requestableSum + completableSum) }}</td>
-            <td>Bereits zugesprochene oder noch beantragbare AFSG</td>
+            <td>{{ euroCents(requestableSum - (2 * AFSG_PER_SEMESTER * 100) + completableSum) }}</td>
+            <td>Bereits zugesprochene oder noch beantragbare AFSG (ohne die 120k € die dieses HHJ dazukommen)</td>
           </tr>
           <tr>
             <td>BFSG</td>
@@ -183,13 +185,13 @@ onBeforeMount(()=>{
           </tr>
           <tr v-for="semester in requestableSemesters.slice(0,2)" :key="semester">
             <td>{{ semester }}</td>
-            <td>{{ euroCents((60_000 * 100)) }}</td>
+            <td>{{ euroCents((AFSG_PER_SEMESTER * 100)) }}</td>
             <td>60k neu</td>
           </tr>
           <tr v-for="semester in requestableSemesters.slice(2,5)" :key="semester">
             <td>{{ semester }}</td>
             <td>{{
-                euroCents((60_000 * 100) - (semesters.get(semester) || {
+                euroCents((AFSG_PER_SEMESTER * 100) - (semesters.get(semester) || {
                   open: 0,
                   completed: 0
                 }).completed)
