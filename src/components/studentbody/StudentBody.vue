@@ -60,6 +60,14 @@ const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fr
         <br>
         Vergangenes Haushaltsjahr:
         <DateRange :interval="calculator.getPreviousFinancialYear()"/>
+        <br>
+        Protokolle:
+        <template v-if="studentBody.proceedingsUrl">
+          <a :href="studentBody.proceedingsUrl">{{studentBody.proceedingsUrl}}</a>
+        </template>
+        <template v-else>
+          <span class="has-text-warning">Unbekannt!</span><br/>
+        </template>
 
         <FsDataSection v-if="settings.displayFsData" :studentBody="studentBody"/>
       </div>
