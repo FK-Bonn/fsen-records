@@ -28,7 +28,6 @@ const editPermissionsPermissions: Ref<IPermission[]> = ref([]);
 const permissionsMessage: Ref<null | string> = ref(null);
 
 const updatePermission = (fs: string, permission: IPermissionKey, value: boolean) => {
-  console.log(fs, permission, value, editPermissionsPermissions)
   const permissionForFS = editPermissionsPermissions.value.filter(p => p.fs === fs);
   if (permissionForFS.length) {
     permissionForFS[0][permission] = value;
@@ -43,6 +42,8 @@ const updatePermission = (fs: string, permission: IPermissionKey, value: boolean
       read_protected_data: false,
       write_protected_data: false,
       submit_payout_request: false,
+      upload_proceedings: false,
+      delete_proceedings: false,
       locked: false,
     }
     newPermission[permission] = value;

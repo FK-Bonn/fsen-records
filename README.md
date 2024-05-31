@@ -29,5 +29,5 @@ This starts a local development server.
 ```
 npm run build
 rsync -avzP --exclude data --exclude dataupdate dist/* fsen-dds:/opt/datendrehscheibe/frontend
-ssh fsen-dds 'cd /opt/datendrehscheibe && docker compose down && docker compose build && docker compose up -d'
+ssh fsen-dds 'cd /opt/datendrehscheibe && docker compose build && docker compose down && docker compose up -d'
 ```

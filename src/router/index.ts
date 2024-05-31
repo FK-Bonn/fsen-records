@@ -34,6 +34,11 @@ const router = createRouter({
       component: () => import('../views/BudgetView.vue'),
     },
     {
+      path: '/sitzungsprotokolle',
+      name: 'sitzungsprotokolle',
+      component: () => import('../views/ProceedingsView.vue'),
+    },
+    {
       path: '/diff/:dateStart/:dateEnd?',
       name: 'diff',
       component: () => import('../views/DiffView.vue'),

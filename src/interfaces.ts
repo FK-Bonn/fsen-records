@@ -97,11 +97,14 @@ export interface IPermission {
     read_protected_data: boolean
     write_protected_data: boolean
     submit_payout_request: boolean
+    upload_proceedings: boolean
+    delete_proceedings: boolean
     locked: boolean
 }
 
 export type IPermissionKey = 'read_permissions' | 'write_permissions' | 'read_files' | 'read_public_data' |
-    'write_public_data' | 'read_protected_data' | 'write_protected_data' | 'submit_payout_request' | 'locked'
+    'write_public_data' | 'read_protected_data' | 'write_protected_data' | 'submit_payout_request' |
+    'upload_proceedings' | 'delete_proceedings' | 'locked'
 
 
 export interface IPayoutRequestDiff {
@@ -204,4 +207,12 @@ export interface IProtectedFsDataResponse {
 
 export interface IAllFsData {
     [key: string]: { data?: IFsDataResponse, protected_data?: IProtectedFsDataResponse }
+}
+
+export interface IProceedings {
+    fs: string
+    committee: string
+    date: string
+    tags: string
+    sha256hash: string
 }

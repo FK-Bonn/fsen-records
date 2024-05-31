@@ -41,6 +41,8 @@ const updateCreatePermission = (fs: string, permission: IPermissionKey, value: b
       read_protected_data: false,
       write_protected_data: false,
       submit_payout_request: false,
+      upload_proceedings: false,
+      delete_proceedings: false,
       locked: false,
     }
     newPermission[permission] = value;

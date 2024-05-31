@@ -9,6 +9,7 @@ import type {
     INewPayoutRequestData,
     IPermission,
     IPermissionKey,
+    IProceedings,
     IProtectedFsData,
     IProtectedFsDataHistoryEntry,
     IProtectedFsDataResponse,
@@ -26,6 +27,8 @@ export const PERMISSIONS: (IPermissionKey)[] = [
     'read_protected_data',
     'write_protected_data',
     'submit_payout_request',
+    'upload_proceedings',
+    'delete_proceedings',
 ]
 
 export const stringToDate = (input: string) => {
@@ -766,20 +769,59 @@ export const putProtectedFsData = async (fs: string, data: IProtectedFsData, tok
         });
 }
 
-export const permissionLevelToString = (level: number) => {
-    let levelString = '???';
-    switch (level) {
-        case 0:
-            levelString = '–';
-            break;
-        case 1:
-            levelString = '👀';
-            break;
-        case 2:
-            levelString = '✏️';
-            break;
+export const loadProceedingsIndex = async (): Promise<IProceedings[] | null> => {
+    return fetch(import.meta.env.VITE_API_URL + '/proceedings')
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                return Promise.reject('An error occured');
+            }
+        })
+        .then(json => {
+            return json;
+        });
+}
+
+export const uploadProceedings = async (fs: string, file: File, committee: string, date: string, tags: string,
+                                        token: string | null): Promise<void> => {
+    if (!token) {
+        return;
     }
-    return levelString;
+    const data = new FormData();
+    data.append('file', file);
+    data.append('committee', committee);
+    data.append('date', date);
+    data.append('tags', tags);
+    return fetch(import.meta.env.VITE_API_URL + '/proceedings/' + fs, {
+        method: 'POST',
+        headers: {'Authorization': `Bearer ${token}`},
+        body: data
+    })
+        .then(resp => {
+            if (resp.ok) {
+                return;
+            } else {
+                return Promise.reject(resp.text());
+            }
+        });
+}
+
+export const deleteProceedings = async (fs: string, committee: string, date: string, token: string | null): Promise<void> => {
+    if (!token) {
+        return;
+    }
+    return fetch(import.meta.env.VITE_API_URL + `/proceedings/${fs}/${committee}/${date}`, {
+        method: 'DELETE',
+        headers: {'Authorization': `Bearer ${token}`},
+    })
+        .then(resp => {
+            if (resp.ok) {
+                return;
+            } else {
+                return Promise.reject('An error occured');
+            }
+        });
 }
 
 export const permissionToString = (key: keyof IPermission) => {
@@ -800,8 +842,29 @@ export const permissionToString = (key: keyof IPermission) => {
             return '️✏️ geschützte FS-Daten ändern';
         case 'submit_payout_request':
             return '️✏️ Anträge stellen';
+        case 'upload_proceedings':
+            return '📃 Protokolle hochladen';
+        case 'delete_proceedings':
+            return '🚮️ Protokolle löschen';
         case 'locked':
             return '🔒 Rechte-Bearbeitung nur durch FSK';
+    }
+}
+
+export const committeeToFullName = (committee: string) => {
+    switch (committee) {
+        case 'FSV':
+            return 'Fachschaftsvertretung (FSV)';
+        case 'FSR':
+            return 'Fachschaftsrat (FSR)';
+        case 'FSVV':
+            return 'Fachschaftsvollversammlung (FSVV)';
+        case 'WVV':
+            return 'Wahlvollversammlung (WVV)';
+        case 'WA':
+            return 'Wahlausschuss (WA)';
+        default:
+            return committee;
     }
 }
 
@@ -891,7 +954,6 @@ export const resetFixedDateInUrl = () => {
     const urlParams = new URLSearchParams(window.location.search);
     urlParams.delete('date');
     window.location.search = urlParams.toString();
-    console.log(urlParams.toString())
 }
 
 export const updatePageTitle = (title?: string) => {
@@ -900,4 +962,23 @@ export const updatePageTitle = (title?: string) => {
     } else {
         document.title = import.meta.env.VITE_SITE_TITLE;
     }
+}
+
+export const downloadFile = (url: string, token: string|null) => {
+    if(!token){
+        return;
+    }
+    fetch(url, {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
+        .then(resp => {
+            if (resp.ok) {
+                return resp.blob();
+            } else {
+                return Promise.reject('An error occured');
+            }
+        })
+        .then(blob => {
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        })
+        .catch(() => alert('Hoppla! Das hat leider nicht geklappt'));
 }

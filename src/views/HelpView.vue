@@ -29,9 +29,21 @@ onBeforeMount(() => {
       <dt>Kann ich Vorankündigungen stellen, obwohl meine Fachschaft aktuell nicht auszahlungsfähig ist?</dt>
       <dd>Ja.</dd>
 
-      <dt>Wo kann ich Dokumente hochladen?</dt>
+      <dt>Wo kann ich Dokumente für Anträge hochladen?</dt>
       <dd>Gar nicht. Sendet die bitte per E-Mail an das
         <a href="https://asta-bonn.de/Fachschaftenreferat">Fachschaftenreferat</a>.</dd>
+
+      <dt>Wo kann ich Sitzungsprotokolle hochladen?</dt>
+      <dd>Direkt auf der <RouterLink :to="{name: 'sitzungsprotokolle'}">Sitzungsprotokolle-Seite</RouterLink>.
+        Du benötigst dafür die Berechtigung "📃 Protokolle hochladen".</dd>
+
+      <dt>Wie kann ich die Schlagwörter eines Sitzungsprotokolls ändern?</dt>
+      <dd>Lade das Sitzungsprotokoll erneut hoch und gib ihm die gewünschten Schlagwörter.
+        Die vorherige Version wird dann ersetzt.</dd>
+
+      <dt>Wie kann ich ein Sitzungsprotokoll durch eine neuere Version ersetzen?</dt>
+      <dd>Lade die neue Version des Sitzungsprotokolls hoch.
+        Die vorherige Version wird dann ersetzt.</dd>
 
       <dt>Wann bekommen wir unser Geld?</dt>
       <dd>Wenn die Fachschaft auszahlungsfähig ist, der Antrag vollständig bzw. beschlossen ist
