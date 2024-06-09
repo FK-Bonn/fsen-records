@@ -139,6 +139,8 @@ export interface IStudentBodyDiff {
     modifiedPayoutRequests: IPayoutRequestDiff[];
     modifiedBfsg: IPayoutRequestDiff[];
     modifiedVorankuendigung: IPayoutRequestDiff[];
+    financialYearStartDiff: IStringDiff | null;
+    proceedingsUrlDiff: IStringDiff | null;
 }
 
 export interface IEmailAddress {

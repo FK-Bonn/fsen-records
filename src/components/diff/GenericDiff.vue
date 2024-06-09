@@ -15,5 +15,7 @@ defineProps<{
 </template>
 
 <style scoped>
-
+pre {
+  white-space: pre-wrap;
+}
 </style>

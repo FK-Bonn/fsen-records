@@ -100,6 +100,8 @@ const emptyStudentBodyDiff = (fs: string, name: string | undefined): IStudentBod
     modifiedPayoutRequests: [],
     modifiedBfsg: [],
     modifiedVorankuendigung: [],
+    financialYearStartDiff: null,
+    proceedingsUrlDiff: null,
   };
 }
 
@@ -164,6 +166,30 @@ const getModifiedStudentBodies = (): IStudentBodyDiff[] => {
         if (item.fs === fs) {
           diff.modifiedVorankuendigung.push(item);
         }
+      }
+      if (firstStudentBody.financialYearAnnotation !== secondStudentBody.financialYearAnnotation) {
+        diff.financialYearAnnotationDiff = {
+          oldString: firstStudentBody.financialYearAnnotation,
+          newString: secondStudentBody.financialYearAnnotation,
+        };
+      }
+      if (firstStudentBody.statutes !== secondStudentBody.statutes) {
+        diff.statutesDiff = {
+          oldString: firstStudentBody.statutes,
+          newString: secondStudentBody.statutes,
+        };
+      }
+      if (firstStudentBody.financialYearStart !== secondStudentBody.financialYearStart) {
+        diff.financialYearStartDiff = {
+          oldString: firstStudentBody.financialYearStart,
+          newString: secondStudentBody.financialYearStart,
+        };
+      }
+      if (firstStudentBody.proceedingsUrl !== secondStudentBody.proceedingsUrl) {
+        diff.proceedingsUrlDiff = {
+          oldString: firstStudentBody.proceedingsUrl,
+          newString: secondStudentBody.proceedingsUrl,
+        };
       }
     }
     if (!isJsonEqual(diff, emptyStudentBodyDiff(fs, firstStudentBody?.name))) {
@@ -237,6 +263,20 @@ const modifiedStudentBodies = computed(() => getModifiedStudentBodies())
           <td>Fachschaftssatzung</td>
           <GenericDiff :before="studentBody.statutesDiff.oldString"
                        :after="studentBody.statutesDiff.newString"/>
+        </tr>
+      </template>
+      <template v-if="studentBody.financialYearStartDiff">
+        <tr>
+          <td>Start des Haushaltsjahres</td>
+          <GenericDiff :before="studentBody.financialYearStartDiff.oldString"
+                       :after="studentBody.financialYearStartDiff.newString"/>
+        </tr>
+      </template>
+      <template v-if="studentBody.proceedingsUrlDiff">
+        <tr>
+          <td>URL für Sitzungsprotokolle</td>
+          <GenericDiff :before="studentBody.proceedingsUrlDiff.oldString"
+                       :after="studentBody.proceedingsUrlDiff.newString"/>
         </tr>
       </template>
       </tbody>

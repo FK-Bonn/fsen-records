@@ -61,7 +61,7 @@ const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fr
         Vergangenes Haushaltsjahr:
         <DateRange :interval="calculator.getPreviousFinancialYear()"/>
         <br>
-        Protokolle:
+        Sitzungsprotokolle:
         <template v-if="studentBody.proceedingsUrl">
           <a :href="studentBody.proceedingsUrl">{{studentBody.proceedingsUrl}}</a>
         </template>
