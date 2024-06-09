@@ -898,6 +898,27 @@ export const hasFsPermission = (permissions: IPermission[] | undefined, fs: stri
     return permissions.filter(p => p.fs === fs && p[key]).length > 0;
 }
 
+export const hasAnyPermission = (u: IUserWithPermissions) => {
+    if (u.admin) {
+        return true;
+    }
+    for (let permission of u.permissions) {
+        if (permission.read_permissions
+            || permission.write_permissions
+            || permission.read_files
+            || permission.read_public_data
+            || permission.write_public_data
+            || permission.read_protected_data
+            || permission.write_protected_data
+            || permission.submit_payout_request
+            || permission.upload_proceedings
+            || permission.delete_proceedings) {
+            return true;
+        }
+    }
+    return false;
+}
+
 export const getLastDayForSubmission = (interval: Interval): Date => {
     const lastDayForSubmission = new Date(interval.end);
     lastDayForSubmission.setFullYear(lastDayForSubmission.getFullYear() + 1);
