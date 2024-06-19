@@ -21,6 +21,11 @@ export interface IAnnotatedDocument {
     annotations: IAnnotation[]
 }
 
+export interface IProceedingsLocation {
+    url: string
+    annotation: string
+}
+
 export interface IStudentBody {
     id: string
     name: string
@@ -28,7 +33,7 @@ export interface IStudentBody {
     financialYearStart: string
     financialYearAnnotation: string
     financialYearOverride: null | { current: { dateStart: string, dateEnd: string }, previous: { dateStart: string, dateEnd: string } }
-    proceedingsUrl: string | null
+    proceedingsUrl: string | null | IProceedingsLocation[]
     budgets: IAnnotatedDocument[]
     balances: IAnnotatedDocument[]
     cashAudits: IAnnotatedDocument[]

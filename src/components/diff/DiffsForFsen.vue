@@ -187,8 +187,8 @@ const getModifiedStudentBodies = (): IStudentBodyDiff[] => {
       }
       if (firstStudentBody.proceedingsUrl !== secondStudentBody.proceedingsUrl) {
         diff.proceedingsUrlDiff = {
-          oldString: firstStudentBody.proceedingsUrl,
-          newString: secondStudentBody.proceedingsUrl,
+          oldString: JSON.stringify(firstStudentBody.proceedingsUrl),
+          newString: JSON.stringify(secondStudentBody.proceedingsUrl),
         };
       }
     }

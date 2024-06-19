@@ -33,56 +33,68 @@ const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fr
     <CompactStudentBody :studentBody="studentBody"/>
   </template>
   <template v-else>
-  <li class="full-student-body">
-    <div class="box">
-      <h2 class="title is-2" :id="studentBody.id">
-        <a :href="'#'+studentBody.id">
-          <IconPeople/>
-        </a>
-        {{ studentBody.name }}
-      </h2>
-
+    <li class="full-student-body">
       <div class="box">
-        <template v-if="studentBody.statutes.startsWith('https://')">
-          <a :href="studentBody.statutes">Fachschaftssatzung</a> ·
-        </template>
-        <template v-else>
-          <span class="has-text-danger">{studentBody.statutes}</span><br/>
-        </template>
-        Beginn des Haushaltsjahrs: {{ studentBody.financialYearStart }}
-        <span v-if="studentBody.financialYearAnnotation" class="has-text-danger">
+        <h2 class="title is-2" :id="studentBody.id">
+          <a :href="'#'+studentBody.id">
+            <IconPeople/>
+          </a>
+          {{ studentBody.name }}
+        </h2>
+
+        <div class="box">
+          <template v-if="studentBody.statutes.startsWith('https://')">
+            <a :href="studentBody.statutes">Fachschaftssatzung</a> ·
+          </template>
+          <template v-else>
+            <span class="has-text-danger">{studentBody.statutes}</span><br/>
+          </template>
+          Beginn des Haushaltsjahrs: {{ studentBody.financialYearStart }}
+          <span v-if="studentBody.financialYearAnnotation" class="has-text-danger">
           {{ studentBody.financialYearAnnotation }}
         </span>
-        <br>
-        Aktuelles Haushaltsjahr:
-        <DateRange :interval="calculator.getCurrentFinancialYear()"/>
-        <IconWarning v-if="(calculator.getCurrentFinancialYear()?.end || new Date()) < (fixedDate.date ? new Date(fixedDate.date) : new Date())"/>
-        <br>
-        Vergangenes Haushaltsjahr:
-        <DateRange :interval="calculator.getPreviousFinancialYear()"/>
-        <br>
-        Sitzungsprotokolle:
-        <template v-if="studentBody.proceedingsUrl">
-          <a :href="studentBody.proceedingsUrl">{{studentBody.proceedingsUrl}}</a>
-        </template>
-        <template v-else>
-          <span class="has-text-warning">Unbekannt!</span><br/>
-        </template>
+          <br>
+          Aktuelles Haushaltsjahr:
+          <DateRange :interval="calculator.getCurrentFinancialYear()"/>
+          <IconWarning
+              v-if="(calculator.getCurrentFinancialYear()?.end || new Date()) < (fixedDate.date ? new Date(fixedDate.date) : new Date())"/>
+          <br>
+          Vergangenes Haushaltsjahr:
+          <DateRange :interval="calculator.getPreviousFinancialYear()"/>
+          <br>
+          Sitzungsprotokolle:
+          <template v-if="typeof studentBody.proceedingsUrl === 'string'">
+            <a :href="studentBody.proceedingsUrl">{{ studentBody.proceedingsUrl }}</a>
+          </template>
+          <template v-else-if="!studentBody.proceedingsUrl">
+            <span class="has-text-warning">Unbekannt!</span><br/>
+          </template>
+          <template v-else-if="studentBody.proceedingsUrl.length === 1">
+            <a :href="studentBody.proceedingsUrl[0].url">{{ studentBody.proceedingsUrl[0].url }}</a>
+            ({{ studentBody.proceedingsUrl[0].annotation }})
+          </template>
+          <template v-else>
+            <ul>
+              <li v-for="url of studentBody.proceedingsUrl" :key="url.url">
+                <a :href="url.url">{{ url.url }}</a> ({{ url.annotation }})
+              </li>
+            </ul>
+          </template>
 
-        <FsDataSection v-if="settings.displayFsData" :studentBody="studentBody"/>
+          <FsDataSection v-if="settings.displayFsData" :studentBody="studentBody"/>
+        </div>
+
+        <CurrentlyCanBePaidSection :studentBody="studentBody"/>
+
+        <SemesterSection v-for="semester in semesters" :semester="semester" :studentBody="studentBody"
+                         :key="semester?.start.toString()"/>
+
+        <BfsgSection :studentBody="studentBody"/>
+
+        <DocumentsSection :studentBody="studentBody"/>
+
       </div>
-
-      <CurrentlyCanBePaidSection :studentBody="studentBody"/>
-
-      <SemesterSection v-for="semester in semesters" :semester="semester" :studentBody="studentBody"
-                       :key="semester?.start.toString()"/>
-
-      <BfsgSection :studentBody="studentBody"/>
-
-      <DocumentsSection :studentBody="studentBody"/>
-
-    </div>
-  </li>
+    </li>
   </template>
 </template>
 
@@ -90,7 +102,13 @@ const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fr
 .full-student-body .box {
   margin-bottom: 1rem;
 }
+
 .column {
   padding: 0;
+}
+
+ul {
+  list-style-type: square;
+  margin-left: 2rem;
 }
 </style>
