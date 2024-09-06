@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import type {IAnnotatedDocument, IStudentBody} from "@/interfaces";
+import type {IDocumentData, IStudentBody} from "@/interfaces";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
 import IconQuestionmark from "@/components/icons/IconQuestionmark.vue";
 import DateRange from "@/components/DateRange.vue";
 import {Interval, VerdictCalculator} from "@/Calculator";
-import DocumentName from "@/components/document/DocumentName.vue";
 import DownloadButton from "@/components/document/DownloadButton.vue";
 import {computed} from "vue";
 import {useAccountStore} from "@/stores/account";
-import {hasFsPermission} from "@/util";
+import {hasFsPermission, shortenFilename} from "@/util";
 import {usePageSettingsStore} from "@/stores/pageSettings";
+import DocumentName from "@/components/document/DocumentName.vue";
 
 const props = defineProps<{
-  document: IAnnotatedDocument,
+  document: IDocumentData | null,
   withReferences?: boolean,
   studentBody: IStudentBody,
 }>()
@@ -21,41 +21,55 @@ const account = useAccountStore();
 const settings = usePageSettingsStore();
 
 const displayDownloadButton = computed(() => account && (account.user?.admin || hasFsPermission(account.user?.permissions, props.studentBody.id, 'read_files')))
+const shortenedFilename = computed(() => shortenFilename(props.document?.filename))
 
 </script>
 
 <template>
-  <IconForLevel v-if="document.checked" :level="VerdictCalculator.getWorstAnnotationLevel(document.annotations)"/>
-  <IconQuestionmark v-else/>
-  <template v-if="settings.showFilenames">
-    <code>{{ document.filename }}</code>
-    (
-    <DateRange :interval="Interval.fromStrings(document.dateStart, document.dateEnd || document.dateStart)"/>
-    )
-  </template>
-  <DocumentName v-else :document="document"/>
+  <template v-if="document === null"></template>
+  <template v-else>
+    <IconForLevel v-if="document" :level="VerdictCalculator.getWorstAnnotationLevel(document.annotations)"/>
+    <IconQuestionmark v-else/>
+    <template v-if="settings.showFilenames">
+      <code>{{ shortenedFilename }}</code>
+      (
+      <DateRange :interval="Interval.fromStrings(document.date_start, document.date_end || document.date_start)"/>
+      )
+    </template>
+    <DocumentName v-else :document="document"/>
 
-  <DownloadButton v-if="displayDownloadButton" :studentBody="studentBody" :filename="document.filename"/>
+    <div class="tags" v-if="document.tags && document.tags.length > 0">
+      <span v-for="tag in document.tags" :key="tag" class="tag is-light">{{ tag }}</span>
+    </div>
 
-  <template v-if="withReferences">
-    <template v-for="reference in document.references" :key="reference">
-      <template v-if="reference.startsWith('https://')">
-        <a :href="reference">Link</a>
+    <DownloadButton v-if="displayDownloadButton" :studentBody="studentBody" :filename="document.filename"/>
+
+    <template v-if="withReferences">
+      <template v-if="document.url">
+        <a :href="document.url">Link</a>
       </template>
-      <template v-else>
+      <template v-for="reference in document.references" :key="reference">
         <code>{{ reference }}</code>
       </template>
     </template>
-  </template>
-  <ul v-if="document.annotations.length > 0">
+    <ul v-if="document.annotations">
       <li v-for="annotation in document.annotations" :key="annotation.text">
         <IconForLevel :level="annotation.level"/>
         {{ annotation.text }}
       </li>
-  </ul>
+    </ul>
+  </template>
 </template>
-
 <style scoped>
+.tags {
+  display: inline-block;
+  margin: 0;
+}
+
+.tag {
+  margin: 0 .2rem;
+}
+
 ul, ul:not(:last-child) {
   list-style: none !important;
   margin-top: .2em !important;

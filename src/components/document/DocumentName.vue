@@ -1,68 +1,20 @@
 <script setup lang="ts">
-import type {IAnnotatedDocument, IStudentBody} from "@/interfaces";
-import IconForLevel from "@/components/icons/IconForLevel.vue";
-import IconQuestionmark from "@/components/icons/IconQuestionmark.vue";
+import type {IDocumentData, IDocumentReference} from "@/interfaces";
 import DateRange from "@/components/DateRange.vue";
-import {Interval, VerdictCalculator} from "@/Calculator";
+import {Interval} from "@/Calculator";
 import {computed} from "vue";
+import {getDocumentPrefix} from "@/util";
 
 const props = defineProps<{
-  document: IAnnotatedDocument,
+  document: IDocumentData,
 }>()
 
-const getFinancialYearShort = (start: string, end?: string): string => {
-  const yearStart = start.substring(0, 4);
-  const yearEnd = end?.substring(0, 4);
-  return yearStart === yearEnd ? yearStart : yearStart + '/' + yearEnd?.substring(2, 4);
-}
-const getPrefix = (document: IAnnotatedDocument) => {
-  if (document.filename.startsWith('HHP-')) {
-    let prefix = 'Haushaltsplan ';
-    if (document.filename.includes('-NHHP5')) {
-      prefix = '5. Nachtragshaushaltsplan ';
-    } else if (document.filename.includes('-NHHP4')) {
-      prefix = '4. Nachtragshaushaltsplan ';
-    } else if (document.filename.includes('-NHHP3')) {
-      prefix = '3. Nachtragshaushaltsplan ';
-    } else if (document.filename.includes('-NHHP2')) {
-      prefix = '2. Nachtragshaushaltsplan ';
-    } else if (document.filename.includes('-NHHP')) {
-      prefix = 'Nachtragshaushaltsplan ';
-    }
-    return prefix + getFinancialYearShort(document.dateStart, document.dateEnd);
-  }
-  if (document.filename.startsWith('HHR-')) {
-    return 'Haushaltsrechnung ' + getFinancialYearShort(document.dateStart, document.dateEnd);
-  }
-  if (document.filename.startsWith('KP-')) {
-    return 'Kassenprüfung über den Zeitraum';
-  }
-  if (document.filename.startsWith('Wahlergebnis-')) {
-    return 'Ergebnis der Wahl vom';
-  }
-  if (document.filename.startsWith('Prot-')) {
-    return 'Protokoll der Sitzung vom';
-  }
-}
-const hasDateInParentheses = (document: IAnnotatedDocument) => {
-  if (document.filename.startsWith('HHP-')) {
-    return true;
-  }
-  if (document.filename.startsWith('HHR-')) {
-    return true;
-  }
-  if (document.filename.startsWith('KP-')) {
-    return false;
-  }
-  if (document.filename.startsWith('Wahlergebnis-')) {
-    return false;
-  }
-  if (document.filename.startsWith('Prot-')) {
-    return false;
-  }
+
+const hasDateInParentheses = (document: IDocumentData|IDocumentReference) => {
+  return ['HHP', 'HHR'].includes(document.base_name)
 }
 
-const prefix = computed(() => getPrefix(props.document));
+const prefix = computed(() => getDocumentPrefix(props.document));
 const dateInParentheses = computed(() => hasDateInParentheses(props.document));
 </script>
 
@@ -70,12 +22,12 @@ const dateInParentheses = computed(() => hasDateInParentheses(props.document));
   <template v-if="dateInParentheses">
     {{ prefix }}
     (
-    <DateRange :interval="Interval.fromStrings(document.dateStart, document.dateEnd || document.dateStart)"/>
+    <DateRange :interval="Interval.fromStrings(document.date_start, document.date_end || document.date_start)"/>
     )
   </template>
   <template v-else>
     {{ prefix }}
-    <DateRange :interval="Interval.fromStrings(document.dateStart, document.dateEnd || document.dateStart)"/>
+    <DateRange :interval="Interval.fromStrings(document.date_start, document.date_end || document.date_start)"/>
   </template>
 </template>
 

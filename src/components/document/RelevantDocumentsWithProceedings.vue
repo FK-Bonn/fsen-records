@@ -1,24 +1,35 @@
 <script setup lang="ts">
 
-import {AnnotationLevel, type IAnnotatedDocument, type IStudentBody} from "@/interfaces";
+import {AnnotationLevel, type IDocumentData, type IDocumentReference, type IStudentBody} from "@/interfaces";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
 import IconCross from "@/components/icons/IconCross.vue";
 import IconQuestionmark from "@/components/icons/IconQuestionmark.vue";
-import SingleDocument from "@/components/document/SingleDocument.vue";
 import {VerdictCalculator} from "@/Calculator";
 import SingleDocumentWithoutReferences from "@/components/document/SingleDocumentWithoutReferences.vue";
 import {usePageSettingsStore} from "@/stores/pageSettings";
+import SingleDocument from "@/components/document/SingleDocument.vue";
+import {useDocumentsStore} from "@/stores/documents";
+import {isReferenced, refKey} from "@/util";
 
-defineProps<{
+const props = defineProps<{
   title: string,
   proceedingsTitle: string,
   overallLevel: AnnotationLevel,
-  documents: IAnnotatedDocument[],
+  documents: IDocumentData[],
   covered: boolean,
   studentBody: IStudentBody,
 }>()
 
 const settings = usePageSettingsStore();
+const documentsStore = useDocumentsStore();
+
+const getReferencedDocument = (reference: IDocumentReference): IDocumentData | null => {
+  if (!documentsStore.data) {
+    return null;
+  }
+  const documentsForFs = documentsStore.data[props.studentBody.id];
+  return documentsForFs.find(value => isReferenced(value, [reference])) || null;
+}
 
 </script>
 
@@ -38,13 +49,13 @@ const settings = usePageSettingsStore();
       <div :class="'document level-'+VerdictCalculator.getWorstAnnotationLevel(document.annotations)">
         <SingleDocumentWithoutReferences :document="document" :studentBody="studentBody"/>
         <ul class="prots">
-          <li v-for="reference in document.resolvedReferences" :key="reference.filename">
+          <li v-for="reference in document.references" :key="refKey(reference)">
             <b>{{ proceedingsTitle }}:</b><br>
-            <SingleDocument :document="reference" :studentBody="studentBody"/>
+            <SingleDocument :document="getReferencedDocument(reference)" :studentBody="studentBody"/>
           </li>
-          <li v-if="(document.resolvedReferences?.length || 0) === 0">
+          <li v-if="(document.references?.length || 0) === 0">
             <b>{{ proceedingsTitle }}:</b>
-            <IconCross v-if="document.checked"/>
+            <IconCross v-if="document.annotations === null"/>
             <IconQuestionmark v-else/>
             ?
           </li>

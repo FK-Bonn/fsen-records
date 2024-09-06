@@ -7,6 +7,7 @@ import IconPeople from "@/components/icons/IconPeople.vue";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
 import {calculateSemesterId} from "@/util";
 import {useFixedDateStore} from "@/stores/fixedDate";
+import {useDocumentsStore} from "@/stores/documents";
 
 const props = defineProps<{
   studentBody: IStudentBody,
@@ -14,8 +15,9 @@ const props = defineProps<{
 
 const sciebo = useScieboDataStore();
 const fixedDate = useFixedDateStore();
+const documents = useDocumentsStore();
 
-const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.studentBody, fixedDate.date));
+const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.studentBody, fixedDate.date, documents.data));
 const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fromStrings(value.start, value.end)))
 
 </script>
@@ -37,7 +39,7 @@ const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fr
           |
           <template v-for="semester in semesters" :key="semester?.start">
             <IconForLevel v-if="semester"
-                          :level="new SemesterCalculator(studentBody, semester).calculateOverallLevel()"
+                          :level="new SemesterCalculator(studentBody, semester, documents.data).calculateOverallLevel()"
                           :title="calculateSemesterId(semester)"/>
           </template>
         </div>

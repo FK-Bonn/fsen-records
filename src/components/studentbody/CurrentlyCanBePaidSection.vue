@@ -6,19 +6,21 @@ import IconForLevel from "@/components/icons/IconForLevel.vue";
 import AngleIndicator from "@/components/icons/AngleIndicator.vue";
 import CurrentlyCanBePaidContent from "@/components/studentbody/CurrentlyCanBePaidContent.vue";
 import {useFixedDateStore} from "@/stores/fixedDate";
+import {useDocumentsStore} from "@/stores/documents";
 
 const props = defineProps<{
   studentBody: IStudentBody,
 }>()
 
 const fixedDate = useFixedDateStore();
+const documents = useDocumentsStore();
 
 const opened = ref(false);
 const toggle = () => {
   opened.value = !opened.value;
 }
 const calculateLevel = (studentBody: IStudentBody, fixedDate: string | null) => {
-  const calculator = new CurrentlyCanBePaidCalculator(studentBody, fixedDate);
+  const calculator = new CurrentlyCanBePaidCalculator(studentBody, fixedDate, documents.data);
   return calculator.calculateOverallLevel();
 }
 

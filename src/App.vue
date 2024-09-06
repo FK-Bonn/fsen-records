@@ -3,17 +3,18 @@ import {RouterView} from 'vue-router'
 import NavbarView from "@/views/NavbarView.vue";
 import FooterView from "@/views/FooterView.vue";
 import {useTokenStore} from "@/stores/token";
-import {getAllFsData, getPayoutRequestData, loadLoggedInUser, pojoToIData} from "@/util";
+import {getAllFsData, getDocumentData, getPayoutRequestData, loadLoggedInUser, pojoToIData} from "@/util";
 import {useAccountStore} from "@/stores/account";
 import {useAllFsData} from "@/stores/allFsData";
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
 import {computed, onBeforeMount, type Ref, ref, watch} from "vue";
-import type {IData} from "@/interfaces";
+import type {IData, IDocumentData} from "@/interfaces";
 import {useScieboDataStore} from "@/stores/scieboData";
 import {useStudentBodiesStore} from "@/stores/studentBodies";
 import ErrorList from "@/components/ErrorList.vue";
 import {useFixedDateStore} from "@/stores/fixedDate";
 import FixedDateBanner from "@/components/FixedDateBanner.vue";
+import {useDocumentsStore} from "@/stores/documents";
 
 
 const token = useTokenStore();
@@ -21,11 +22,13 @@ const account = useAccountStore();
 const allFsData = useAllFsData();
 const payoutRequests = usePayoutRequestStore();
 const sciebo = useScieboDataStore();
+const documents = useDocumentsStore();
 const studentBodies = useStudentBodiesStore();
 const fixedDate = useFixedDateStore();
 
 
 const fetchDataError: Ref<null | string> = ref(null);
+const documentsDataError: Ref<null | string> = ref(null);
 const afsgPayoutRequestsDataError: Ref<null | string> = ref(null);
 const bfsgPayoutRequestsDataError: Ref<null | string> = ref(null);
 const vorankuendigungPayoutRequestsDataError: Ref<null | string> = ref(null);
@@ -49,6 +52,16 @@ const loadData = () => {
         }
       }, reason => {
         fetchDataError.value = reason;
+      });
+};
+
+const loadDocuments = () => {
+  getDocumentData(fixedDate.date)
+      .then(data => {
+        documents.data = data;
+        documentsDataError.value = null;
+      }, reason => {
+        documentsDataError.value = reason;
       });
 };
 
@@ -100,13 +113,16 @@ onBeforeMount(() => {
   loadUser();
   loadError();
   loadData();
+  loadDocuments();
   loadPayoutRequestData();
   loadAllFsData();
 });
 
 watch(fixedDate, async () => {
   loadData();
+  loadDocuments();
   loadPayoutRequestData();
+  loadAllFsData();
 });
 
 const backgroundColourIfFixed = computed(()=>fixedDate.date ? ' has-background-grey-light' : '');
@@ -122,6 +138,7 @@ const backgroundColourIfFixed = computed(()=>fixedDate.date ? ' has-background-g
     <div :class="'column is-10' + backgroundColourIfFixed">
       <ErrorList v-if="errors.length" :errors="errors"/>
       <pre v-if="fetchDataError">{{fetchDataError}}</pre>
+      <pre v-if="documentsDataError">{{documentsDataError}}</pre>
       <pre v-if="afsgPayoutRequestsDataError">{{afsgPayoutRequestsDataError}}</pre>
       <pre v-if="bfsgPayoutRequestsDataError">{{bfsgPayoutRequestsDataError}}</pre>
       <pre v-if="vorankuendigungPayoutRequestsDataError">{{vorankuendigungPayoutRequestsDataError}}</pre>

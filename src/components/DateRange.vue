@@ -3,12 +3,13 @@ import type {Interval} from "@/Calculator";
 import {formatDate} from "@/util";
 
 defineProps<{
-  interval: Interval,
+  interval?: Interval,
 }>()
 </script>
 
 <template>
-  <template v-if="interval.start.toUTCString() === interval.end.toUTCString()">
+  <template v-if="!interval">(?)</template>
+  <template v-else-if="interval.start.toUTCString() === interval.end.toUTCString()">
     {{ formatDate(interval.start) }}
   </template>
   <template v-else>

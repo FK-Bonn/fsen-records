@@ -1,8 +1,10 @@
 import type {
     IAllFsData,
-    IAnnotatedDocument,
     IAnnotation,
     IData,
+    IDocumentData,
+    IDocumentDataForFs,
+    IDocumentReference,
     IFsData,
     IFsDataResponse,
     IFullPayoutRequestData,
@@ -17,6 +19,7 @@ import type {
 } from "@/interfaces";
 import {AnnotationLevel} from "@/interfaces";
 import type {Interval} from "@/Calculator";
+import {computed} from "vue";
 
 export const PERMISSIONS: (IPermissionKey)[] = [
     'read_files',
@@ -54,20 +57,21 @@ export const getWorstAnnotationLevel = (levels: AnnotationLevel[]): AnnotationLe
     return AnnotationLevel.Ok;
 }
 
-export const getDocumentAnnotationLevel = (document: IAnnotatedDocument, requireResolvedReference: boolean = false): AnnotationLevel => {
-    if (!document.checked) {
+export const getDocumentAnnotationLevel = (document: IDocumentData, requireReference: boolean = false,
+                                           references: IDocumentData[] = []): AnnotationLevel => {
+    if (document.annotations === null) {
         return AnnotationLevel.Unchecked;
     }
-    if (requireResolvedReference && (!document.resolvedReferences || document.resolvedReferences.length === 0)) {
+    if (requireReference && references.length === 0) {
         return AnnotationLevel.Error;
     }
     const worstDocumentLevel = getWorstDocumentAnnotationLevel(document.annotations);
     const referenceLevels = [];
-    if (document.resolvedReferences) {
-        for (const reference of document.resolvedReferences) {
-            let worstReferenceLevel = getWorstDocumentAnnotationLevel(reference.annotations);
-            if (!reference.checked) {
-                worstReferenceLevel = AnnotationLevel.Unchecked;
+    if (references.length) {
+        for (const reference of references) {
+            let worstReferenceLevel = AnnotationLevel.Unchecked;
+            if (reference.annotations !== null) {
+                worstReferenceLevel = getWorstDocumentAnnotationLevel(reference.annotations);
             }
             referenceLevels.push(worstReferenceLevel);
         }
@@ -75,15 +79,28 @@ export const getDocumentAnnotationLevel = (document: IAnnotatedDocument, require
     return getWorstAnnotationLevel([...referenceLevels, worstDocumentLevel]);
 }
 
-export const getDocumentsWithLevels = (documents: IAnnotatedDocument[], allowedLevels: AnnotationLevel[], requireResolvedReference = false): IAnnotatedDocument[] => {
-    const documentsWithLevels = [];
-    for (const document of documents) {
-        const level = getDocumentAnnotationLevel(document, requireResolvedReference);
-        if (allowedLevels.includes(level)) {
-            documentsWithLevels.push(document);
+export const isReferenced = (value: IDocumentData, references: IDocumentReference[] | null): boolean => {
+    if (!references) {
+        return false;
+    }
+    for (const reference of references) {
+        if (reference.category === value.category
+            && reference.date_start === value.date_start
+            && reference.date_end === value.date_end
+            && reference.base_name === value.base_name
+            && reference.request_id === value.request_id) {
+            return true;
         }
     }
-    return documentsWithLevels;
+    return false;
+}
+
+export const isSameReference = (first: IDocumentData, second: IDocumentData): boolean => {
+    return (first.category === second.category
+        && first.date_start === second.date_start
+        && first.date_end === second.date_end
+        && first.base_name === second.base_name
+        && first.request_id === second.request_id);
 }
 
 export const euroCents = (value: number | undefined): string => {
@@ -519,42 +536,9 @@ export const scrollToHashIfPresent = () => {
     }
 }
 
-const getProceeding = (proceedings: IAnnotatedDocument[], key: string): IAnnotatedDocument => {
-    for (const proceeding of proceedings) {
-        if (proceeding.filename === key) {
-            return proceeding;
-        }
-    }
-    throw new Error('No proceeding with filename "' + key + '" found.');
-}
 
 export const pojoToIData = (data: any): IData => {
     data.studentBodies = new Map(Object.entries(data.studentBodies));
-    data.payoutRequests = new Map(Object.entries(data.payoutRequests));
-    for (const fsId of data.payoutRequests.keys()) {
-        data.payoutRequests.set(fsId, new Map(Object.entries(data.payoutRequests.get(fsId))));
-    }
-    for (const studentBody of data.studentBodies.keys()) {
-        const proceedings = data.studentBodies.get(studentBody).proceedings;
-        for (const budget of data.studentBodies.get(studentBody).budgets) {
-            budget.resolvedReferences = [];
-            for (const reference of budget.references) {
-                budget.resolvedReferences.push(getProceeding(proceedings, reference));
-            }
-        }
-        for (const balances of data.studentBodies.get(studentBody).balances) {
-            balances.resolvedReferences = [];
-            for (const reference of balances.references) {
-                balances.resolvedReferences.push(getProceeding(proceedings, reference));
-            }
-        }
-        for (const cashAudit of data.studentBodies.get(studentBody).cashAudits) {
-            cashAudit.resolvedReferences = [];
-            for (const reference of cashAudit.references) {
-                cashAudit.resolvedReferences.push(getProceeding(proceedings, reference));
-            }
-        }
-    }
     return data as IData;
 }
 
@@ -568,6 +552,20 @@ export const mangleBfsgPayoutRequestData = (data: INewPayoutRequestData[]): Map<
     }
     return retval;
 }
+
+export const getDocumentData = async (fixedDate: string | null = null): Promise<IDocumentDataForFs> => {
+    let url = import.meta.env.VITE_API_URL + `/file/AFSG`;
+    if (fixedDate) {
+        url += '/' + fixedDate;
+    }
+    return fetch(url)
+        .then(response => response.json(), () => {
+            return Promise.reject("Fetching data failed");
+        })
+        .then(rawdata => {
+            return rawdata;
+        });
+};
 
 export const getPayoutRequestData = async (type: string, fixedDate: string | null = null): Promise<Map<string, INewPayoutRequestData[]>> => {
     let url = import.meta.env.VITE_API_URL + `/payout-request/${type}`;
@@ -780,6 +778,66 @@ export const loadProceedingsIndex = async (): Promise<IProceedings[] | null> => 
         })
         .then(json => {
             return json;
+        });
+}
+
+export const uploadDocument = async (fs: string, file: File, category: string, base_name: string,
+                                     date_start: string | null, date_end: string | null,
+                                     request_id: string | null, token: string | null): Promise<void> => {
+    if (!token) {
+        return;
+    }
+    const data = new FormData();
+    data.append('file', file);
+    data.append('category', category);
+    data.append('base_name', base_name);
+    if (date_start) {
+        data.append('date_start', date_start);
+    }
+    if (date_end) {
+        data.append('date_end', date_end);
+    }
+    if (request_id) {
+        data.append('request_id', request_id);
+    }
+    return fetch(import.meta.env.VITE_API_URL + '/file/' + fs, {
+        method: 'POST',
+        headers: {'Authorization': `Bearer ${token}`},
+        body: data
+    })
+        .then(resp => {
+            if (resp.ok) {
+                return;
+            } else {
+                return Promise.reject(resp.text());
+            }
+        });
+}
+
+export const annotateDocument = async (fs: string, target: IDocumentReference, annotations: IAnnotation[] | null,
+                                       tags: string[] | null, references: IDocumentReference[] | null,
+                                       url: string | null, token: string | null): Promise<void> => {
+    if (!token) {
+        return;
+    }
+    const data = {
+        target,
+        annotations,
+        tags,
+        references,
+        url,
+    }
+    return fetch(import.meta.env.VITE_API_URL + `/file/${fs}/annotate`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+        body: JSON.stringify(data)
+    })
+        .then(resp => {
+            if (resp.ok) {
+                return;
+            } else {
+                return Promise.reject(resp.text());
+            }
         });
 }
 
@@ -1003,3 +1061,67 @@ export const downloadFile = (url: string, token: string|null) => {
         })
         .catch(() => alert('Hoppla! Das hat leider nicht geklappt'));
 }
+
+export const jsonRepresentationIsDifferent = (first: any, second: any) => {
+    return JSON.stringify(first) !== JSON.stringify(second);
+}
+
+export const shortenFilename = (filename: string | undefined): string | undefined => {
+    if (!filename) {
+        return;
+    }
+    return filename.replace(/-([0-9a-f]{8})[0-9a-f]{56}\./, '-$1….');
+}
+
+
+export const getFinancialYearShort = (start?: string, end?: string): string => {
+    if(!start){
+        return '(?)';
+    }
+    const yearStart = start.substring(0, 4);
+    const yearEnd = end?.substring(0, 4);
+    return yearStart === yearEnd ? yearStart : yearStart + '/' + yearEnd?.substring(2, 4);
+}
+
+export const getDocumentPrefix = (document: IDocumentData) => {
+    if (document.base_name === 'HHP') {
+        let prefix = 'Haushaltsplan ';
+        if (document.tags){
+            if (document.tags.includes('NHHP5')) {
+                prefix = '5. Nachtragshaushaltsplan ';
+            } else if (document.tags.includes('NHHP4')) {
+                prefix = '4. Nachtragshaushaltsplan ';
+            } else if (document.tags.includes('NHHP3')) {
+                prefix = '3. Nachtragshaushaltsplan ';
+            } else if (document.tags.includes('NHHP2')) {
+                prefix = '2. Nachtragshaushaltsplan ';
+            } else if (document.tags.includes('NHHP')) {
+                prefix = 'Nachtragshaushaltsplan ';
+            }
+        }
+        return prefix + getFinancialYearShort(document.date_start, document.date_end);
+    }
+    if (document.base_name === 'HHR') {
+        return 'Haushaltsrechnung ' + getFinancialYearShort(document.date_start, document.date_end);
+    }
+    if (document.base_name === 'KP') {
+        return 'Kassenprüfung über den Zeitraum';
+    }
+    if (document.base_name === 'Wahlergebnis') {
+        return 'Ergebnis der Wahl vom';
+    }
+    if (document.base_name === 'Prot') {
+        return 'Protokoll der Sitzung vom';
+    }
+}
+
+export function assertIsNode(e: EventTarget | null): asserts e is Node {
+    if (!e || !("nodeType" in e)) {
+        throw new Error(`Node expected`);
+    }
+}
+
+export const refKey = (reference: IDocumentReference) => reference.category + '-' + reference.base_name +
+    (reference.date_start ? ('-' + reference.date_start) : '') +
+    (reference.date_end ? ('--' + reference.date_end) : '') +
+    (reference.request_id ? ('-' + reference.request_id) : '');

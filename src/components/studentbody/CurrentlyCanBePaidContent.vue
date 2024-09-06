@@ -1,23 +1,24 @@
 <script setup lang="ts">
 import type {IStudentBody} from "@/interfaces";
-import {computed, ref} from "vue";
+import {computed} from "vue";
 import {CurrentlyCanBePaidCalculator, Interval, VerdictCalculator} from "@/Calculator";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
-import AngleIndicator from "@/components/icons/AngleIndicator.vue";
 import IconCheckmark from "@/components/icons/IconCheckmark.vue";
 import IconCross from "@/components/icons/IconCross.vue";
 import DateRange from "@/components/DateRange.vue";
-import SingleDocument from "@/components/document/SingleDocument.vue";
 import RelevantDocumentsWithProceedings from "@/components/document/RelevantDocumentsWithProceedings.vue";
 import {usePageSettingsStore} from "@/stores/pageSettings";
+import SingleDocument from "@/components/document/SingleDocument.vue";
+import {useDocumentsStore} from "@/stores/documents";
 
 const props = defineProps<{
   studentBody: IStudentBody,
 }>()
 
 const settings = usePageSettingsStore();
+const documents = useDocumentsStore();
 
-const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.studentBody, null));
+const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.studentBody, null, documents.data));
 const mostRecentElection = computed(() => calculator.value.getMostRecentElection());
 const mostRecentInauguralMeetingProceedings = computed(() => calculator.value.getProceedingsOfMostRecentInauguralMeeting());
 </script>
@@ -58,8 +59,8 @@ const mostRecentInauguralMeetingProceedings = computed(() => calculator.value.ge
           <IconForLevel
               :level="calculator.areProceedingsOfLastInauguralMeetingYoungerThanLastElectionLevel(mostRecentInauguralMeetingProceedings)"/>
           <DateRange
-              :interval="Interval.fromStrings(mostRecentInauguralMeetingProceedings?.dateStart,
-                mostRecentInauguralMeetingProceedings?.dateStart)"/>
+              :interval="Interval.fromStrings(mostRecentInauguralMeetingProceedings?.date_start,
+                mostRecentInauguralMeetingProceedings?.date_start)"/>
           nach letzter Wahl?
         </li>
         <li>

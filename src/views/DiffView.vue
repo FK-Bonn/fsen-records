@@ -2,8 +2,15 @@
 
 import {useRoute} from "vue-router";
 import {nextTick, onBeforeMount, onMounted, type Ref, ref, watch} from "vue";
-import {actualDateOrNull, getPayoutRequestData, pojoToIData, scrollToHashIfPresent, updatePageTitle} from "@/util";
-import type {IData, INewPayoutRequestData} from "@/interfaces";
+import {
+  actualDateOrNull,
+  getDocumentData,
+  getPayoutRequestData,
+  pojoToIData,
+  scrollToHashIfPresent,
+  updatePageTitle
+} from "@/util";
+import type {IData, IDocumentDataForFs, INewPayoutRequestData} from "@/interfaces";
 import DiffsForFsen from "@/components/diff/DiffsForFsen.vue";
 
 const route = useRoute();
@@ -31,10 +38,12 @@ const scieboStart: Ref<null | IData> = ref(null);
 const afsgStart: Ref<null | Map<string, INewPayoutRequestData[]>> = ref(null);
 const bfsgStart: Ref<null | Map<string, INewPayoutRequestData[]>> = ref(null);
 const vorankuendigungStart: Ref<null | Map<string, INewPayoutRequestData[]>> = ref(null);
+const documentsStart: Ref<null | IDocumentDataForFs> = ref(null);
 const scieboEnd: Ref<null | IData> = ref(null);
 const afsgEnd: Ref<null | Map<string, INewPayoutRequestData[]>> = ref(null);
 const bfsgEnd: Ref<null | Map<string, INewPayoutRequestData[]>> = ref(null);
 const vorankuendigungEnd: Ref<null | Map<string, INewPayoutRequestData[]>> = ref(null);
+const documentsEnd: Ref<null | IDocumentDataForFs> = ref(null);
 
 
 watch(dateStart, async () => {
@@ -43,6 +52,7 @@ watch(dateStart, async () => {
   afsgStart.value = await getPayoutRequestData('afsg', dateStart.value);
   bfsgStart.value = await getPayoutRequestData('bfsg', dateStart.value);
   vorankuendigungStart.value = await getPayoutRequestData('vorankuendigung', dateStart.value);
+  documentsStart.value = await getDocumentData(dateStart.value);
 }, {immediate: true});
 
 watch(dateEnd, async () => {
@@ -51,6 +61,7 @@ watch(dateEnd, async () => {
   afsgEnd.value = await getPayoutRequestData('afsg', dateEnd.value);
   bfsgEnd.value = await getPayoutRequestData('bfsg', dateEnd.value);
   vorankuendigungEnd.value = await getPayoutRequestData('vorankuendigung', dateEnd.value);
+  documentsEnd.value = await getDocumentData(dateEnd.value);
 }, {immediate: true});
 
 onMounted(() => scrollToHashIfPresent());
@@ -84,10 +95,12 @@ onBeforeMount(()=>{
         :afsgStart="afsgStart"
         :bfsgStart="bfsgStart"
         :vorankuendigungStart="vorankuendigungStart"
+        :documentsStart="documentsStart"
         :scieboEnd="scieboEnd"
         :afsgEnd="afsgEnd"
         :bfsgEnd="bfsgEnd"
         :vorankuendigungEnd="vorankuendigungEnd"
+        :documentsEnd="documentsEnd"
     />
   </div>
 

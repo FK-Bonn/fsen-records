@@ -13,10 +13,12 @@ import {usePayoutRequestStore} from "@/stores/payoutRequest";
 import FixedDateBanner from "@/components/FixedDateBanner.vue";
 import {useRouter} from "vue-router";
 import {useAllFsData} from "@/stores/allFsData";
+import {useDocumentsStore} from "@/stores/documents";
 
 const sciebo = useScieboDataStore();
 const fsData = useAllFsData();
 const payoutRequests = usePayoutRequestStore();
+const documents = useDocumentsStore();
 const settings = usePageSettingsStore();
 const router = useRouter();
 
@@ -39,7 +41,7 @@ const anySemesterHasStar = (studentBody: IStudentBody, payoutRequests: Map<strin
     if (semester && semesterId) {
       const payoutRequest = payoutRequests.get(semesterId);
       if (payoutRequest) {
-        const calculator = new SemesterCalculator(studentBody, semester)
+        const calculator = new SemesterCalculator(studentBody, semester, documents.data)
         if (shouldDisplayStar(calculator.calculateOverallLevel(), payoutRequest)) {
           return true;
         }
@@ -65,7 +67,7 @@ const shouldShow = (studentBody: IStudentBody,
                     semesters: (Interval | undefined)[] | undefined) => {
   let show = true;
   if (settings.showOnlyWhoCurrentlyCanBePaid) {
-    const calculator = new CurrentlyCanBePaidCalculator(studentBody, null);
+    const calculator = new CurrentlyCanBePaidCalculator(studentBody, null, documents.data);
     show = show && (AnnotationLevel.Error !== calculator.calculateOverallLevel());
   }
   if (settings.showOnlySemestersWithStar) {

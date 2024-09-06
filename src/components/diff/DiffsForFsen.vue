@@ -4,14 +4,15 @@ import IconPeople from "@/components/icons/IconPeople.vue";
 import type {
   IAnnotatedDocumentDiff,
   IData,
+  IDocumentDataForFs,
   INewPayoutRequestData,
   IPayoutRequestDiff,
-  IStudentBodyDiff,
-  IStudentBodyDocumentsKey
+  IStudentBodyDiff
 } from "@/interfaces";
 import {computed} from "vue";
 import PayoutRequestDiff from "@/components/diff/PayoutRequestDiff.vue";
 import GenericDiff from "@/components/diff/GenericDiff.vue";
+import {isSameReference} from "@/util";
 import DocumentDiff from "@/components/diff/DocumentDiff.vue";
 
 const props = defineProps<{
@@ -19,20 +20,14 @@ const props = defineProps<{
   afsgStart: null | Map<string, INewPayoutRequestData[]>,
   bfsgStart: null | Map<string, INewPayoutRequestData[]>,
   vorankuendigungStart: null | Map<string, INewPayoutRequestData[]>,
+  documentsStart: null | IDocumentDataForFs,
   scieboEnd: null | IData,
   afsgEnd: null | Map<string, INewPayoutRequestData[]>,
   bfsgEnd: null | Map<string, INewPayoutRequestData[]>,
   vorankuendigungEnd: null | Map<string, INewPayoutRequestData[]>,
+  documentsEnd: null | IDocumentDataForFs,
 }>();
 
-
-const DOCTYPES = {
-  balances: 'Haushaltsrechnung',
-  budgets: 'Haushaltsplan',
-  cashAudits: 'Kassenprüfung',
-  electionResults: 'Wahlergebnis',
-  proceedings: 'Protokoll',
-}
 
 const isJsonEqual = (first: any, second: any): boolean => {
   return JSON.stringify(first) === JSON.stringify(second);
@@ -90,11 +85,7 @@ const emptyStudentBodyDiff = (fs: string, name: string | undefined): IStudentBod
   return {
     fs,
     name: name || '?',
-    balances: [],
-    budgets: [],
-    cashAudits: [],
-    electionResults: [],
-    proceedings: [],
+    documents: [],
     financialYearAnnotationDiff: null,
     statutesDiff: null,
     modifiedPayoutRequests: [],
@@ -132,25 +123,24 @@ const getModifiedStudentBodies = (): IStudentBodyDiff[] => {
     }
 
     if (firstStudentBody && secondStudentBody) {
-
-      for (let documentType of ['balances', 'budgets', 'cashAudits', 'electionResults', 'proceedings'] as IStudentBodyDocumentsKey[]) {
-        for (let document of (firstStudentBody[documentType] || [])) {
+      if(props.documentsStart && props.documentsEnd) {
+        for (let document of (props.documentsStart[fs] || [])) {
           const filename = document.filename;
-          let secondDocument = secondStudentBody[documentType].find(value => value.filename === filename);
+          let secondDocument = props.documentsEnd[fs].find(value => isSameReference(value, document));
           if (!secondDocument) {
-            diff[documentType].push({filename, oldDocument: document, newDocument: null});
+            diff.documents.push({filename, oldDocument: document, newDocument: null});
           } else if (!isJsonEqual(document, secondDocument)) {
-            diff[documentType].push({filename, oldDocument: document, newDocument: secondDocument});
+            diff.documents.push({filename, oldDocument: document, newDocument: secondDocument});
           }
         }
-        for (let document of secondStudentBody[documentType]) {
+        for (let document of props.documentsEnd[fs] || []) {
           const filename = document.filename;
-          let firstDocument = firstStudentBody[documentType].find(value => value.filename === filename);
+          let firstDocument = props.documentsStart[fs].find(value => value.filename === filename);
           if (!firstDocument) {
-            diff[documentType].push({filename, oldDocument: null, newDocument: document});
+            diff.documents.push({filename, oldDocument: null, newDocument: document});
           }
         }
-        diff[documentType].sort(annotatedDocumentComparator);
+        diff.documents.sort(annotatedDocumentComparator);
       }
       for (let modifiedPayoutRequest of modifiedAfsg) {
         if (modifiedPayoutRequest.fs === fs) {
@@ -205,7 +195,7 @@ const modifiedStudentBodies = computed(() => getModifiedStudentBodies())
 
 <template>
   <h2 class="title is-2" id="studentBodies">Fachschaften</h2>
-  <template v-for="studentBody in modifiedStudentBodies" :key="studentBody.id">
+  <template v-for="studentBody in modifiedStudentBodies" :key="studentBody.fs">
     <h3 class="title is-3">
       <a :id="studentBody.fs" :href="'#'+studentBody.fs">
         <IconPeople/>
@@ -241,15 +231,11 @@ const modifiedStudentBodies = computed(() => getModifiedStudentBodies())
           <PayoutRequestDiff :before="request.oldPR" :after="request.newPR"/>
         </tr>
       </template>
-      <template
-          v-for="docType in ['balances', 'budgets', 'cashAudits', 'electionResults', 'proceedings'] as IStudentBodyDocumentsKey[]"
-          :key="docType">
-        <template v-for="singleDiff in studentBody[docType]" :key="singleDiff.filename">
-          <tr>
-            <td>{{ DOCTYPES[docType] }}</td>
-            <DocumentDiff :before="singleDiff.oldDocument" :after="singleDiff.newDocument"/>
-          </tr>
-        </template>
+      <template v-for="singleDiff in studentBody.documents" :key="singleDiff.filename">
+        <tr>
+          <td>Dokument</td>
+          <DocumentDiff :before="singleDiff.oldDocument" :after="singleDiff.newDocument"/>
+        </tr>
       </template>
       <template v-if="studentBody.financialYearAnnotationDiff">
         <tr>

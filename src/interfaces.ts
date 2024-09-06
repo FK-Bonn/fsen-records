@@ -11,14 +11,28 @@ export interface IAnnotation {
     text: string
 }
 
-export interface IAnnotatedDocument {
+export interface IDocumentData {
+    fs: string
+    category: string
+    request_id: string
+    base_name: string
+    date_start?: string
+    date_end?: string
+    file_extension: string
+    sha256hash: string
     filename: string
-    dateStart: string
-    dateEnd?: string
-    checked: boolean
-    references: string[]
-    resolvedReferences?: IAnnotatedDocument[]
-    annotations: IAnnotation[]
+    created_timestamp?: string
+    uploaded_by?: string
+    tags: string[] | null
+    references: IDocumentReference[] | null
+    url: string | null
+    annotations: IAnnotation[] | null
+    annotations_created_timestamp?: string | null
+    annotations_created_by?: string | null
+}
+
+export interface IDocumentDataForFs {
+    [key: string]: IDocumentData[]
 }
 
 export interface IProceedingsLocation {
@@ -34,11 +48,11 @@ export interface IStudentBody {
     financialYearAnnotation: string
     financialYearOverride: null | { current: { dateStart: string, dateEnd: string }, previous: { dateStart: string, dateEnd: string } }
     proceedingsUrl: string | null | IProceedingsLocation[]
-    budgets: IAnnotatedDocument[]
-    balances: IAnnotatedDocument[]
-    cashAudits: IAnnotatedDocument[]
-    proceedings: IAnnotatedDocument[]
-    electionResults: IAnnotatedDocument[]
+    // budgets: IAnnotatedDocument[]
+    // balances: IAnnotatedDocument[]
+    // cashAudits: IAnnotatedDocument[]
+    // proceedings: IAnnotatedDocument[]
+    // electionResults: IAnnotatedDocument[]
 }
 
 export type IStudentBodyDocumentsKey = 'balances' | 'budgets' | 'cashAudits' | 'electionResults' | 'proceedings';
@@ -79,7 +93,7 @@ export interface ISemester {
 export interface IData {
     budgetTitles: { [semester: string]: string }
     budgetTitlesBfsg: { [semester: string]: string }
-    payoutRequests: Map<string, Map<string, IPayoutRequestData>>
+    // payoutRequests: Map<string, Map<string, IPayoutRequestData>>
     semesters: ISemester[]
     studentBodies: Map<string, IStudentBody>
     timestamp: number
@@ -127,18 +141,14 @@ export interface IStringDiff {
 
 export interface IAnnotatedDocumentDiff {
     filename: string;
-    oldDocument: IAnnotatedDocument | null;
-    newDocument: IAnnotatedDocument | null;
+    oldDocument: IDocumentData | null;
+    newDocument: IDocumentData | null;
 }
 
 export interface IStudentBodyDiff {
     fs: string;
     name: string;
-    balances: IAnnotatedDocumentDiff[];
-    budgets: IAnnotatedDocumentDiff[];
-    cashAudits: IAnnotatedDocumentDiff[];
-    electionResults: IAnnotatedDocumentDiff[];
-    proceedings: IAnnotatedDocumentDiff[];
+    documents: IAnnotatedDocumentDiff[];
     financialYearAnnotationDiff: IStringDiff | null;
     statutesDiff: IStringDiff | null;
     modifiedPayoutRequests: IPayoutRequestDiff[];
@@ -222,4 +232,12 @@ export interface IProceedings {
     date: string
     tags: string
     sha256hash: string
+}
+
+export interface IDocumentReference {
+    category: string
+    request_id: string
+    base_name: string
+    date_start: string | null
+    date_end: string | null
 }

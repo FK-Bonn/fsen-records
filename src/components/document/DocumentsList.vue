@@ -1,71 +1,86 @@
 <script setup lang="ts">
 
-import type {IStudentBody} from "@/interfaces";
+import type {IDocumentData, IStudentBody} from "@/interfaces";
+import {useDocumentsStore} from "@/stores/documents";
+import {computed, type ComputedRef} from "vue";
 import SingleDocument from "@/components/document/SingleDocument.vue";
 
-defineProps<{
+const props = defineProps<{
   studentBody: IStudentBody,
 }>()
+
+const documents = useDocumentsStore();
+const documentsForFs: ComputedRef<IDocumentData[]> = computed(()=>documents.data ? documents.data[props.studentBody.id] :[]);
+const budgets = computed(()=>documentsForFs.value.filter(value => value.base_name == 'HHP'))
+const balances = computed(()=>documentsForFs.value.filter(value => value.base_name == 'HHR'))
+const cashAudits = computed(()=>documentsForFs.value.filter(value => value.base_name == 'KP'))
+const proceedings = computed(()=>documentsForFs.value.filter(value => value.base_name == 'Prot'))
+const electionResults = computed(()=>documentsForFs.value.filter(value => value.base_name == 'Wahlergebnis'))
 </script>
 
 <template>
   <div class="card-content">
     <div class="content">
       <h3 class="heading is-3">Haushaltspläne</h3>
-      <template v-if="studentBody.budgets.length > 0">
+      <template v-if="budgets.length > 0">
         <ul>
-          <li v-for="budget in studentBody.budgets" :key="budget.filename">
-            <SingleDocument :document="budget" :studentBody="studentBody"/>
+          <li v-for="document in budgets" :key="document.filename">
+            <SingleDocument :document="document" :studentBody="studentBody"/>
           </li>
         </ul>
       </template>
       <template v-else>
         Keine vorhanden.
       </template>
+
       <h3 class="heading is-3">Haushaltsrechnungen</h3>
-      <template v-if="studentBody.balances.length > 0">
+      <template v-if="balances.length > 0">
         <ul>
-          <li v-for="balance in studentBody.balances" :key="balance.filename">
-            <SingleDocument :document="balance" :studentBody="studentBody"/>
+          <li v-for="document in balances" :key="document.filename">
+            <SingleDocument :document="document" :studentBody="studentBody"/>
           </li>
         </ul>
       </template>
       <template v-else>
         Keine vorhanden.
       </template>
+
       <h3 class="heading is-3">Kassenprüfungen</h3>
-      <template v-if="studentBody.cashAudits.length > 0">
+      <template v-if="cashAudits.length > 0">
         <ul>
-          <li v-for="cashAudit in studentBody.cashAudits" :key="cashAudit.filename">
-            <SingleDocument :document="cashAudit" :studentBody="studentBody"/>
+          <li v-for="document in cashAudits" :key="document.filename">
+            <SingleDocument :document="document" :studentBody="studentBody"/>
           </li>
         </ul>
       </template>
       <template v-else>
         Keine vorhanden.
       </template>
+
       <h3 class="heading is-3">Protokolle</h3>
-      <template v-if="studentBody.proceedings.length > 0">
+      <template v-if="proceedings.length > 0">
         <ul>
-          <li v-for="proceeding in studentBody.proceedings" :key="proceeding.filename">
-            <SingleDocument :document="proceeding" :studentBody="studentBody"/>
+          <li v-for="document in proceedings" :key="document.filename">
+            <SingleDocument :document="document" :studentBody="studentBody"/>
           </li>
         </ul>
       </template>
       <template v-else>
         Keine vorhanden.
       </template>
+
       <h3 class="heading is-3">Wahlergebnisse</h3>
-      <template v-if="studentBody.electionResults.length > 0">
+      <template v-if="electionResults.length > 0">
         <ul>
-          <li v-for="electionResult in studentBody.electionResults" :key="electionResult.filename">
-            <SingleDocument :document="electionResult" :studentBody="studentBody"/>
+          <li v-for="document in electionResults" :key="document.filename">
+            <SingleDocument :document="document" :studentBody="studentBody"/>
           </li>
         </ul>
       </template>
       <template v-else>
         Keine vorhanden.
       </template>
+
     </div>
   </div>
 </template>

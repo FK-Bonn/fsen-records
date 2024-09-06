@@ -4,15 +4,30 @@ import AngleIndicator from "@/components/icons/AngleIndicator.vue";
 import {ref} from "vue";
 import type {IStudentBody} from "@/interfaces";
 import DocumentsList from "@/components/document/DocumentsList.vue";
+import DocumentUploadForm from "@/components/document/DocumentUploadForm.vue";
+import {getDocumentData, loadProceedingsIndex} from "@/util";
+import {useDocumentsStore} from "@/stores/documents";
+import {useFixedDateStore} from "@/stores/fixedDate";
 
 defineProps<{
   studentBody: IStudentBody,
 }>()
 
+const documents = useDocumentsStore();
+const fixedDate = useFixedDateStore();
+
 const opened = ref(false);
 const toggle = () => {
   opened.value = !opened.value;
 }
+
+const reloadDocuments = () => {
+  getDocumentData(fixedDate.date)
+      .then(data => {
+        documents.data = data;
+      });
+};
+
 </script>
 
 <template>
@@ -25,6 +40,7 @@ const toggle = () => {
         <AngleIndicator :opened="opened"/>
       </button>
     </header>
+    <DocumentUploadForm v-if="opened" :fs="studentBody.id" @reload-documents="reloadDocuments()"/>
     <DocumentsList v-if="opened" :studentBody="studentBody"/>
   </div>
 </template>

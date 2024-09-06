@@ -11,7 +11,7 @@ defineProps<{
 const token = useTokenStore();
 
 const downloadUrl = (fs: string, filename: string) => {
-  const url = import.meta.env.VITE_API_URL + "/file/" + fs + "/" + filename;
+  const url = import.meta.env.VITE_API_URL + "/file/get/" + fs + "/" + filename;
   downloadFile(url, token.apiToken);
 }
 </script>
@@ -23,4 +23,7 @@ const downloadUrl = (fs: string, filename: string) => {
 </template>
 
 <style scoped>
+button {
+  margin: 0 .5rem;
+}
 </style>

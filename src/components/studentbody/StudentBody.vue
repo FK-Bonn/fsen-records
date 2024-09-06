@@ -14,6 +14,7 @@ import IconPeople from "@/components/icons/IconPeople.vue";
 import {usePageSettingsStore} from "@/stores/pageSettings";
 import CompactStudentBody from "@/components/studentbody/CompactStudentBody.vue";
 import {useFixedDateStore} from "@/stores/fixedDate";
+import {useDocumentsStore} from "@/stores/documents";
 
 const props = defineProps<{
   studentBody: IStudentBody,
@@ -22,8 +23,9 @@ const props = defineProps<{
 const sciebo = useScieboDataStore();
 const settings = usePageSettingsStore();
 const fixedDate = useFixedDateStore();
+const documents = useDocumentsStore();
 
-const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.studentBody, fixedDate.date));
+const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.studentBody, fixedDate.date, documents.data));
 const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fromStrings(value.start, value.end)))
 
 </script>

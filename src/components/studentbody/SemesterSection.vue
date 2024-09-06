@@ -14,6 +14,7 @@ import AngleIndicator from "@/components/icons/AngleIndicator.vue";
 import SemesterContent from "@/components/studentbody/SemesterContent.vue";
 import PayoutRequest from "@/components/payoutrequest/PayoutRequest.vue";
 import {useScieboDataStore} from "@/stores/scieboData";
+import {useDocumentsStore} from "@/stores/documents";
 
 const props = defineProps<{
   studentBody: IStudentBody,
@@ -23,11 +24,12 @@ const props = defineProps<{
 const settings = usePageSettingsStore();
 const payoutRequests = usePayoutRequestStore();
 const sciebo = useScieboDataStore();
+const documents = useDocumentsStore();
 
 const opened = ref(false);
 
 const calculateLevel = (studentBody: IStudentBody, semester: Interval) => {
-  const calculator = new SemesterCalculator(studentBody, semester);
+  const calculator = new SemesterCalculator(studentBody, semester, documents.data);
   return calculator.calculateOverallLevel();
 }
 

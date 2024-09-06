@@ -7,6 +7,7 @@ import {type Interval, SemesterCalculator} from "@/Calculator";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
 import RelevantDocumentsWithProceedings from "@/components/document/RelevantDocumentsWithProceedings.vue";
 import IconCross from "@/components/icons/IconCross.vue";
+import {useDocumentsStore} from "@/stores/documents";
 import SingleDocument from "@/components/document/SingleDocument.vue";
 
 const props = defineProps<{
@@ -15,8 +16,9 @@ const props = defineProps<{
 }>()
 
 const settings = usePageSettingsStore();
+const documents = useDocumentsStore();
 
-const calculator = computed(() => new SemesterCalculator(props.studentBody, props.semester));
+const calculator = computed(() => new SemesterCalculator(props.studentBody, props.semester, documents.data));
 const mostRecentElection = computed(() => calculator.value.getMostRecentElection());
 </script>
 

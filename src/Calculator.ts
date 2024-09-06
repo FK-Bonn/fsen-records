@@ -1,6 +1,11 @@
-import type {IAnnotatedDocument, IAnnotation, IStudentBody} from "@/interfaces";
-import {AnnotationLevel} from "@/interfaces";
-import {getDocumentAnnotationLevel, getDocumentsWithLevels, getWorstAnnotationLevel, stringToDate} from "@/util";
+import {
+    AnnotationLevel,
+    type IAnnotation,
+    type IDocumentData,
+    type IDocumentDataForFs,
+    type IStudentBody
+} from "@/interfaces";
+import {getDocumentAnnotationLevel, getWorstAnnotationLevel, isReferenced, stringToDate} from "@/util";
 
 export class Interval {
     start: Date
@@ -11,7 +16,7 @@ export class Interval {
         this.end = end;
     }
 
-    static fromStrings(start?: string, end?: string): Interval | undefined {
+    static fromStrings(start?: string | null, end?: string | null): Interval | undefined {
         if (!start || !end) {
             return;
         }
@@ -20,16 +25,19 @@ export class Interval {
         return new Interval(startDate, endDate);
     }
 
-    public getOverlapping(others: IAnnotatedDocument[]): IAnnotatedDocument[] {
-        const overlapping: IAnnotatedDocument[] = [];
+    public getOverlapping(others: IDocumentData[]): IDocumentData[] {
+        const overlapping: IDocumentData[] = [];
         for (const other of others) {
-            const otherStart = stringToDate(other.dateStart);
-            if (!other.dateEnd) {
+            if (!other.date_start) {
+                continue;
+            }
+            const otherStart = stringToDate(other.date_start);
+            if (!other.date_end) {
                 if (this.start <= otherStart && this.end >= otherStart) {
                     overlapping.push(other);
                 }
             } else {
-                const otherEnd = stringToDate(other.dateEnd);
+                const otherEnd = stringToDate(other.date_end);
                 if (otherStart > this.end || otherEnd < this.start) {
                     continue;
                 }
@@ -39,16 +47,19 @@ export class Interval {
         return overlapping;
     }
 
-    public isCoveredBy(others: IAnnotatedDocument[]): boolean {
+    public isCoveredBy(others: IDocumentData[]): boolean {
         let remainingStart = this.start;
         const sortedOthers = [...others];
-        sortedOthers.sort((a, b) => a.dateStart.localeCompare(b.dateStart))
+        sortedOthers.sort((a, b) => (a.date_start && b.date_start) ? a.date_start.localeCompare(b.date_start) : 0)
         for (const other of sortedOthers) {
-            const otherStart = stringToDate(other.dateStart);
+            if (!other.date_start) {
+                continue;
+            }
+            const otherStart = stringToDate(other.date_start);
             if (otherStart > remainingStart) {
                 return false;
             }
-            const otherEnd = other.dateEnd ? stringToDate(other.dateEnd) : otherStart;
+            const otherEnd = other.date_end ? stringToDate(other.date_end) : otherStart;
             if (otherEnd >= remainingStart) {
                 remainingStart = otherEnd;
                 remainingStart.setDate(remainingStart.getDate() + 1);
@@ -62,7 +73,10 @@ export class Interval {
 }
 
 export class VerdictCalculator {
-    public static getWorstAnnotationLevel(annotations: IAnnotation[]): AnnotationLevel {
+    public static getWorstAnnotationLevel(annotations: IAnnotation[] | null): AnnotationLevel {
+        if (annotations === null) {
+            return AnnotationLevel.Unchecked;
+        }
         for (const level of [AnnotationLevel.Error, AnnotationLevel.Warning, AnnotationLevel.Unchecked]) {
             for (const annotation of annotations) {
                 if (annotation.level === level) {
@@ -77,10 +91,30 @@ export class VerdictCalculator {
 export class CurrentlyCanBePaidCalculator {
     private readonly studentBody: IStudentBody;
     private readonly date: string | null;
+    private documents: IDocumentData[];
+    private electionResults: IDocumentData[];
+    private proceedings: IDocumentData[];
+    private budgets: IDocumentData[];
+    private balances: IDocumentData[];
+    private cashAudits: IDocumentData[];
 
-    constructor(studentBody: IStudentBody, fixedDate: string | null) {
+    constructor(studentBody: IStudentBody, fixedDate: string | null, documents: IDocumentDataForFs | null) {
         this.studentBody = studentBody;
         this.date = fixedDate;
+        this.documents = [];
+        this.electionResults = [];
+        this.proceedings = [];
+        this.budgets = [];
+        this.balances = [];
+        this.cashAudits = [];
+        if(documents && studentBody.id in documents){
+            this.documents = documents[studentBody.id];
+            this.electionResults = this.documents.filter(value => value.base_name === 'Wahlergebnis');
+            this.proceedings = this.documents.filter(value => value.base_name === 'Prot');
+            this.budgets = this.documents.filter(value => value.base_name === 'HHP');
+            this.balances = this.documents.filter(value => value.base_name === 'HHR');
+            this.cashAudits = this.documents.filter(value => value.base_name === 'KP');
+        }
     }
 
     public calculateOverallLevel(): AnnotationLevel {
@@ -125,10 +159,10 @@ export class CurrentlyCanBePaidCalculator {
         return getWorstAnnotationLevel(levels);
     }
 
-    public areProceedingsOfLastInauguralMeetingYoungerThanLastElectionLevel(proceedings: IAnnotatedDocument|null): AnnotationLevel {
+    public areProceedingsOfLastInauguralMeetingYoungerThanLastElectionLevel(proceedings: IDocumentData | null): AnnotationLevel {
         const election = this.getMostRecentElection();
-        if (election && election.dateEnd && proceedings) {
-            if (election.dateEnd > proceedings.dateStart) {
+        if (election && election.date_end && proceedings && proceedings.date_start) {
+            if ((election.date_end > proceedings.date_start)) {
                 return AnnotationLevel.Error;
             } else {
                 return AnnotationLevel.Ok;
@@ -143,7 +177,7 @@ export class CurrentlyCanBePaidCalculator {
     }
 
     public isPreviousFinanicalYearCoveredByBudgets(): boolean {
-        return this.getPreviousFinancialYear()?.isCoveredBy(this.studentBody.budgets) || false;
+        return this.getPreviousFinancialYear()?.isCoveredBy(this.budgets) || false;
     }
 
     public getCurrentFinancialYearBudgetLevel(): AnnotationLevel {
@@ -151,33 +185,33 @@ export class CurrentlyCanBePaidCalculator {
     }
 
     public isCurrentFinanicalYearCoveredByBudgets(): boolean {
-        return this.getCurrentFinancialYear()?.isCoveredBy(this.studentBody.budgets) || false;
+        return this.getCurrentFinancialYear()?.isCoveredBy(this.budgets) || false;
     }
 
     private getBudgetLevel(interval: Interval | undefined): AnnotationLevel {
-        return this.getLevelForDocuments(interval, this.studentBody.budgets, true);
+        return this.getLevelForDocuments(interval, this.budgets, true);
     }
 
     public getBalanceLevel(): AnnotationLevel {
-        return this.getLevelForDocuments(this.getPreviousFinancialYear(), this.studentBody.balances);
+        return this.getLevelForDocuments(this.getPreviousFinancialYear(), this.balances);
     }
 
     public getCashAuditLevel(): AnnotationLevel {
-        return this.getLevelForDocuments(this.getPreviousFinancialYear(), this.studentBody.cashAudits, true);
+        return this.getLevelForDocuments(this.getPreviousFinancialYear(), this.cashAudits, true);
     }
 
     public isPreviousFinancialYearCoveredByCashAudits(): boolean {
-        return this.getPreviousFinancialYear()?.isCoveredBy(this.studentBody.cashAudits) || false;
+        return this.getPreviousFinancialYear()?.isCoveredBy(this.cashAudits) || false;
     }
 
-    private getLevelForDocuments(interval: Interval | undefined, documents: IAnnotatedDocument[], requireResolvedReference: boolean = false): AnnotationLevel {
+    private getLevelForDocuments(interval: Interval | undefined, documents: IDocumentData[], requireReference: boolean = false): AnnotationLevel {
         if (!interval) {
             return AnnotationLevel.Error;
         }
         const allowedLevels = [];
         for (const level of [AnnotationLevel.Ok, AnnotationLevel.Warning, AnnotationLevel.Unchecked]) {
             allowedLevels.push(level);
-            const budgets = interval.getOverlapping(getDocumentsWithLevels(documents, allowedLevels, requireResolvedReference));
+            const budgets = interval.getOverlapping(this.getDocumentsWithLevels(documents, allowedLevels, requireReference));
             if (interval.isCoveredBy(budgets)) {
                 return level;
             }
@@ -185,14 +219,27 @@ export class CurrentlyCanBePaidCalculator {
         return AnnotationLevel.Error;
     }
 
-    public getProceedingsOfMostRecentInauguralMeeting(): IAnnotatedDocument | null {
-        if (!this.studentBody) {
-            return null;
+    private getDocumentsWithLevels(documents: IDocumentData[], allowedLevels: AnnotationLevel[], requireReference = false): IDocumentData[] {
+        const documentsWithLevels = [];
+        for (const document of documents) {
+            const references = this.documents.filter(value => isReferenced(value, document.references));
+            const level = getDocumentAnnotationLevel(document, requireReference, references);
+            if (allowedLevels.includes(level)) {
+                documentsWithLevels.push(document);
+            }
         }
+        return documentsWithLevels;
+    }
+
+    public getProceedingsOfMostRecentInauguralMeeting(): IDocumentData | null {
         let mostRecentProceeding = null;
-        for (const proceeding of this.studentBody.proceedings) {
-            if (proceeding.filename.includes('Konsti')) {
-                if (!mostRecentProceeding || mostRecentProceeding.dateStart < proceeding.dateStart) {
+        for (const proceeding of this.proceedings) {
+            if (proceeding.tags?.some(value => value.includes('Konsti'))) {
+                if (!mostRecentProceeding ||
+                    (mostRecentProceeding.date_start
+                        && proceeding.date_start
+                        && mostRecentProceeding.date_start < proceeding.date_start)
+                ) {
                     mostRecentProceeding = proceeding;
                 }
             }
@@ -202,63 +249,60 @@ export class CurrentlyCanBePaidCalculator {
 
     public isMostRecentElectionYoungerThanOneYear(): boolean {
         const mostRecentElection = this.getMostRecentElection();
-        if (!mostRecentElection || !mostRecentElection.dateEnd) {
+        if (!mostRecentElection || !mostRecentElection.date_end) {
             return false;
         }
 
         const limit = this.date ? new Date(this.date) : new Date();
         limit.setFullYear(limit.getFullYear() - 1);
-        return limit < stringToDate(mostRecentElection.dateEnd);
+        return limit < stringToDate(mostRecentElection.date_end);
     }
 
-    public getMostRecentElection(): IAnnotatedDocument | null {
-        if (!this.studentBody) {
-            return null;
-        }
+    public getMostRecentElection(): IDocumentData | null {
         let mostRecentElection = null;
-        for (const electionResult of this.studentBody.electionResults) {
-            if (!mostRecentElection || (electionResult.dateEnd && mostRecentElection.dateEnd && (electionResult.dateEnd > mostRecentElection.dateEnd))) {
+        for (const electionResult of this.electionResults) {
+            if (!mostRecentElection || (electionResult.date_end && mostRecentElection.date_end && (electionResult.date_end > mostRecentElection.date_end))) {
                 mostRecentElection = electionResult;
             }
         }
         return mostRecentElection;
     }
 
-    public getRelevantBudgetsForCurrentFinancialYear(): IAnnotatedDocument[] {
+    public getRelevantBudgetsForCurrentFinancialYear(): IDocumentData[] {
         return this.getRelevantBudgets(this.getCurrentFinancialYear());
     }
 
-    public getRelevantBudgetsForPreviousFinancialYear(): IAnnotatedDocument[] {
+    public getRelevantBudgetsForPreviousFinancialYear(): IDocumentData[] {
         return this.getRelevantBudgets(this.getPreviousFinancialYear());
     }
 
-    public getRelevantBalancesForPreviousFinancialYear(): IAnnotatedDocument[] {
+    public getRelevantBalancesForPreviousFinancialYear(): IDocumentData[] {
         return this.getRelevantBalances(this.getPreviousFinancialYear());
     }
 
-    public getRelevantCashAuditsForPreviousFinancialYear(): IAnnotatedDocument[] {
+    public getRelevantCashAuditsForPreviousFinancialYear(): IDocumentData[] {
         return this.getRelevantCashAudits(this.getPreviousFinancialYear());
     }
 
-    private getRelevantBudgets(interval: Interval | undefined): IAnnotatedDocument[] {
-        if (!this.studentBody || !interval) {
+    private getRelevantBudgets(interval: Interval | undefined): IDocumentData[] {
+        if (!interval) {
             return [];
         }
-        return interval.getOverlapping(this.studentBody.budgets);
+        return interval.getOverlapping(this.budgets);
     }
 
-    private getRelevantBalances(interval: Interval | undefined): IAnnotatedDocument[] {
-        if (!this.studentBody || !interval) {
+    private getRelevantBalances(interval: Interval | undefined): IDocumentData[] {
+        if (!interval) {
             return [];
         }
-        return interval.getOverlapping(this.studentBody.balances);
+        return interval.getOverlapping(this.balances);
     }
 
-    private getRelevantCashAudits(interval: Interval | undefined): IAnnotatedDocument[] {
-        if (!this.studentBody || !interval) {
+    private getRelevantCashAudits(interval: Interval | undefined): IDocumentData[] {
+        if (!interval) {
             return [];
         }
-        return interval.getOverlapping(this.studentBody.cashAudits);
+        return interval.getOverlapping(this.cashAudits);
     }
 
     public getCurrentFinancialYear(): Interval | undefined {
@@ -303,10 +347,30 @@ export class CurrentlyCanBePaidCalculator {
 export class SemesterCalculator {
     private semester: Interval;
     private studentBody: IStudentBody;
+    private documents: IDocumentData[];
+    private electionResults: IDocumentData[];
+    private proceedings: IDocumentData[];
+    private budgets: IDocumentData[];
+    private balances: IDocumentData[];
+    private cashAudits: IDocumentData[];
 
-    constructor(studentBody: IStudentBody, semester: Interval) {
+    constructor(studentBody: IStudentBody, semester: Interval, documents: IDocumentDataForFs | null) {
         this.studentBody = studentBody;
         this.semester = semester;
+        this.documents = [];
+        this.electionResults = [];
+        this.proceedings = [];
+        this.budgets = [];
+        this.balances = [];
+        this.cashAudits = [];
+        if(documents && studentBody.id in documents){
+            this.documents = documents[studentBody.id];
+            this.electionResults = this.documents.filter(value => value.base_name === 'Wahlergebnis');
+            this.proceedings = this.documents.filter(value => value.base_name === 'Prot');
+            this.budgets = this.documents.filter(value => value.base_name === 'HHP');
+            this.balances = this.documents.filter(value => value.base_name === 'HHR');
+            this.cashAudits = this.documents.filter(value => value.base_name === 'KP');
+        }
     }
 
 
@@ -335,34 +399,34 @@ export class SemesterCalculator {
     }
 
     public getBudgetLevel(): AnnotationLevel {
-        return this.getLevelForDocuments(this.studentBody.budgets, true);
+        return this.getLevelForDocuments(this.budgets, true);
     }
 
     public isSemesterCoveredByBudgets(): boolean {
-        return this.semester.isCoveredBy(this.studentBody.budgets);
+        return this.semester.isCoveredBy(this.budgets);
     }
 
     public getBalanceLevel(): AnnotationLevel {
-        return this.getLevelForDocuments(this.studentBody.balances);
+        return this.getLevelForDocuments(this.balances);
     }
 
     public isSemesterCoveredByBalances(): boolean {
-        return this.semester.isCoveredBy(this.studentBody.balances);
+        return this.semester.isCoveredBy(this.balances);
     }
 
     public getCashAuditLevel(): AnnotationLevel {
-        return this.getLevelForDocuments(this.studentBody.cashAudits, true);
+        return this.getLevelForDocuments(this.cashAudits, true);
     }
 
     public isSemesterCoveredByCashAudits(): boolean {
-        return this.semester.isCoveredBy(this.studentBody.cashAudits);
+        return this.semester.isCoveredBy(this.cashAudits);
     }
 
-    private getLevelForDocuments(documents: IAnnotatedDocument[], requireResolvedReference: boolean = false): AnnotationLevel {
+    private getLevelForDocuments(documents: IDocumentData[], requireReference: boolean = false): AnnotationLevel {
         const allowedLevels = [];
         for (const level of [AnnotationLevel.Ok, AnnotationLevel.Warning, AnnotationLevel.Unchecked]) {
             allowedLevels.push(level);
-            const budgets = this.semester.getOverlapping(getDocumentsWithLevels(documents, allowedLevels, requireResolvedReference));
+            const budgets = this.semester.getOverlapping(this.getDocumentsWithLevels(documents, allowedLevels, requireReference));
             if (this.semester.isCoveredBy(budgets)) {
                 return level;
             }
@@ -370,38 +434,47 @@ export class SemesterCalculator {
         return AnnotationLevel.Error;
     }
 
-    public getMostRecentElection(): IAnnotatedDocument | null {
-        if (!this.studentBody) {
-            return null;
+    private getDocumentsWithLevels(documents: IDocumentData[], allowedLevels: AnnotationLevel[], requireReference = false): IDocumentData[] {
+        const documentsWithLevels = [];
+        for (const document of documents) {
+            const references = this.documents.filter(value => isReferenced(value, document.references));
+            const level = getDocumentAnnotationLevel(document, requireReference, references);
+            if (allowedLevels.includes(level)) {
+                documentsWithLevels.push(document);
+            }
         }
+        return documentsWithLevels;
+    }
+
+    public getMostRecentElection(): IDocumentData | null {
         const searchArea = new Interval(new Date(this.semester.end.getFullYear() - 1, this.semester.end.getMonth(), this.semester.end.getDate() + 1), this.semester.end);
         let mostRecentElection = null;
-        for (const electionResult of searchArea.getOverlapping(this.studentBody.electionResults)) {
-            if (!mostRecentElection || (electionResult.dateEnd && mostRecentElection.dateEnd && (electionResult.dateEnd > mostRecentElection.dateEnd))) {
+        for (const electionResult of searchArea.getOverlapping(this.electionResults)) {
+            if (!mostRecentElection || (electionResult.date_end && mostRecentElection.date_end && (electionResult.date_end > mostRecentElection.date_end))) {
                 mostRecentElection = electionResult;
             }
         }
         return mostRecentElection;
     }
 
-    public getRelevantBudgets(): IAnnotatedDocument[] {
+    public getRelevantBudgets(): IDocumentData[] {
         if (!this.studentBody) {
             return [];
         }
-        return this.semester.getOverlapping(this.studentBody.budgets);
+        return this.semester.getOverlapping(this.budgets);
     }
 
-    public getRelevantBalances(): IAnnotatedDocument[] {
+    public getRelevantBalances(): IDocumentData[] {
         if (!this.studentBody) {
             return [];
         }
-        return this.semester.getOverlapping(this.studentBody.balances);
+        return this.semester.getOverlapping(this.balances);
     }
 
-    public getRelevantCashAudits(): IAnnotatedDocument[] {
+    public getRelevantCashAudits(): IDocumentData[] {
         if (!this.studentBody) {
             return [];
         }
-        return this.semester.getOverlapping(this.studentBody.cashAudits);
+        return this.semester.getOverlapping(this.cashAudits);
     }
 }
