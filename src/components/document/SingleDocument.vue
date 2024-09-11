@@ -5,11 +5,13 @@ import IconQuestionmark from "@/components/icons/IconQuestionmark.vue";
 import DateRange from "@/components/DateRange.vue";
 import {Interval, VerdictCalculator} from "@/Calculator";
 import DownloadButton from "@/components/document/DownloadButton.vue";
-import {computed} from "vue";
+import {computed, ref} from "vue";
 import {useAccountStore} from "@/stores/account";
 import {hasFsPermission, shortenFilename} from "@/util";
 import {usePageSettingsStore} from "@/stores/pageSettings";
 import DocumentName from "@/components/document/DocumentName.vue";
+import RequestHistoryModal from "@/components/payoutrequest/RequestHistoryModal.vue";
+import AnnotationsEditModal from "@/components/document/AnnotationsEditModal.vue";
 
 const props = defineProps<{
   document: IDocumentData | null,
@@ -20,7 +22,14 @@ const props = defineProps<{
 const account = useAccountStore();
 const settings = usePageSettingsStore();
 
+const annotationsEditModal = ref(false);
+
+const showAnnotationEditModal = () => {
+  annotationsEditModal.value = true;
+}
+
 const displayDownloadButton = computed(() => account && (account.user?.admin || hasFsPermission(account.user?.permissions, props.studentBody.id, 'read_files')))
+const displayEditAnnotationsButton = computed(() => account && (account.user?.admin))
 const shortenedFilename = computed(() => shortenFilename(props.document?.filename))
 
 </script>
@@ -44,6 +53,10 @@ const shortenedFilename = computed(() => shortenFilename(props.document?.filenam
 
     <DownloadButton v-if="displayDownloadButton" :studentBody="studentBody" :filename="document.filename"/>
 
+    <button class="button is-small" v-if="displayEditAnnotationsButton" @click="showAnnotationEditModal"
+            title="Annotationen bearbeiten">✏️
+    </button>
+
     <template v-if="withReferences">
       <template v-if="document.url">
         <a :href="document.url">Link</a>
@@ -58,6 +71,9 @@ const shortenedFilename = computed(() => shortenFilename(props.document?.filenam
         {{ annotation.text }}
       </li>
     </ul>
+
+    <AnnotationsEditModal v-if="annotationsEditModal" :fs="studentBody.id" :document="document" v-model="annotationsEditModal"/>
+
   </template>
 </template>
 <style scoped>

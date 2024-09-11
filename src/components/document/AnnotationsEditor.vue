@@ -56,5 +56,8 @@ const overallAnnotation = computed(()=>getWorstDocumentAnnotationLevel(annotatio
 </template>
 
 <style scoped>
-
+.content ul {
+  list-style: none;
+  margin-left: 0;
+}
 </style>

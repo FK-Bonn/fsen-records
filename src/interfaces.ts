@@ -12,7 +12,6 @@ export interface IAnnotation {
 }
 
 export interface IDocumentData {
-    fs: string
     category: string
     request_id: string
     base_name: string
