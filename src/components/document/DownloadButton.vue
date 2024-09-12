@@ -23,7 +23,4 @@ const downloadUrl = (fs: string, filename: string) => {
 </template>
 
 <style scoped>
-button {
-  margin: 0 .5rem;
-}
 </style>

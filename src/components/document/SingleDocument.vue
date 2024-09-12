@@ -12,6 +12,8 @@ import {usePageSettingsStore} from "@/stores/pageSettings";
 import DocumentName from "@/components/document/DocumentName.vue";
 import RequestHistoryModal from "@/components/payoutrequest/RequestHistoryModal.vue";
 import AnnotationsEditModal from "@/components/document/AnnotationsEditModal.vue";
+import CopyableTag from "@/components/CopyableTag.vue";
+import DocumentHistoryModal from "@/components/document/DocumentHistoryModal.vue";
 
 const props = defineProps<{
   document: IDocumentData | null,
@@ -23,9 +25,14 @@ const account = useAccountStore();
 const settings = usePageSettingsStore();
 
 const annotationsEditModal = ref(false);
+const historyModal = ref(false);
 
 const showAnnotationEditModal = () => {
   annotationsEditModal.value = true;
+}
+
+const showHistoryModal = () => {
+  historyModal.value = true;
 }
 
 const displayDownloadButton = computed(() => account && (account.user?.admin || hasFsPermission(account.user?.permissions, props.studentBody.id, 'read_files')))
@@ -37,25 +44,37 @@ const shortenedFilename = computed(() => shortenFilename(props.document?.filenam
 <template>
   <template v-if="document === null"></template>
   <template v-else>
-    <IconForLevel v-if="document" :level="VerdictCalculator.getWorstAnnotationLevel(document.annotations)"/>
-    <IconQuestionmark v-else/>
-    <template v-if="settings.showFilenames">
-      <code>{{ shortenedFilename }}</code>
-      (
-      <DateRange :interval="Interval.fromStrings(document.date_start, document.date_end || document.date_start)"/>
-      )
-    </template>
-    <DocumentName v-else :document="document"/>
+    <div class="is-flex flex-direction-row is-align-items-center is-column-gap-0.5">
+      <IconForLevel v-if="document" :level="VerdictCalculator.getWorstAnnotationLevel(document.annotations)"/>
+      <IconQuestionmark v-else/>
+      <template v-if="settings.showFilenames">
+        <code>{{ shortenedFilename }}</code>
+        (
+        <DateRange :interval="Interval.fromStrings(document.date_start, document.date_end || document.date_start)"/>
+        )
+      </template>
+      <DocumentName v-else :document="document"/>
 
-    <div class="tags" v-if="document.tags && document.tags.length > 0">
-      <span v-for="tag in document.tags" :key="tag" class="tag is-light">{{ tag }}</span>
+      <div class="tags" v-if="document.tags && document.tags.length > 0">
+        <span v-for="tag in document.tags" :key="tag" class="tag is-light">{{ tag }}</span>
+      </div>
+
+      <div class="field is-grouped">
+        <p class="control">
+          <DownloadButton v-if="displayDownloadButton" :studentBody="studentBody" :filename="document.filename"/>
+        </p>
+        <p class="control">
+          <button class="button is-small" @click.stop="showHistoryModal" title="Bearbeitungsverlauf anzeigen">
+            📜
+          </button>
+        </p>
+        <p class="control">
+          <button class="button is-small" v-if="displayEditAnnotationsButton" @click="showAnnotationEditModal"
+                  title="Annotationen bearbeiten">✏️
+          </button>
+        </p>
+      </div>
     </div>
-
-    <DownloadButton v-if="displayDownloadButton" :studentBody="studentBody" :filename="document.filename"/>
-
-    <button class="button is-small" v-if="displayEditAnnotationsButton" @click="showAnnotationEditModal"
-            title="Annotationen bearbeiten">✏️
-    </button>
 
     <template v-if="withReferences">
       <template v-if="document.url">
@@ -74,16 +93,18 @@ const shortenedFilename = computed(() => shortenFilename(props.document?.filenam
 
     <AnnotationsEditModal v-if="annotationsEditModal" :fs="studentBody.id" :document="document" v-model="annotationsEditModal"/>
 
+    <DocumentHistoryModal v-if="historyModal" :fs="studentBody.id" :document="document" v-model="historyModal"/>
+
   </template>
 </template>
 <style scoped>
 .tags {
   display: inline-block;
-  margin: 0;
+  margin-bottom: 0;
 }
 
-.tag {
-  margin: 0 .2rem;
+.tag, p.control {
+  margin-bottom: 0;
 }
 
 ul, ul:not(:last-child) {

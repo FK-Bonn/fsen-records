@@ -103,6 +103,16 @@ export const isSameReference = (first: IDocumentData, second: IDocumentData): bo
         && first.request_id === second.request_id);
 }
 
+export const toReference = (document: IDocumentData): IDocumentReference => {
+    return {
+        category: document.category,
+        request_id: document.request_id,
+        base_name: document.base_name,
+        date_start: document.date_start || null,
+        date_end: document.date_end || null,
+    }
+}
+
 export const euroCents = (value: number | undefined): string => {
     if (value === undefined) {
         return '';
@@ -559,6 +569,24 @@ export const getDocumentData = async (fixedDate: string | null = null): Promise<
         url += '/' + fixedDate;
     }
     return fetch(url)
+        .then(response => response.json(), () => {
+            return Promise.reject("Fetching data failed");
+        })
+        .then(rawdata => {
+            return rawdata;
+        });
+};
+
+export const getDocumentHistory = async (fs: string, reference: IDocumentReference,
+                                         token: string | null): Promise<IDocumentData[]> => {
+    let url = import.meta.env.VITE_API_URL + `/file/${fs}/history`;
+    let headers: HeadersInit = {'Content-Type': 'application/json'};
+    if (token) {
+        headers = {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`};
+    }
+    return fetch(url, {
+        method: 'POST', headers: headers, body: JSON.stringify(reference)
+    })
         .then(response => response.json(), () => {
             return Promise.reject("Fetching data failed");
         })
