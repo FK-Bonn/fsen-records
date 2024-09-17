@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {onBeforeMount, type Ref, ref} from "vue";
-import type {IFsDataHistoryEntry} from "@/interfaces";
+import type {IPublicFsDataHistoryEntry} from "@/interfaces";
 import {getFsDataHistory} from "@/util";
 import {useTokenStore} from "@/stores/token";
 import FsDataHistoryEntry from "@/components/fsdata/FsDataHistoryEntry.vue";
@@ -12,7 +12,7 @@ const props = defineProps<{
 
 const token = useTokenStore();
 
-const completedRequest: Ref<IFsDataHistoryEntry[] | null> = ref(null);
+const completedRequest: Ref<IPublicFsDataHistoryEntry[] | null> = ref(null);
 const message: Ref<string | null> = ref(null);
 const close = () => {
   show.value = false;

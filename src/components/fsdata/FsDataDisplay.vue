@@ -1,9 +1,9 @@
 <script setup lang="ts">
 
-import type {IFsData} from "@/interfaces";
+import type {IPublicFsData} from "@/interfaces";
 
 defineProps<{
-  data: IFsData,
+  data: IPublicFsData,
 }>()
 </script>
 

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 
-import type {IFsDataResponse} from "@/interfaces";
+import type {IPublicFsDataResponse} from "@/interfaces";
 
-const data = defineModel<IFsDataResponse>({required: true})
+const data = defineModel<IPublicFsDataResponse>({required: true})
 
 </script>
 

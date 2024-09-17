@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import {computed, type Ref, ref} from "vue";
 import {useAllFsData} from "@/stores/allFsData";
-import type {IFsDataHistoryEntry} from "@/interfaces";
-import {approveFsData, getFsData, putFsData} from "@/util";
+import type {IPublicFsDataHistoryEntry} from "@/interfaces";
+import {approveFsData, getPublicFsData, putPublicFsData} from "@/util";
 import {useTokenStore} from "@/stores/token";
 import TS from "@/components/TS.vue";
 
 const show = defineModel<boolean>({required: true});
 const props = defineProps<{
-  data: IFsDataHistoryEntry,
-  previous: IFsDataHistoryEntry | null,
+  data: IPublicFsDataHistoryEntry,
+  previous: IPublicFsDataHistoryEntry | null,
   fs: string,
 }>();
 
@@ -19,7 +19,7 @@ const allFsData = useAllFsData();
 const message: Ref<string | null> = ref(null);
 
 const loadFsData = () => {
-  getFsData(props.fs, token.apiToken).then(data => {
+  getPublicFsData(props.fs, token.apiToken).then(data => {
     if (allFsData.data && data) {
       allFsData.data[props.fs].data = data;
     }
@@ -34,7 +34,7 @@ const approve = () => {
 }
 
 const restore = () => {
-  putFsData(props.fs, props.data, token.apiToken).then(() => {
+  putPublicFsData(props.fs, props.data, token.apiToken).then(() => {
     loadFsData();
     show.value = false;
   }).catch(() => alert('Speichern fehlgeschlagen.'));

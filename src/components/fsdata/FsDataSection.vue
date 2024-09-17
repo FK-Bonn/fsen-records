@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import {computed, ref} from "vue";
 import {useAllFsData} from "@/stores/allFsData";
-import type {IFsData, IProtectedFsData, IStudentBody} from "@/interfaces";
+import type {IPublicFsData, IProtectedFsData, IStudentBody} from "@/interfaces";
 import {useAccountStore} from "@/stores/account";
-import {getFsData, getProtectedFsData, hasFsPermission, putFsData, putProtectedFsData} from "@/util";
+import {getPublicFsData, getProtectedFsData, hasFsPermission, putPublicFsData, putProtectedFsData} from "@/util";
 import {useTokenStore} from "@/stores/token";
 import FsDataEdit from "@/components/fsdata/FsDataEdit.vue";
 import FsDataDisplay from "@/components/fsdata/FsDataDisplay.vue";
@@ -28,8 +28,8 @@ const showFsProtectedDataHistoryModal = ref(false);
 const data = computed(() => (allFsData.data && Object.prototype.hasOwnProperty.call(allFsData.data, props.studentBody.id)) ? allFsData.data[props.studentBody.id].data : null);
 const protectedData = computed(() => (allFsData.data && Object.prototype.hasOwnProperty.call(allFsData.data, props.studentBody.id)) ? allFsData.data[props.studentBody.id].protected_data : null);
 
-const saveFsData = (data: IFsData) => {
-  putFsData(props.studentBody.id, data, token.apiToken).then(() => reloadFsData())
+const saveFsData = (data: IPublicFsData) => {
+  putPublicFsData(props.studentBody.id, data, token.apiToken).then(() => reloadFsData())
       .catch(() => alert('Speichern fehlgeschlagen.'));
 }
 
@@ -57,7 +57,7 @@ const makeProtectedFsDataEditable = () => {
 }
 
 const loadFsData = () => {
-  getFsData(props.studentBody.id, token.apiToken).then(data => {
+  getPublicFsData(props.studentBody.id, token.apiToken).then(data => {
     if (allFsData.data && data) {
       allFsData.data[props.studentBody.id].data = data;
     }

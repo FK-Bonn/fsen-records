@@ -5,9 +5,6 @@ import type {
     IDocumentData,
     IDocumentDataForFs,
     IDocumentReference,
-    IFsData,
-    IFsDataHistoryEntry,
-    IFsDataResponse,
     IFullPayoutRequestData,
     INewPayoutRequestData,
     IPermission,
@@ -15,7 +12,7 @@ import type {
     IProceedings,
     IProtectedFsData,
     IProtectedFsDataHistoryEntry,
-    IProtectedFsDataResponse,
+    IProtectedFsDataResponse, IPublicFsData, IPublicFsDataHistoryEntry, IPublicFsDataResponse,
     IUserWithPermissions
 } from "@/interfaces";
 import {AnnotationLevel} from "@/interfaces";
@@ -621,7 +618,7 @@ export const getPayoutRequestHistory = async (request_id: string, type: string, 
         });
 }
 
-export const getFsDataHistory = async (fs: string, token: string | null): Promise<IFsDataHistoryEntry[] | null> => {
+export const getFsDataHistory = async (fs: string, token: string | null): Promise<IPublicFsDataHistoryEntry[] | null> => {
     if (!token) {
         return null;
     }
@@ -716,11 +713,11 @@ export const getAllFsData = async (token: string | null): Promise<IAllFsData | n
             return json;
         });
 }
-export const getFsData = async (fs: string, token: string | null): Promise<IFsDataResponse | null> => {
+export const getPublicFsData = async (fs: string, token: string | null): Promise<IPublicFsDataResponse | null> => {
     if (!token) {
         return null;
     }
-    return fetch(import.meta.env.VITE_API_URL + '/data/' + fs, {
+    return fetch(import.meta.env.VITE_API_URL + '/data/' + fs + '/public', {
         method: 'GET',
         headers: {'Authorization': `Bearer ${token}`}
     })
@@ -739,11 +736,11 @@ export const getFsData = async (fs: string, token: string | null): Promise<IFsDa
         });
 }
 
-export const putFsData = async (fs: string, data: IFsData, token: string | null): Promise<void> => {
+export const putPublicFsData = async (fs: string, data: IPublicFsData, token: string | null): Promise<void> => {
     if (!token) {
         return;
     }
-    return fetch(import.meta.env.VITE_API_URL + '/data/' + fs, {
+    return fetch(import.meta.env.VITE_API_URL + '/data/' + fs + '/public', {
         method: 'PUT',
         headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
         body: JSON.stringify(data)

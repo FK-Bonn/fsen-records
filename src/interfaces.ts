@@ -162,7 +162,7 @@ export interface IEmailAddress {
     usages: string[]
 }
 
-export interface IFsData {
+export interface IPublicFsData {
     email: string
     phone: string
     website: string
@@ -172,12 +172,12 @@ export interface IFsData {
     other: object
 }
 
-export interface IFsDataResponse {
-    data: IFsData
+export interface IPublicFsDataResponse {
+    data: IPublicFsData
     is_latest: boolean
 }
 
-export interface IFsDataHistoryEntry extends IFsData {
+export interface IPublicFsDataHistoryEntry extends IPublicFsData {
     id: number
     user: string
     timestamp: string
@@ -222,7 +222,7 @@ export interface IProtectedFsDataResponse {
 }
 
 export interface IAllFsData {
-    [key: string]: { data?: IFsDataResponse, protected_data?: IProtectedFsDataResponse }
+    [key: string]: { data?: IPublicFsDataResponse, protected_data?: IProtectedFsDataResponse }
 }
 
 export interface IProceedings {
