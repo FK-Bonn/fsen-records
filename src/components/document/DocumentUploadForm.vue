@@ -131,7 +131,7 @@ const upload = () => {
 <template>
   <div class="card-content" v-if="account?.user?.admin">
     <div class="content">
-      <form class="box has-background-light">
+      <form class="box">
         <details>
           <summary>Neues Dokument hochladen</summary>
 
