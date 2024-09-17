@@ -2,7 +2,7 @@
 import type {IProceedings} from "@/interfaces";
 import IconPeople from "@/components/icons/IconPeople.vue";
 import {useAccountStore} from "@/stores/account";
-import {committeeToFullName, deleteProceedings, formatDate, hasFsPermission} from "@/util";
+import {committeeToFullName, deleteProceedings, hasFsPermission} from "@/util";
 import {computed} from "vue";
 import UploadForm from "@/components/proceedings/UploadForm.vue";
 import {useTokenStore} from "@/stores/token";
@@ -18,15 +18,13 @@ const emit = defineEmits<{
   reloadProceedings: []
 }>()
 
-const baseUrl = import.meta.env.VITE_API_URL;
-
 const account = useAccountStore();
 const token = useTokenStore();
 
 const deleteTheseProceedings = (item: IProceedings) => {
   const result = confirm(`Soll Prot-${item.committee}-${item.date}.pdf wirklich gelöscht werden?`);
   if (result) {
-    deleteProceedings(props.fs, item.committee, item.date, token.apiToken).then(value => emit('reloadProceedings'));
+    deleteProceedings(props.fs, item.committee, item.date, token.apiToken).then(() => emit('reloadProceedings'));
   }
 }
 

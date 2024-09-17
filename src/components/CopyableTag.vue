@@ -2,12 +2,12 @@
 import {copyToClipboard} from "@/util";
 import {type Ref, ref} from "vue";
 
-const props = withDefaults(defineProps<{
+const props = defineProps<{
   text: string,
   copyText: string | undefined,
   bold: boolean,
   tagClass: string,
-}>(), {copyText: undefined, bold: false, tagClass: 'is-light'})
+}>();
 
 const textOverride: Ref<string | null> = ref(null);
 const clickCallback = () => {

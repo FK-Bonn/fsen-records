@@ -2,26 +2,26 @@
 import type {IFullPayoutRequestData, INewPayoutRequestData} from "@/interfaces";
 import CopyableTag from "@/components/CopyableTag.vue";
 import {computed} from "vue";
-import {euroCents, getStatusTagClass} from "@/util";
+import {euroCents} from "@/util";
+import SimpleCopyableTag from "@/components/SimpleCopyableTag.vue";
 
-const props = withDefaults(defineProps<{
-  payoutRequest: INewPayoutRequestData | IFullPayoutRequestData,
+const props = defineProps<{
+  payoutRequest: INewPayoutRequestData | IFullPayoutRequestData | null,
   previous: INewPayoutRequestData | IFullPayoutRequestData | null,
-}>(), {previous: null})
-const tagClass = computed(() => getStatusTagClass(props.payoutRequest));
-const previousTagClass = computed(() => getStatusTagClass(props.previous));
-const categoryChanged = computed(() => props.previous && props.previous?.category !== props.payoutRequest.category);
-const requestDateChanged = computed(() => props.previous && props.previous?.request_date !== props.payoutRequest.request_date);
-const statusChanged = computed(() => props.previous && props.previous?.status !== props.payoutRequest.status);
-const statusDateChanged = computed(() => props.previous && props.previous?.status_date !== props.payoutRequest.status_date);
-const amountCentsChanged = computed(() => props.previous && props.previous?.amount_cents !== props.payoutRequest.amount_cents);
-const commentChanged = computed(() => props.previous && props.previous?.comment !== props.payoutRequest.comment);
-const deadlineChanged = computed(() => props.previous && props.previous?.completion_deadline !== props.payoutRequest.completion_deadline);
-const referenceChanged = computed(() => props.previous && props.previous?.reference !== props.payoutRequest.reference);
+}>();
+const categoryChanged = computed(() => props.previous && props.previous?.category !== props.payoutRequest?.category);
+const requestDateChanged = computed(() => props.previous && props.previous?.request_date !== props.payoutRequest?.request_date);
+const statusChanged = computed(() => props.previous && props.previous?.status !== props.payoutRequest?.status);
+const statusDateChanged = computed(() => props.previous && props.previous?.status_date !== props.payoutRequest?.status_date);
+const amountCentsChanged = computed(() => props.previous && props.previous?.amount_cents !== props.payoutRequest?.amount_cents);
+const commentChanged = computed(() => props.previous && props.previous?.comment !== props.payoutRequest?.comment);
+const deadlineChanged = computed(() => props.previous && props.previous?.completion_deadline !== props.payoutRequest?.completion_deadline);
+const referenceChanged = computed(() => props.previous && props.previous?.reference !== props.payoutRequest?.reference);
 </script>
 
 <template>
-  <table class="table is-narrow">
+  <table class="table is-narrow" v-if="payoutRequest !== null">
+    <tbody>
     <tr>
       <th>Fachschaft</th>
       <td>{{ payoutRequest.fs }}</td>
@@ -33,7 +33,7 @@ const referenceChanged = computed(() => props.previous && props.previous?.refere
     <tr>
       <th>Antragsnummer</th>
       <td>
-        <CopyableTag :text="payoutRequest.request_id"/>
+        <SimpleCopyableTag :text="payoutRequest.request_id"/>
       </td>
     </tr>
     <tr :class="categoryChanged ? 'has-background-warning' : ''">
@@ -74,12 +74,15 @@ const referenceChanged = computed(() => props.previous && props.previous?.refere
     <tr :class="amountCentsChanged ? 'has-background-warning' : ''">
       <th>Betrag</th>
       <td v-if="!amountCentsChanged">
-        <CopyableTag :text="euroCents(payoutRequest.amount_cents)" :bold="true"/>
+        <CopyableTag :text="euroCents(payoutRequest.amount_cents)" :copy-text="undefined" :bold="true"
+                     tag-class="is-light"/>
       </td>
       <td v-else>
-        <CopyableTag :text="euroCents(previous?.amount_cents)" tagClass="is-light is-strikethrough"/>
+        <CopyableTag :text="euroCents(previous?.amount_cents)" :copy-text="undefined"
+                     tagClass="is-light is-strikethrough" :bold="false"/>
         <br>
-        <CopyableTag :text="euroCents(payoutRequest.amount_cents)" :bold="true"/>
+        <CopyableTag :text="euroCents(payoutRequest.amount_cents)" :copy-text="undefined" :bold="true"
+                     tag-class="is-light"/>
       </td>
     </tr>
     <tr :class="commentChanged ? 'has-background-warning' : ''">
@@ -127,6 +130,7 @@ const referenceChanged = computed(() => props.previous && props.previous?.refere
         }}
       </td>
     </tr>
+    </tbody>
   </table>
 </template>
 

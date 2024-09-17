@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {type Ref, type ComputedRef, computed, ref, watch} from "vue";
+import {computed, type ComputedRef, type Ref, ref, watch} from "vue";
 import type {IDocumentData, IDocumentReference} from "@/interfaces";
 import AutocompleteInput from "@/components/AutocompleteInput.vue";
 import {useDocumentsStore} from "@/stores/documents";
@@ -9,7 +9,7 @@ const props = defineProps<{
   fs: string,
 }>()
 
-const emit = defineEmits<{
+defineEmits<{
   input: []
 }>()
 

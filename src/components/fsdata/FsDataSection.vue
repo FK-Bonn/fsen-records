@@ -25,8 +25,8 @@ const editProtectedFsData = ref(false);
 const showFsDataHistoryModal = ref(false);
 const showFsProtectedDataHistoryModal = ref(false);
 
-const data = computed(() => allFsData.data?.hasOwnProperty(props.studentBody.id) ? allFsData.data && allFsData.data[props.studentBody.id].data : null);
-const protectedData = computed(() => allFsData.data?.hasOwnProperty(props.studentBody.id) ? allFsData.data && allFsData.data[props.studentBody.id].protected_data : null);
+const data = computed(() => (allFsData.data && Object.prototype.hasOwnProperty.call(allFsData.data, props.studentBody.id)) ? allFsData.data[props.studentBody.id].data : null);
+const protectedData = computed(() => (allFsData.data && Object.prototype.hasOwnProperty.call(allFsData.data, props.studentBody.id)) ? allFsData.data[props.studentBody.id].protected_data : null);
 
 const saveFsData = (data: IFsData) => {
   putFsData(props.studentBody.id, data, token.apiToken).then(() => reloadFsData())

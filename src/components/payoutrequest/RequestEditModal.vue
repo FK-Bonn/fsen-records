@@ -38,7 +38,7 @@ const setStatusDateToToday = () => {
   status_date.value = formatIsoDate(today);
 }
 
-watch(status, async (newStatus, oldStatus) => {
+watch(status, async () => {
   setStatusDateToToday();
 })
 
@@ -119,7 +119,7 @@ const reloadPayoutRequestData = () => {
                   {{ message }}
                 </div>
               </article>
-              <PayoutRequestTable v-if="completedRequest" :payoutRequest="completedRequest"/>
+              <PayoutRequestTable v-if="completedRequest" :payoutRequest="completedRequest" :previous="null"/>
             </div>
           </div>
           <footer class="card-footer">
@@ -130,6 +130,7 @@ const reloadPayoutRequestData = () => {
           <div class="card-content">
             <div class="content">
               <table class="table is-narrow">
+                <tbody>
                 <tr>
                   <th>Fachschaft</th>
                   <td>{{ payoutRequest.fs }}</td>
@@ -209,6 +210,7 @@ const reloadPayoutRequestData = () => {
                     }}
                   </td>
                 </tr>
+                </tbody>
               </table>
             </div>
           </div>

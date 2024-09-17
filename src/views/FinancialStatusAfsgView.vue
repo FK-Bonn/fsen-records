@@ -17,7 +17,7 @@ const mangleData = (data: Map<string, INewPayoutRequestData[]> | null): Map<stri
     return new Map();
   }
   const retval: Map<string, Map<string, CountWithSum>> = new Map<string, Map<string, CountWithSum>>();
-  for (let [fs, requests] of data) {
+  for (let [, requests] of data) {
     for (let request of requests) {
       const semesterkey = request.semester;
       if (!retval.has(semesterkey)) {
@@ -35,7 +35,7 @@ const getHeaders = (data: Map<string, INewPayoutRequestData[]> | null): string[]
     return [];
   }
   const headers: string[] = ['GESTELLT', 'VOLLSTÄNDIG', 'ANGEWIESEN', 'ÜBERWIESEN', 'FAILED'];
-  for (let [fs, requests] of data) {
+  for (let [, requests] of data) {
     for (let request of requests) {
       if (!headers.includes(request.status)) {
         headers.push(request.status);
@@ -91,9 +91,9 @@ const totalPayoutRequestCount = () => {
     </tr>
     </thead>
     <tbody>
-    <tr v-for="semester in [...semesters.keys()].sort().reverse()">
+    <tr v-for="semester in [...semesters.keys()].sort().reverse()" :key="semester">
       <th>{{ semester }}</th>
-      <template v-for="status in headers">
+      <template v-for="status in headers" :key="status">
         <td><span class="tag is-light">{{ semesters.get(semester)?.get(status)?.count || 0 }}</span></td>
         <td>{{ euroCents(semesters.get(semester)?.get(status)?.sum) }}</td>
       </template>

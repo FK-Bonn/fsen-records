@@ -1,15 +1,8 @@
 <script setup lang="ts">
 import {computed, type Ref, ref} from "vue";
 import {useAllFsData} from "@/stores/allFsData";
-import type {IEmailAddress, IFsDataHistoryEntry, IProtectedFsDataHistoryEntry} from "@/interfaces";
-import {
-  approveFsData,
-  approveProtectedFsData,
-  getFsData,
-  getProtectedFsData,
-  putFsData,
-  putProtectedFsData
-} from "@/util";
+import type {IEmailAddress, IProtectedFsDataHistoryEntry} from "@/interfaces";
+import {approveProtectedFsData, getProtectedFsData, putProtectedFsData} from "@/util";
 import {useTokenStore} from "@/stores/token";
 import TS from "@/components/TS.vue";
 

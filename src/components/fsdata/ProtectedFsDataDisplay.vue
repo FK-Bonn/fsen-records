@@ -26,9 +26,9 @@ defineProps<{
       </tr>
       </thead>
       <tbody>
-      <tr v-for="emailAddress in data.email_addresses">
+      <tr v-for="emailAddress in data.email_addresses" :key="emailAddress.address">
         <th>{{ emailAddress.address }}</th>
-        <template v-for="usage in ['kontakt', 'fsl', 'finanzen']">
+        <template v-for="usage in ['kontakt', 'fsl', 'finanzen']" :key="usage">
           <td>{{ emailAddress.usages.includes(usage) ? '✔️' : '' }}</td>
         </template>
       </tr>

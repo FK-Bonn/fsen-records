@@ -9,7 +9,8 @@ import {
   hasFsPermission,
   loadUsersList,
   PERMISSIONS,
-  permissionToString, updatePageTitle
+  permissionToString,
+  updatePageTitle
 } from "@/util";
 import {useAccountStore} from "@/stores/account";
 import {useScieboDataStore} from "@/stores/scieboData";

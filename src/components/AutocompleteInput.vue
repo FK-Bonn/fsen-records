@@ -14,7 +14,7 @@ const emit = defineEmits<{
   input: []
 }>()
 
-const selected = defineModel<IDocumentData>({required: true});
+const selected = defineModel<IDocumentData|null>({required: true});
 
 const root: Ref<null | HTMLDivElement> = ref(null);
 
@@ -63,7 +63,7 @@ const filterResults = () => {
   });
 }
 
-const onChange = (payload: Event) => {
+const onChange = () => {
   emit('input');
 
   if (props.isAsync) {

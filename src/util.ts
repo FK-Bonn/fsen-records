@@ -6,6 +6,7 @@ import type {
     IDocumentDataForFs,
     IDocumentReference,
     IFsData,
+    IFsDataHistoryEntry,
     IFsDataResponse,
     IFullPayoutRequestData,
     INewPayoutRequestData,
@@ -19,7 +20,6 @@ import type {
 } from "@/interfaces";
 import {AnnotationLevel} from "@/interfaces";
 import type {Interval} from "@/Calculator";
-import {computed} from "vue";
 
 export const PERMISSIONS: (IPermissionKey)[] = [
     'read_files',
@@ -579,7 +579,7 @@ export const getDocumentData = async (fixedDate: string | null = null): Promise<
 
 export const getDocumentHistory = async (fs: string, reference: IDocumentReference,
                                          token: string | null): Promise<IDocumentData[]> => {
-    let url = import.meta.env.VITE_API_URL + `/file/${fs}/history`;
+    const url = import.meta.env.VITE_API_URL + `/file/${fs}/history`;
     let headers: HeadersInit = {'Content-Type': 'application/json'};
     if (token) {
         headers = {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`};
@@ -621,7 +621,7 @@ export const getPayoutRequestHistory = async (request_id: string, type: string, 
         });
 }
 
-export const getFsDataHistory = async (fs: string, token: string | null): Promise<IFsData[] | null> => {
+export const getFsDataHistory = async (fs: string, token: string | null): Promise<IFsDataHistoryEntry[] | null> => {
     if (!token) {
         return null;
     }
@@ -668,7 +668,7 @@ export const approveFsData = async (id: number, token: string | null): Promise<{
                 return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
             }
         })
-        .then(json => {
+        .then(() => {
             return {message: 'Daten bestätigt.'};
         }, reason => {
             return {message: reason};
@@ -693,7 +693,7 @@ export const approveProtectedFsData = async (id: number, token: string | null): 
                 return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
             }
         })
-        .then(json => {
+        .then(() => {
             return {message: 'Interne Daten bestätigt.'};
         }, reason => {
             return {message: reason};
@@ -988,7 +988,7 @@ export const hasAnyPermission = (u: IUserWithPermissions) => {
     if (u.admin) {
         return true;
     }
-    for (let permission of u.permissions) {
+    for (const permission of u.permissions) {
         if (permission.read_permissions
             || permission.write_permissions
             || permission.read_files

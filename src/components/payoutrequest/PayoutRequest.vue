@@ -10,12 +10,13 @@ import RequestModal from "@/components/payoutrequest/RequestModal.vue";
 import RequestHistoryModal from "@/components/payoutrequest/RequestHistoryModal.vue";
 import RequestEditModal from "@/components/payoutrequest/RequestEditModal.vue";
 import {useFixedDateStore} from "@/stores/fixedDate";
+import SimpleCopyableTag from "@/components/SimpleCopyableTag.vue";
 
 const props = defineProps<{
   payoutRequest: INewPayoutRequestData | undefined,
   fsName: string,
   fsId: string,
-  budgetTitle: string,
+  budgetTitle: string | null | undefined,
   semester: Interval,
 }>()
 
@@ -29,12 +30,12 @@ const historyModal = ref(false);
 
 
 const getTableLine = (allData: IAllFsData | null, payoutRequest: INewPayoutRequestData | undefined,
-                      fsName: string, fsId: string, budgetTitle: string): string => {
+                      fsName: string, fsId: string, budgetTitle: string | null | undefined): string => {
   if (!payoutRequest) {
     return '';
   }
   let iban = 'IBAN';
-  if (allData?.hasOwnProperty(fsId)) {
+  if (allData && Object.prototype.hasOwnProperty.call(allData, fsId)) {
     const fsData = allData[fsId];
     if (fsData.protected_data) {
       if (fsData.protected_data.is_latest) {
@@ -72,9 +73,10 @@ const isRequestAllowed = computed(() => fixedDate.date === null && isBeforeOrOnL
 <template>
   <template v-if="payoutRequest">
     <div class="tags card-header-icon">
-      <CopyableTag :tagClass="tagClass" :text="payoutRequest.status" :copyText="tableLine"/>
-      <CopyableTag :text="payoutRequest.request_id"/>
-      <CopyableTag :text="euroCents(payoutRequest.amount_cents)" :bold="true"/>
+      <CopyableTag :tagClass="tagClass" :text="payoutRequest.status" :copyText="tableLine" :bold="false"/>
+      <SimpleCopyableTag :text="payoutRequest.request_id"/>
+      <CopyableTag :text="euroCents(payoutRequest.amount_cents)" :copy-text="undefined" tag-class="is-light"
+                   :bold="true"/>
       <button class="button is-small" @click.stop="showHistoryModal" title="Bearbeitungsverlauf anzeigen">
         📜
       </button>

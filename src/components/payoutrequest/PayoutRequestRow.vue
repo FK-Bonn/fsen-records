@@ -9,6 +9,7 @@ import {computed, ref} from "vue";
 import {useAllFsData} from "@/stores/allFsData";
 import RequestEditModal from "@/components/payoutrequest/RequestEditModal.vue";
 import RequestHistoryModal from "@/components/payoutrequest/RequestHistoryModal.vue";
+import SimpleCopyableTag from "@/components/SimpleCopyableTag.vue";
 
 const props = defineProps<{
   payoutRequest: INewPayoutRequestData,
@@ -34,7 +35,7 @@ const getTableLine = (allData: IAllFsData | null, payoutRequest: INewPayoutReque
   let iban = 'IBAN';
   const fsId = payoutRequest.fs;
   const fsName = fsId;
-  if (allData?.hasOwnProperty(fsId)) {
+  if (Object.prototype.hasOwnProperty.call(allData, fsId)) {
     const fsData = allData[fsId];
     if (fsData.protected_data) {
       if (fsData.protected_data.is_latest) {
@@ -73,19 +74,20 @@ const tableLine = computed(() => getTableLine(fsData.data, props.payoutRequest, 
 <template>
   <tr>
     <td>
-      <CopyableTag :text="payoutRequest.request_id"/>
+      <SimpleCopyableTag :text="payoutRequest.request_id"/>
     </td>
     <td v-if="!singleFS"><span class="fs-name">{{payoutRequest.fs}}</span></td>
     <td>
-      <CopyableTag v-if="payoutRequest.reference" :text="payoutRequest.reference"/>
+      <SimpleCopyableTag v-if="payoutRequest.reference" :text="payoutRequest.reference"/>
     </td>
     <td>{{ payoutRequest.category }}</td>
     <td>{{ payoutRequest.semester }}</td>
     <td>
-      <CopyableTag :text="euroCents(payoutRequest.amount_cents)" :bold="true"/>
+      <CopyableTag :text="euroCents(payoutRequest.amount_cents)" :copy-text="undefined" :bold="true"
+                   tag-class="is-light"/>
     </td>
     <td>
-      <CopyableTag :tagClass="tagClass" :text="payoutRequest.status" :copyText="tableLine"/>
+      <CopyableTag :tagClass="tagClass" :text="payoutRequest.status" :copyText="tableLine" :bold="false"/>
     </td>
     <td>
       <button class="button is-small" @click.stop="showHistoryModal"

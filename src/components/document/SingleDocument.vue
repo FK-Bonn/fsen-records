@@ -10,9 +10,7 @@ import {useAccountStore} from "@/stores/account";
 import {hasFsPermission, shortenFilename} from "@/util";
 import {usePageSettingsStore} from "@/stores/pageSettings";
 import DocumentName from "@/components/document/DocumentName.vue";
-import RequestHistoryModal from "@/components/payoutrequest/RequestHistoryModal.vue";
 import AnnotationsEditModal from "@/components/document/AnnotationsEditModal.vue";
-import CopyableTag from "@/components/CopyableTag.vue";
 import DocumentHistoryModal from "@/components/document/DocumentHistoryModal.vue";
 
 const props = defineProps<{

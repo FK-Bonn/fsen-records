@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type {IStudentBody} from "@/interfaces";
-import {computed, ref} from "vue";
+import {computed} from "vue";
 import {CurrentlyCanBePaidCalculator, Interval, SemesterCalculator} from "@/Calculator";
 import {useScieboDataStore} from "@/stores/scieboData";
 import IconPeople from "@/components/icons/IconPeople.vue";

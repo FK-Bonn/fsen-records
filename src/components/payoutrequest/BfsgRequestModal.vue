@@ -1,14 +1,7 @@
 <script setup lang="ts">
 
 import type {INewPayoutRequestData} from "@/interfaces";
-import {Interval} from "@/Calculator";
-import {
-  calculateSemesterId,
-  calculateSemesterName,
-  createBfsgPayoutRequest,
-  createPayoutRequest,
-  getPayoutRequestData
-} from "@/util";
+import {createBfsgPayoutRequest, getPayoutRequestData} from "@/util";
 import {computed, ref, type Ref} from "vue";
 import {useTokenStore} from "@/stores/token";
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
@@ -101,7 +94,7 @@ const reloadPayoutRequestData = () => {
                   {{ message }}
                 </div>
               </article>
-              <PayoutRequestTable v-if="completedRequest" :payoutRequest="completedRequest"/>
+              <PayoutRequestTable v-if="completedRequest" :payoutRequest="completedRequest" :previous="null"/>
             </div>
           </div>
           <footer class="card-footer">

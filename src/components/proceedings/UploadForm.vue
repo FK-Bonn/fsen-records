@@ -40,7 +40,7 @@ const upload = () => {
   error.value = null;
   success.value = null;
   if (file.value && committee.value && date.value) {
-    uploadProceedings(props.fs, file.value, committee.value, date.value, tags.value, token.apiToken).then(value => {
+    uploadProceedings(props.fs, file.value, committee.value, date.value, tags.value, token.apiToken).then(() => {
       success.value = 'Upload erfolgreich';
       file.value = null;
       if (fileInput.value) {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type {IDocumentData, IDocumentReference} from "@/interfaces";
-import {computed, ref} from "vue";
+import {computed} from "vue";
 import {jsonRepresentationIsDifferent, shortenFilename} from "../../util";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
 

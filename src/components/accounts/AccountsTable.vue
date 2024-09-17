@@ -2,7 +2,6 @@
 import type {IUserWithPermissions} from "@/interfaces";
 import {permissionsToString} from "@/util";
 import {useAccountStore} from "@/stores/account";
-import CopyableTag from "@/components/CopyableTag.vue";
 
 const props = defineProps<{
   users: IUserWithPermissions[],
@@ -30,7 +29,7 @@ const hasEditPermission = () => {
     <tbody>
     <tr v-for="user in props.users" :key="user.username">
       <td>
-        <CopyableTag :text="user.username"/>
+        <SimpleCopyableTag :text="user.username"/>
         <br><small class="has-text-grey-light">erstellt von {{ user.created_by }}</small>
       </td>
       <td>

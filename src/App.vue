@@ -8,12 +8,11 @@ import {useAccountStore} from "@/stores/account";
 import {useAllFsData} from "@/stores/allFsData";
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
 import {computed, onBeforeMount, type Ref, ref, watch} from "vue";
-import type {IData, IDocumentData} from "@/interfaces";
+import type {IData} from "@/interfaces";
 import {useScieboDataStore} from "@/stores/scieboData";
 import {useStudentBodiesStore} from "@/stores/studentBodies";
 import ErrorList from "@/components/ErrorList.vue";
 import {useFixedDateStore} from "@/stores/fixedDate";
-import FixedDateBanner from "@/components/FixedDateBanner.vue";
 import {useDocumentsStore} from "@/stores/documents";
 
 

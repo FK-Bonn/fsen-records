@@ -2,7 +2,7 @@
 import type {IStudentBody} from "@/interfaces";
 import IconWarning from "@/components/icons/IconWarning.vue";
 import FsDataSection from "@/components/fsdata/FsDataSection.vue";
-import {computed, ref} from "vue";
+import {computed} from "vue";
 import {CurrentlyCanBePaidCalculator, Interval} from "@/Calculator";
 import CurrentlyCanBePaidSection from "@/components/studentbody/CurrentlyCanBePaidSection.vue";
 import SemesterSection from "@/components/studentbody/SemesterSection.vue";
@@ -26,7 +26,7 @@ const fixedDate = useFixedDateStore();
 const documents = useDocumentsStore();
 
 const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.studentBody, fixedDate.date, documents.data));
-const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fromStrings(value.start, value.end)))
+const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fromStrings(value.start, value.end)).filter(value => !!value))
 
 </script>
 

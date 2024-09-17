@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type {IDocumentData, IFullPayoutRequestData, INewPayoutRequestData} from "@/interfaces";
+import type {IDocumentData} from "@/interfaces";
 import {refKey} from "@/util";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
-import Sha256 from "@/components/document/Sha256.vue";
+import Sha256Text from "@/components/document/Sha256Text.vue";
 import {computed} from "vue";
 
 const props = defineProps<{
@@ -38,7 +38,7 @@ const annotationCreatedByClass = computed(() => hasDifference(props.previous, pr
   <tr>
     <th :class="sha256Class">sha256</th>
     <td :class="sha256Class">
-      <Sha256 :value="document.sha256hash"/>
+      <Sha256Text :value="document.sha256hash"/>
     </td>
     <th :class="tagsClass">Tags</th>
     <td :class="tagsClass">{{ document.tags?.join(', ') }}</td>

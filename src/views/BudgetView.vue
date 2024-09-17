@@ -20,7 +20,7 @@ const mangleData = (data: Map<string, INewPayoutRequestData[]> | null): Map<stri
     return new Map();
   }
   const retval: Map<string, SemesterSums> = new Map<string, SemesterSums>();
-  for (let [fs, requests] of data) {
+  for (let [, requests] of data) {
     for (let request of requests) {
       if (!retval.has(request.semester)) {
         retval.set(request.semester, {open: 0, completed: 0});
@@ -44,7 +44,7 @@ const getSumForStatus = (data: Map<string, INewPayoutRequestData[]> | null, stat
     return 0;
   }
   let retval = 0;
-  for (let [fs, requests] of data) {
+  for (let [, requests] of data) {
     for (let request of requests) {
       if (request.status === status) {
         retval += request.amount_cents;

@@ -5,7 +5,7 @@ import {ref} from "vue";
 import type {IStudentBody} from "@/interfaces";
 import DocumentsList from "@/components/document/DocumentsList.vue";
 import DocumentUploadForm from "@/components/document/DocumentUploadForm.vue";
-import {getDocumentData, loadProceedingsIndex} from "@/util";
+import {getDocumentData} from "@/util";
 import {useDocumentsStore} from "@/stores/documents";
 import {useFixedDateStore} from "@/stores/fixedDate";
 

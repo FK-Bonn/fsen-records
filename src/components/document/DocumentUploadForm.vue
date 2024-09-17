@@ -6,7 +6,7 @@ import {useAccountStore} from "@/stores/account";
 import {annotateDocument, uploadDocument} from "@/util";
 import ReferencesEditor from "@/components/document/ReferencesEditor.vue";
 import AnnotationsEditor from "@/components/document/AnnotationsEditor.vue";
-import type {IAnnotation, IDocumentData, IDocumentReference} from "@/interfaces";
+import type {IAnnotation, IDocumentReference} from "@/interfaces";
 
 const props = defineProps<{
   fs: string,
@@ -98,7 +98,7 @@ const upload = () => {
     uploadDocument(props.fs, file.value, 'AFSG', base_name.value, date_start.value,
         showDateEnd.value ? date_end.value : null, null, token.apiToken).catch(reason => {
       error.value = 'Ein Fehler beim Hochladen ist aufgetreten: ' + reason;
-    }).then(value => {
+    }).then(() => {
       success.value = 'Upload erfolgreich';
       file.value = null;
       if (fileInput.value) {
@@ -112,7 +112,7 @@ const upload = () => {
       const referencesData = references.value.length ? references.value : null;
       const urlData = url.value ? url.value : null;
       return annotateDocument(props.fs, target, annotationsData, tagsData, referencesData, urlData, token.apiToken);
-    }).then(value => {
+    }).then(() => {
       annotateSuccess.value = 'Annotation erfolgreich';
       annotations.value = [];
       tags.value = '';

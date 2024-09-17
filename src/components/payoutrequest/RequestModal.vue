@@ -65,7 +65,7 @@ const reloadPayoutRequestData = () => {
                   {{ message }}
                 </div>
               </article>
-              <PayoutRequestTable v-if="completedRequest" :payoutRequest="completedRequest"/>
+              <PayoutRequestTable v-if="completedRequest" :payoutRequest="completedRequest" :previous="null"/>
             </div>
           </div>
           <footer class="card-footer">
