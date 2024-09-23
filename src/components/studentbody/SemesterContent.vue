@@ -2,7 +2,7 @@
 
 import {usePageSettingsStore} from "@/stores/pageSettings";
 import {computed} from "vue";
-import type {IStudentBody} from "@/interfaces";
+import type {IBaseFsData} from "@/interfaces";
 import {type Interval, SemesterCalculator} from "@/Calculator";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
 import RelevantDocumentsWithProceedings from "@/components/document/RelevantDocumentsWithProceedings.vue";
@@ -11,14 +11,14 @@ import {useDocumentsStore} from "@/stores/documents";
 import SingleDocument from "@/components/document/SingleDocument.vue";
 
 const props = defineProps<{
-  studentBody: IStudentBody,
+  baseData: IBaseFsData,
   semester: Interval
 }>()
 
 const settings = usePageSettingsStore();
 const documents = useDocumentsStore();
 
-const calculator = computed(() => new SemesterCalculator(props.studentBody, props.semester, documents.data));
+const calculator = computed(() => new SemesterCalculator(props.baseData, props.semester, documents.data));
 const mostRecentElection = computed(() => calculator.value.getMostRecentElection());
 </script>
 
@@ -31,7 +31,7 @@ const mostRecentElection = computed(() => calculator.value.getMostRecentElection
           :overallLevel="calculator.getBudgetLevel()"
           :documents="calculator.getRelevantBudgets()"
           :covered="calculator.isSemesterCoveredByBudgets()"
-          :studentBody="studentBody"/>
+          :baseData="baseData"/>
 
       <h5 class="title is-5">
         <IconForLevel :level="calculator.getBalanceLevel()"/>
@@ -44,7 +44,7 @@ const mostRecentElection = computed(() => calculator.value.getMostRecentElection
         </li>
         <template v-for="balance in calculator.getRelevantBalances()" :key="balance.filename">
           <li class="document level-{VerdictCalculator.getWorstAnnotationLevel(balance.annotations)}">
-            <SingleDocument :document="balance" :studentBody="studentBody"/>
+            <SingleDocument :document="balance" :baseData="baseData"/>
           </li>
         </template>
         <li v-if="calculator.getRelevantBalances().length === 0">
@@ -59,13 +59,13 @@ const mostRecentElection = computed(() => calculator.value.getMostRecentElection
           :overallLevel="calculator.getCashAuditLevel()"
           :documents="calculator.getRelevantCashAudits()"
           :covered="calculator.isSemesterCoveredByCashAudits()"
-          :studentBody="studentBody"/>
+          :baseData="baseData"/>
 
       <h5 class="title is-5">
         <IconForLevel :level="calculator.getElectionLevel()"/>
         Wahlergebnis
       </h5>
-      <SingleDocument v-if="mostRecentElection" :document="mostRecentElection" :studentBody="studentBody"/>
+      <SingleDocument v-if="mostRecentElection" :document="mostRecentElection" :baseData="baseData"/>
       <template v-else>
         <IconCross/>
         Fehlt!

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type {IStudentBody} from "@/interfaces";
+import type {IBaseFsData} from "@/interfaces";
 import {computed, ref} from "vue";
 import {CurrentlyCanBePaidCalculator} from "@/Calculator";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
@@ -9,7 +9,7 @@ import {useFixedDateStore} from "@/stores/fixedDate";
 import {useDocumentsStore} from "@/stores/documents";
 
 const props = defineProps<{
-  studentBody: IStudentBody,
+  baseData: IBaseFsData,
 }>()
 
 const fixedDate = useFixedDateStore();
@@ -19,12 +19,12 @@ const opened = ref(false);
 const toggle = () => {
   opened.value = !opened.value;
 }
-const calculateLevel = (studentBody: IStudentBody, fixedDate: string | null) => {
-  const calculator = new CurrentlyCanBePaidCalculator(studentBody, fixedDate, documents.data);
+const calculateLevel = (baseData: IBaseFsData, fixedDate: string | null) => {
+  const calculator = new CurrentlyCanBePaidCalculator(baseData, fixedDate, documents.data);
   return calculator.calculateOverallLevel();
 }
 
-const level = computed(() => calculateLevel(props.studentBody, fixedDate.date))
+const level = computed(() => calculateLevel(props.baseData, fixedDate.date))
 </script>
 
 <template>
@@ -37,7 +37,7 @@ const level = computed(() => calculateLevel(props.studentBody, fixedDate.date))
         <AngleIndicator :opened="opened"/>
       </button>
     </header>
-    <CurrentlyCanBePaidContent v-if="opened" :studentBody="studentBody"/>
+    <CurrentlyCanBePaidContent v-if="opened" :baseData="baseData"/>
   </div>
 </template>
 

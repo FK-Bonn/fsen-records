@@ -1,6 +1,9 @@
 import type {
     IAllFsData,
     IAnnotation,
+    IBaseFsData,
+    IBaseFsDataHistoryEntry,
+    IBaseFsDataResponse,
     IData,
     IDocumentData,
     IDocumentDataForFs,
@@ -12,7 +15,10 @@ import type {
     IProceedings,
     IProtectedFsData,
     IProtectedFsDataHistoryEntry,
-    IProtectedFsDataResponse, IPublicFsData, IPublicFsDataHistoryEntry, IPublicFsDataResponse,
+    IProtectedFsDataResponse,
+    IPublicFsData,
+    IPublicFsDataHistoryEntry,
+    IPublicFsDataResponse,
     IUserWithPermissions
 } from "@/interfaces";
 import {AnnotationLevel} from "@/interfaces";
@@ -618,11 +624,25 @@ export const getPayoutRequestHistory = async (request_id: string, type: string, 
         });
 }
 
-export const getFsDataHistory = async (fs: string, token: string | null): Promise<IPublicFsDataHistoryEntry[] | null> => {
+export const getBaseFsDataHistory = async (fs: string, token: string | null): Promise<IBaseFsDataHistoryEntry[] | null> => {
     if (!token) {
         return null;
     }
-    const url = import.meta.env.VITE_API_URL + `/data/${fs}/history`;
+    const url = import.meta.env.VITE_API_URL + `/data/${fs}/base/history`;
+    return fetch(url, {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
+        .then(response => response.json(), () => {
+            return Promise.reject("Fetching data failed");
+        })
+        .then(rawdata => {
+            return rawdata;
+        });
+};
+
+export const getPublicFsDataHistory = async (fs: string, token: string | null): Promise<IPublicFsDataHistoryEntry[] | null> => {
+    if (!token) {
+        return null;
+    }
+    const url = import.meta.env.VITE_API_URL + `/data/${fs}/public/history`;
     return fetch(url, {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
         .then(response => response.json(), () => {
             return Promise.reject("Fetching data failed");
@@ -647,11 +667,36 @@ export const getProtectedFsDataHistory = async (fs: string, token: string | null
 };
 
 
-export const approveFsData = async (id: number, token: string | null): Promise<{ message: string } | null> => {
+export const approveBaseFsData = async (id: number, token: string | null): Promise<{ message: string } | null> => {
     if (!token) {
         return null;
     }
-    const url = import.meta.env.VITE_API_URL + `/data/approve/${id}`;
+    const url = import.meta.env.VITE_API_URL + `/data/approve/base/${id}`;
+    return fetch(url,
+        {
+            method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+        })
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else if (resp.status == 404) {
+                return Promise.reject(`Daten mit ID ${id} existieren nicht.`);
+            } else {
+                return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
+            }
+        })
+        .then(() => {
+            return {message: 'Daten bestätigt.'};
+        }, reason => {
+            return {message: reason};
+        });
+}
+
+export const approvePublicFsData = async (id: number, token: string | null): Promise<{ message: string } | null> => {
+    if (!token) {
+        return null;
+    }
+    const url = import.meta.env.VITE_API_URL + `/data/approve/public/${id}`;
     return fetch(url,
         {
             method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
@@ -697,11 +742,16 @@ export const approveProtectedFsData = async (id: number, token: string | null): 
         });
 }
 
-export const getAllFsData = async (token: string | null): Promise<IAllFsData | null> => {
-    if (!token) {
-        return null;
+export const getAllFsData = async (token: string | null, fixedDate: string | null = null): Promise<IAllFsData | null> => {
+    let headers = {};
+    if(token){
+        headers = {'Authorization': `Bearer ${token}`};
     }
-    return fetch(import.meta.env.VITE_API_URL + '/data', {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
+    let url = import.meta.env.VITE_API_URL + '/data';
+    if (fixedDate) {
+        url += '/' + fixedDate;
+    }
+    return fetch(url, {method: 'GET', headers: headers})
         .then(resp => {
             if (resp.ok) {
                 return resp.json();
@@ -713,6 +763,46 @@ export const getAllFsData = async (token: string | null): Promise<IAllFsData | n
             return json;
         });
 }
+
+export const getBaseFsData = async (fs: string, token: string | null): Promise<IBaseFsDataResponse | null> => {
+    const headers: HeadersInit = token ? {'Authorization': `Bearer ${token}`} : {};
+    return fetch(import.meta.env.VITE_API_URL + '/data/' + fs + '/base', {
+        method: 'GET',
+        headers: headers
+    })
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                return Promise.reject('An error occured');
+            }
+        })
+        .then(json => {
+            return json;
+        })
+        .catch(() => {
+            return null
+        });
+}
+
+export const putBaseFsData = async (fs: string, data: IBaseFsData, token: string | null): Promise<void> => {
+    if (!token) {
+        return;
+    }
+    return fetch(import.meta.env.VITE_API_URL + '/data/' + fs + '/base', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+        body: JSON.stringify(data)
+    })
+        .then(resp => {
+            if (resp.ok) {
+                return;
+            } else {
+                return Promise.reject('An error occured');
+            }
+        });
+}
+
 export const getPublicFsData = async (fs: string, token: string | null): Promise<IPublicFsDataResponse | null> => {
     if (!token) {
         return null;

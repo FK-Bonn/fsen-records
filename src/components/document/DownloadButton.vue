@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type {IStudentBody} from "@/interfaces";
+import type {IBaseFsData} from "@/interfaces";
 import {useTokenStore} from "@/stores/token";
 import {downloadFile} from "@/util";
 
 defineProps<{
   filename: string,
-  studentBody: IStudentBody,
+  baseData: IBaseFsData,
 }>()
 
 const token = useTokenStore();
@@ -17,7 +17,7 @@ const downloadUrl = (fs: string, filename: string) => {
 </script>
 
 <template>
-  <button class="button is-small" @click="()=>downloadUrl(studentBody.id, filename)">
+  <button class="button is-small" @click="()=>downloadUrl(baseData.fs_id, filename)">
     Öffnen
   </button>
 </template>

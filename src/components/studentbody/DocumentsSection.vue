@@ -2,7 +2,7 @@
 
 import AngleIndicator from "@/components/icons/AngleIndicator.vue";
 import {ref} from "vue";
-import type {IStudentBody} from "@/interfaces";
+import type {IBaseFsData} from "@/interfaces";
 import DocumentsList from "@/components/document/DocumentsList.vue";
 import DocumentUploadForm from "@/components/document/DocumentUploadForm.vue";
 import {getDocumentData} from "@/util";
@@ -10,7 +10,7 @@ import {useDocumentsStore} from "@/stores/documents";
 import {useFixedDateStore} from "@/stores/fixedDate";
 
 defineProps<{
-  studentBody: IStudentBody,
+  baseData: IBaseFsData,
 }>()
 
 const documents = useDocumentsStore();
@@ -40,8 +40,8 @@ const reloadDocuments = () => {
         <AngleIndicator :opened="opened"/>
       </button>
     </header>
-    <DocumentUploadForm v-if="opened" :fs="studentBody.id" @reload-documents="reloadDocuments()"/>
-    <DocumentsList v-if="opened" :studentBody="studentBody"/>
+    <DocumentUploadForm v-if="opened" :fs="baseData.fs_id" @reload-documents="reloadDocuments()"/>
+    <DocumentsList v-if="opened" :baseData="baseData"/>
   </div>
 </template>
 

@@ -20,7 +20,7 @@ const message: Ref<string | null> = ref(null);
 const loadProtectedFsData = () => {
   getProtectedFsData(props.fs, token.apiToken).then(data => {
     if (allFsData.data && data) {
-      allFsData.data[props.fs].protected_data = data;
+      allFsData.data[props.fs].protected = data;
     }
   });
 }

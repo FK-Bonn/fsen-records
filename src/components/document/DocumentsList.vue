@@ -1,16 +1,16 @@
 <script setup lang="ts">
 
-import type {IDocumentData, IStudentBody} from "@/interfaces";
+import type {IBaseFsData, IDocumentData} from "@/interfaces";
 import {useDocumentsStore} from "@/stores/documents";
 import {computed, type ComputedRef} from "vue";
 import SingleDocument from "@/components/document/SingleDocument.vue";
 
 const props = defineProps<{
-  studentBody: IStudentBody,
+  baseData: IBaseFsData,
 }>()
 
 const documents = useDocumentsStore();
-const documentsForFs: ComputedRef<IDocumentData[]> = computed(()=>documents.data ? documents.data[props.studentBody.id] :[]);
+const documentsForFs: ComputedRef<IDocumentData[]> = computed(()=>documents.data ? documents.data[props.baseData.fs_id] :[]);
 const budgets = computed(()=>documentsForFs.value.filter(value => value.base_name == 'HHP'))
 const balances = computed(()=>documentsForFs.value.filter(value => value.base_name == 'HHR'))
 const cashAudits = computed(()=>documentsForFs.value.filter(value => value.base_name == 'KP'))
@@ -25,7 +25,7 @@ const electionResults = computed(()=>documentsForFs.value.filter(value => value.
       <template v-if="budgets.length > 0">
         <ul>
           <li v-for="document in budgets" :key="document.filename">
-            <SingleDocument :document="document" :studentBody="studentBody"/>
+            <SingleDocument :document="document" :baseData="baseData"/>
           </li>
         </ul>
       </template>
@@ -37,7 +37,7 @@ const electionResults = computed(()=>documentsForFs.value.filter(value => value.
       <template v-if="balances.length > 0">
         <ul>
           <li v-for="document in balances" :key="document.filename">
-            <SingleDocument :document="document" :studentBody="studentBody"/>
+            <SingleDocument :document="document" :baseData="baseData"/>
           </li>
         </ul>
       </template>
@@ -49,7 +49,7 @@ const electionResults = computed(()=>documentsForFs.value.filter(value => value.
       <template v-if="cashAudits.length > 0">
         <ul>
           <li v-for="document in cashAudits" :key="document.filename">
-            <SingleDocument :document="document" :studentBody="studentBody"/>
+            <SingleDocument :document="document" :baseData="baseData"/>
           </li>
         </ul>
       </template>
@@ -61,7 +61,7 @@ const electionResults = computed(()=>documentsForFs.value.filter(value => value.
       <template v-if="proceedings.length > 0">
         <ul>
           <li v-for="document in proceedings" :key="document.filename">
-            <SingleDocument :document="document" :studentBody="studentBody"/>
+            <SingleDocument :document="document" :baseData="baseData"/>
           </li>
         </ul>
       </template>
@@ -73,7 +73,7 @@ const electionResults = computed(()=>documentsForFs.value.filter(value => value.
       <template v-if="electionResults.length > 0">
         <ul>
           <li v-for="document in electionResults" :key="document.filename">
-            <SingleDocument :document="document" :studentBody="studentBody"/>
+            <SingleDocument :document="document" :baseData="baseData"/>
           </li>
         </ul>
       </template>

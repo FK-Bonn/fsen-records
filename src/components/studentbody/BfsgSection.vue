@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type {IStudentBody} from "@/interfaces";
+import type {IBaseFsData} from "@/interfaces";
 import {computed, ref} from "vue";
 import AngleIndicator from "@/components/icons/AngleIndicator.vue";
 import {useAccountStore} from "@/stores/account";
@@ -9,7 +9,7 @@ import BfsgRequestModal from "@/components/payoutrequest/BfsgRequestModal.vue";
 import VorankuendigungRequestModal from "@/components/payoutrequest/VorankuendigungRequestModal.vue";
 
 const props = defineProps<{
-  studentBody: IStudentBody,
+  baseData: IBaseFsData,
 }>()
 
 const account = useAccountStore();
@@ -33,8 +33,8 @@ const toggle = () => {
   opened.value = !opened.value;
 }
 
-const vorankuendigungPayoutRequests = computed(() => payoutRequests.vorankuendigung?.get(props.studentBody.id))
-const bfsgPayoutRequests = computed(() => payoutRequests.bfsg?.get(props.studentBody.id))
+const vorankuendigungPayoutRequests = computed(() => payoutRequests.vorankuendigung?.get(props.baseData.fs_id))
+const bfsgPayoutRequests = computed(() => payoutRequests.bfsg?.get(props.baseData.fs_id))
 
 </script>
 
@@ -70,8 +70,8 @@ const bfsgPayoutRequests = computed(() => payoutRequests.bfsg?.get(props.student
     </div>
   </div>
 
-    <BfsgRequestModal v-if="bfsgModal" :fsName="studentBody.name" :fsId="studentBody.id" v-model="bfsgModal"/>
-    <VorankuendigungRequestModal v-if="vorankuendigungModal" :fsName="studentBody.name" :fsId="studentBody.id"
+    <BfsgRequestModal v-if="bfsgModal" :fsName="baseData.name" :fsId="baseData.fs_id" v-model="bfsgModal"/>
+    <VorankuendigungRequestModal v-if="vorankuendigungModal" :fsName="baseData.name" :fsId="baseData.fs_id"
                                  v-model="vorankuendigungModal"/>
 </template>
 

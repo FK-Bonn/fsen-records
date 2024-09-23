@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type {IStudentBody} from "@/interfaces";
+import type {IBaseFsData} from "@/interfaces";
 import {computed} from "vue";
 import {CurrentlyCanBePaidCalculator, Interval, VerdictCalculator} from "@/Calculator";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
@@ -10,15 +10,17 @@ import RelevantDocumentsWithProceedings from "@/components/document/RelevantDocu
 import {usePageSettingsStore} from "@/stores/pageSettings";
 import SingleDocument from "@/components/document/SingleDocument.vue";
 import {useDocumentsStore} from "@/stores/documents";
+import {useFixedDateStore} from "@/stores/fixedDate";
 
 const props = defineProps<{
-  studentBody: IStudentBody,
+  baseData: IBaseFsData,
 }>()
 
 const settings = usePageSettingsStore();
 const documents = useDocumentsStore();
+const fixedDate = useFixedDateStore();
 
-const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.studentBody, null, documents.data));
+const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.baseData, fixedDate.date, documents.data));
 const mostRecentElection = computed(() => calculator.value.getMostRecentElection());
 const mostRecentInauguralMeetingProceedings = computed(() => calculator.value.getProceedingsOfMostRecentInauguralMeeting());
 </script>
@@ -42,7 +44,7 @@ const mostRecentInauguralMeetingProceedings = computed(() => calculator.value.ge
           </template>
         </li>
         <li>
-          <SingleDocument :document="mostRecentElection" :studentBody="studentBody"/>
+          <SingleDocument :document="mostRecentElection" :baseData="baseData"/>
         </li>
       </ul>
       <template v-else>
@@ -64,7 +66,7 @@ const mostRecentInauguralMeetingProceedings = computed(() => calculator.value.ge
           nach letzter Wahl?
         </li>
         <li>
-          <SingleDocument :document="mostRecentInauguralMeetingProceedings" :studentBody="studentBody"/>
+          <SingleDocument :document="mostRecentInauguralMeetingProceedings" :baseData="baseData"/>
         </li>
       </ul>
       <template v-else>
@@ -78,7 +80,7 @@ const mostRecentInauguralMeetingProceedings = computed(() => calculator.value.ge
           :overallLevel="calculator.getCurrentFinancialYearBudgetLevel()"
           :documents="calculator.getRelevantBudgetsForCurrentFinancialYear()"
           :covered="calculator.isCurrentFinanicalYearCoveredByBudgets()"
-          :studentBody="studentBody"/>
+          :baseData="baseData"/>
 
       <RelevantDocumentsWithProceedings
           title="Haushaltsplan des vorherigen Haushaltsjahres"
@@ -86,7 +88,7 @@ const mostRecentInauguralMeetingProceedings = computed(() => calculator.value.ge
           :overallLevel="calculator.getPreviousFinancialYearBudgetLevel()"
           :documents="calculator.getRelevantBudgetsForPreviousFinancialYear()"
           :covered="calculator.isPreviousFinanicalYearCoveredByBudgets()"
-          :studentBody="studentBody"/>
+          :baseData="baseData"/>
 
       <h5 class="title is-5">
         <IconForLevel :level="calculator.getBalanceLevel()"/>
@@ -95,7 +97,7 @@ const mostRecentInauguralMeetingProceedings = computed(() => calculator.value.ge
       <ul :class="('documents level-'+calculator.getBalanceLevel())+ (settings.paleLowerDocuments ? ' pale' : '')">
         <template v-for="balance in calculator.getRelevantBalancesForPreviousFinancialYear()" :key="balance.filename">
           <li :class="'document level-'+VerdictCalculator.getWorstAnnotationLevel(balance.annotations)">
-            <SingleDocument :document="balance" :studentBody="studentBody"/>
+            <SingleDocument :document="balance" :baseData="baseData"/>
           </li>
         </template>
         <template v-if="calculator.getRelevantBalancesForPreviousFinancialYear().length === 0">
@@ -112,7 +114,7 @@ const mostRecentInauguralMeetingProceedings = computed(() => calculator.value.ge
           :overallLevel="calculator.getCashAuditLevel()"
           :documents="calculator.getRelevantCashAuditsForPreviousFinancialYear()"
           :covered="calculator.isPreviousFinancialYearCoveredByCashAudits()"
-          :studentBody="studentBody"/>
+          :baseData="baseData"/>
     </div>
   </div>
 </template>

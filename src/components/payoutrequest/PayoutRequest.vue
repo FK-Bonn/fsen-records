@@ -37,9 +37,9 @@ const getTableLine = (allData: IAllFsData | null, payoutRequest: INewPayoutReque
   let iban = 'IBAN';
   if (allData && Object.prototype.hasOwnProperty.call(allData, fsId)) {
     const fsData = allData[fsId];
-    if (fsData.protected_data) {
-      if (fsData.protected_data.is_latest) {
-        iban = fsData.protected_data.data.iban;
+    if (fsData.protected) {
+      if (fsData.protected.is_latest) {
+        iban = fsData.protected.data.iban;
       } else {
         iban = 'DIE INTERNEN DATEN WURDEN MODIFIZIERT, BITTE PRÜFEN, GGF BESTÄTIGEN, DANN NEU KOPIEREN';
       }

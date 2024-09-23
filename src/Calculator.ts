@@ -1,9 +1,9 @@
 import {
     AnnotationLevel,
     type IAnnotation,
+    type IBaseFsData,
     type IDocumentData,
-    type IDocumentDataForFs,
-    type IStudentBody
+    type IDocumentDataForFs
 } from "@/interfaces";
 import {getDocumentAnnotationLevel, getWorstAnnotationLevel, isReferenced, stringToDate} from "@/util";
 
@@ -89,7 +89,7 @@ export class VerdictCalculator {
 }
 
 export class CurrentlyCanBePaidCalculator {
-    private readonly studentBody: IStudentBody;
+    private readonly baseData: IBaseFsData;
     private readonly date: string | null;
     private documents: IDocumentData[];
     private electionResults: IDocumentData[];
@@ -98,8 +98,8 @@ export class CurrentlyCanBePaidCalculator {
     private balances: IDocumentData[];
     private cashAudits: IDocumentData[];
 
-    constructor(studentBody: IStudentBody, fixedDate: string | null, documents: IDocumentDataForFs | null) {
-        this.studentBody = studentBody;
+    constructor(baseData: IBaseFsData, fixedDate: string | null, documents: IDocumentDataForFs | null) {
+        this.baseData = baseData;
         this.date = fixedDate;
         this.documents = [];
         this.electionResults = [];
@@ -107,8 +107,8 @@ export class CurrentlyCanBePaidCalculator {
         this.budgets = [];
         this.balances = [];
         this.cashAudits = [];
-        if(documents && studentBody.id in documents){
-            this.documents = documents[studentBody.id];
+        if (documents && this.baseData.fs_id in documents) {
+            this.documents = documents[this.baseData.fs_id];
             this.electionResults = this.documents.filter(value => value.base_name === 'Wahlergebnis');
             this.proceedings = this.documents.filter(value => value.base_name === 'Prot');
             this.budgets = this.documents.filter(value => value.base_name === 'HHP');
@@ -118,10 +118,6 @@ export class CurrentlyCanBePaidCalculator {
     }
 
     public calculateOverallLevel(): AnnotationLevel {
-        if (!this.studentBody) {
-            return AnnotationLevel.Unchecked;
-        }
-
         const levels = [];
         levels.push(this.getElectionLevel());
         levels.push(this.getProceedingsOfLastInauguralMeetingLevel());
@@ -306,16 +302,13 @@ export class CurrentlyCanBePaidCalculator {
     }
 
     public getCurrentFinancialYear(): Interval | undefined {
-        if (!this.studentBody) {
-            return;
-        }
-        if (this.studentBody.financialYearOverride) {
-            const start = new Date(Date.parse(this.studentBody.financialYearOverride.current.dateStart));
-            const end = new Date(Date.parse(this.studentBody.financialYearOverride.current.dateEnd));
+        if (this.baseData.financial_year_override) {
+            const start = new Date(Date.parse(this.baseData.financial_year_override.current.date_start));
+            const end = new Date(Date.parse(this.baseData.financial_year_override.current.date_end));
             return new Interval(start, end);
         }
-        const startDay = parseInt(this.studentBody.financialYearStart.substring(0, 2));
-        const startMonth = parseInt(this.studentBody.financialYearStart.substring(3, 5)) - 1;
+        const startDay = parseInt(this.baseData.financial_year_start.substring(0, 2));
+        const startMonth = parseInt(this.baseData.financial_year_start.substring(3, 5)) - 1;
         const now = this.date ? new Date(this.date) : new Date();
         const startDayCurrentFinancialYear = new Date(now.getFullYear(), startMonth, startDay);
         if (startDayCurrentFinancialYear > now) {
@@ -327,12 +320,9 @@ export class CurrentlyCanBePaidCalculator {
     }
 
     public getPreviousFinancialYear(): Interval | undefined {
-        if (!this.studentBody) {
-            return;
-        }
-        if (this.studentBody.financialYearOverride) {
-            const start = new Date(Date.parse(this.studentBody.financialYearOverride.previous.dateStart));
-            const end = new Date(Date.parse(this.studentBody.financialYearOverride.previous.dateEnd));
+        if (this.baseData.financial_year_override) {
+            const start = new Date(Date.parse(this.baseData.financial_year_override.previous.date_start));
+            const end = new Date(Date.parse(this.baseData.financial_year_override.previous.date_end));
             return new Interval(start, end);
         }
         const financialYear = this.getCurrentFinancialYear();
@@ -346,7 +336,7 @@ export class CurrentlyCanBePaidCalculator {
 
 export class SemesterCalculator {
     private semester: Interval;
-    private studentBody: IStudentBody;
+    private baseData: IBaseFsData;
     private documents: IDocumentData[];
     private electionResults: IDocumentData[];
     private proceedings: IDocumentData[];
@@ -354,8 +344,8 @@ export class SemesterCalculator {
     private balances: IDocumentData[];
     private cashAudits: IDocumentData[];
 
-    constructor(studentBody: IStudentBody, semester: Interval, documents: IDocumentDataForFs | null) {
-        this.studentBody = studentBody;
+    constructor(baseData: IBaseFsData, semester: Interval, documents: IDocumentDataForFs | null) {
+        this.baseData = baseData;
         this.semester = semester;
         this.documents = [];
         this.electionResults = [];
@@ -363,8 +353,8 @@ export class SemesterCalculator {
         this.budgets = [];
         this.balances = [];
         this.cashAudits = [];
-        if(documents && studentBody.id in documents){
-            this.documents = documents[studentBody.id];
+        if(documents && baseData.fs_id in documents){
+            this.documents = documents[baseData.fs_id];
             this.electionResults = this.documents.filter(value => value.base_name === 'Wahlergebnis');
             this.proceedings = this.documents.filter(value => value.base_name === 'Prot');
             this.budgets = this.documents.filter(value => value.base_name === 'HHP');
@@ -375,10 +365,6 @@ export class SemesterCalculator {
 
 
     public calculateOverallLevel(): AnnotationLevel {
-        if (!this.studentBody) {
-            return AnnotationLevel.Unchecked;
-        }
-
         const levels = [];
         levels.push(this.getBudgetLevel());
         levels.push(this.getBalanceLevel());
@@ -458,23 +444,14 @@ export class SemesterCalculator {
     }
 
     public getRelevantBudgets(): IDocumentData[] {
-        if (!this.studentBody) {
-            return [];
-        }
         return this.semester.getOverlapping(this.budgets);
     }
 
     public getRelevantBalances(): IDocumentData[] {
-        if (!this.studentBody) {
-            return [];
-        }
         return this.semester.getOverlapping(this.balances);
     }
 
     public getRelevantCashAudits(): IDocumentData[] {
-        if (!this.studentBody) {
-            return [];
-        }
         return this.semester.getOverlapping(this.cashAudits);
     }
 }

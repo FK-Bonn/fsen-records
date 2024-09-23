@@ -2,7 +2,7 @@
 import {computed, type Ref, ref} from "vue";
 import {useAllFsData} from "@/stores/allFsData";
 import type {IPublicFsDataHistoryEntry} from "@/interfaces";
-import {approveFsData, getPublicFsData, putPublicFsData} from "@/util";
+import {approvePublicFsData, getPublicFsData, putPublicFsData} from "@/util";
 import {useTokenStore} from "@/stores/token";
 import TS from "@/components/TS.vue";
 
@@ -21,13 +21,13 @@ const message: Ref<string | null> = ref(null);
 const loadFsData = () => {
   getPublicFsData(props.fs, token.apiToken).then(data => {
     if (allFsData.data && data) {
-      allFsData.data[props.fs].data = data;
+      allFsData.data[props.fs].public = data;
     }
   });
 }
 
 const approve = () => {
-  approveFsData(props.data.id, token.apiToken).then(value => {
+  approvePublicFsData(props.data.id, token.apiToken).then(value => {
     message.value = value?.message || null;
     loadFsData();
   })
@@ -67,29 +67,29 @@ const regularMeetingLocationChanged = computed(() => props.previous && props.pre
 
     <dl>
       <dt>E-Mail</dt>
-      <dd class="{emailChanged ? 'has-background-warning':''}">
+      <dd :class="emailChanged ? 'has-background-warning':''">
         <template v-if="!emailChanged">
-          <a href="mailto:{data.email}">{{ data.email }}</a>
+          <a :href="'mailto:'+data.email">{{ data.email }}</a>
         </template>
         <template v-else>
           <del>{{ previous?.email }}</del>
           <br>
-          <a href="mailto:{data.email}"><b>{{ data.email }}</b></a>
+          <a :href="'mailto:'+data.email"><b>{{ data.email }}</b></a>
         </template>
       </dd>
       <dt>Telefon</dt>
-      <dd class="{phoneChanged ? 'has-background-warning':''}">
+      <dd :class="phoneChanged ? 'has-background-warning':''">
         <template v-if="!phoneChanged">
-          <a href="tel:{data.phone}">{{ data.phone }}</a>
+          <a :href="'tel:'+data.phone">{{ data.phone }}</a>
         </template>
         <template v-else>
           <del>{{ previous?.phone }}</del>
           <br>
-          <a href="tel:{data.phone}"><b>{{ data.phone }}</b></a>
+          <a :href="'tel:'+data.phone"><b>{{ data.phone }}</b></a>
         </template>
       </dd>
       <dt>Webseite</dt>
-      <dd class="{websiteChanged ? 'has-background-warning':''}">
+      <dd :class="websiteChanged ? 'has-background-warning':''">
         <template v-if="!websiteChanged">
           <a :href="data.website">{{ data.website }}</a>
         </template>
@@ -100,7 +100,7 @@ const regularMeetingLocationChanged = computed(() => props.previous && props.pre
         </template>
       </dd>
       <dt>Adresse</dt>
-      <dd class="address {addressChanged ? 'has-background-warning':''}">
+      <dd :class="'address ' + addressChanged ? 'has-background-warning':''">
         <template v-if="!addressChanged">
           {{ data.address }}
         </template>
@@ -114,7 +114,7 @@ const regularMeetingLocationChanged = computed(() => props.previous && props.pre
       <dd>
         <table class="table">
           <tbody>
-          <tr class="{serviceTimesMondayChanged ? 'has-background-warning':''}">
+          <tr :class="serviceTimesMondayChanged ? 'has-background-warning':''">
             <td>Montag</td>
             <td>
               <template v-if="!serviceTimesMondayChanged">
@@ -127,7 +127,7 @@ const regularMeetingLocationChanged = computed(() => props.previous && props.pre
               </template>
             </td>
           </tr>
-          <tr class="{serviceTimesTuesdayChanged ? 'has-background-warning':''}">
+          <tr :class="serviceTimesTuesdayChanged ? 'has-background-warning':''">
             <td>Dienstag</td>
             <td>
               <template v-if="!serviceTimesTuesdayChanged">
@@ -140,7 +140,7 @@ const regularMeetingLocationChanged = computed(() => props.previous && props.pre
               </template>
             </td>
           </tr>
-          <tr class="{serviceTimesWednesdayChanged ? 'has-background-warning':''}">
+          <tr :class="serviceTimesWednesdayChanged ? 'has-background-warning':''">
             <td>Mittwoch</td>
             <td>
               <template v-if="!serviceTimesWednesdayChanged">
@@ -153,7 +153,7 @@ const regularMeetingLocationChanged = computed(() => props.previous && props.pre
               </template>
             </td>
           </tr>
-          <tr class="{serviceTimesThursdayChanged ? 'has-background-warning':''}">
+          <tr :class="serviceTimesThursdayChanged ? 'has-background-warning':''">
             <td>Donnerstag</td>
             <td>
               <template v-if="!serviceTimesThursdayChanged">
@@ -166,7 +166,7 @@ const regularMeetingLocationChanged = computed(() => props.previous && props.pre
               </template>
             </td>
           </tr>
-          <tr class="{serviceTimesFridayChanged ? 'has-background-warning':''}">
+          <tr :class="serviceTimesFridayChanged ? 'has-background-warning':''">
             <td>Freitag</td>
             <td>
               <template v-if="!serviceTimesFridayChanged">
@@ -186,7 +186,7 @@ const regularMeetingLocationChanged = computed(() => props.previous && props.pre
       <dd>
         <dl>
           <dt>Wochentag</dt>
-          <dd class="{regularMeetingDayOfWeekChanged ? 'has-background-warning':''}">
+          <dd :class="regularMeetingDayOfWeekChanged ? 'has-background-warning':''">
             <template v-if="!regularMeetingDayOfWeekChanged">
               {{ data.regularMeeting?.dayOfWeek }}
             </template>
@@ -197,7 +197,7 @@ const regularMeetingLocationChanged = computed(() => props.previous && props.pre
             </template>
           </dd>
           <dt>Uhrzeit</dt>
-          <dd class="{regularMeetingTimeChanged ? 'has-background-warning':''}">
+          <dd :class="regularMeetingTimeChanged ? 'has-background-warning':''">
             <template v-if="!regularMeetingTimeChanged">
               {{ data.regularMeeting?.time }}
             </template>
@@ -208,7 +208,7 @@ const regularMeetingLocationChanged = computed(() => props.previous && props.pre
             </template>
           </dd>
           <dt>Ort</dt>
-          <dd class="{regularMeetingLocationChanged ? 'has-background-warning':''}">
+          <dd :class="regularMeetingLocationChanged ? 'has-background-warning':''">
             <template v-if="!regularMeetingLocationChanged">
               {{ data.regularMeeting?.location }}
             </template>

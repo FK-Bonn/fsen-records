@@ -148,7 +148,7 @@ export interface IStudentBodyDiff {
     fs: string;
     name: string;
     documents: IAnnotatedDocumentDiff[];
-    financialYearAnnotationDiff: IStringDiff | null;
+    annotationDiff: IStringDiff | null;
     statutesDiff: IStringDiff | null;
     modifiedPayoutRequests: IPayoutRequestDiff[];
     modifiedBfsg: IPayoutRequestDiff[];
@@ -160,6 +160,46 @@ export interface IStudentBodyDiff {
 export interface IEmailAddress {
     address: string
     usages: string[]
+}
+
+export interface IInterval {
+    date_start: string
+    date_end: string
+}
+
+export interface IFinancialYearOverride {
+    previous: IInterval
+    current: IInterval
+}
+
+export interface IAnnotatedUrl {
+    url: string
+    annotation: string
+}
+
+export interface IBaseFsData {
+    fs_id: string
+    name: string
+    statutes: string
+    financial_year_start: string
+    financial_year_override: IFinancialYearOverride | null
+    proceedings_urls: IAnnotatedUrl[]
+    annotation: string
+    active: boolean
+}
+
+export interface IBaseFsDataResponse {
+    data: IBaseFsData
+    is_latest: boolean
+}
+
+export interface IBaseFsDataHistoryEntry extends IBaseFsData {
+    id: number
+    user: string
+    timestamp: string
+    approved: boolean
+    approved_by?: string
+    approval_timestamp?: string
 }
 
 export interface IPublicFsData {
@@ -221,8 +261,14 @@ export interface IProtectedFsDataResponse {
     is_latest: boolean
 }
 
+export interface ISingleFsData {
+    base: IBaseFsDataResponse | null,
+    public: IPublicFsDataResponse | null,
+    protected: IProtectedFsDataResponse | null
+}
+
 export interface IAllFsData {
-    [key: string]: { data?: IPublicFsDataResponse, protected_data?: IProtectedFsDataResponse }
+    [key: string]: ISingleFsData
 }
 
 export interface IProceedings {

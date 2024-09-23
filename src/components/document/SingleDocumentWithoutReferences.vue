@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import type {IDocumentData, IStudentBody} from "@/interfaces";
+import type {IBaseFsData, IDocumentData} from "@/interfaces";
 import SingleDocument from "@/components/document/SingleDocument.vue";
 
 defineProps<{
   document: IDocumentData,
-  studentBody: IStudentBody,
+  baseData: IBaseFsData,
 }>()
 </script>
 
 <template>
-  <SingleDocument :document="document" :studentBody="studentBody" :withReferences="false"/>
+  <SingleDocument :document="document" :baseData="baseData" :withReferences="false"/>
 </template>
 
 <style scoped>

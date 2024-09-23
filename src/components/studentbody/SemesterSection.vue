@@ -2,7 +2,7 @@
 
 import {usePageSettingsStore} from "@/stores/pageSettings";
 import {computed, ref} from "vue";
-import type {IStudentBody} from "@/interfaces";
+import type {IBaseFsData} from "@/interfaces";
 import {type Interval, SemesterCalculator} from "@/Calculator";
 import {calculateSemesterId, calculateSemesterName, shouldDisplayStar} from "@/util";
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
@@ -17,7 +17,7 @@ import {useScieboDataStore} from "@/stores/scieboData";
 import {useDocumentsStore} from "@/stores/documents";
 
 const props = defineProps<{
-  studentBody: IStudentBody,
+  baseData: IBaseFsData,
   semester: Interval
 }>()
 
@@ -28,8 +28,8 @@ const documents = useDocumentsStore();
 
 const opened = ref(false);
 
-const calculateLevel = (studentBody: IStudentBody, semester: Interval) => {
-  const calculator = new SemesterCalculator(studentBody, semester, documents.data);
+const calculateLevel = (baseData: IBaseFsData, semester: Interval) => {
+  const calculator = new SemesterCalculator(baseData, semester, documents.data);
   return calculator.calculateOverallLevel();
 }
 
@@ -38,9 +38,9 @@ const toggle = () => {
 }
 const semesterName = computed(() => calculateSemesterName(props.semester))
 const semesterId = computed(() => calculateSemesterId(props.semester))
-const payoutRequestForSemester = computed(() => payoutRequests.afsg?.get(props.studentBody.id)?.find(value => value.semester === semesterId.value))
+const payoutRequestForSemester = computed(() => payoutRequests.afsg?.get(props.baseData.fs_id)?.find(value => value.semester === semesterId.value))
 const budgetTitle = computed(() => semesterId.value ? sciebo.data?.budgetTitles[semesterId.value] : null)
-const level = computed(() => calculateLevel(props.studentBody, props.semester))
+const level = computed(() => calculateLevel(props.baseData, props.semester))
 const displayStar = computed(() => shouldDisplayStar(level.value, payoutRequestForSemester.value))
 </script>
 
@@ -59,15 +59,15 @@ const displayStar = computed(() => shouldDisplayStar(level.value, payoutRequestF
         </p>
         <IconStar v-if="displayStar"/>
           <PayoutRequest :payoutRequest="payoutRequestForSemester"
-                         :fsName="studentBody.name"
-                         :fsId="studentBody.id"
+                         :fsName="baseData.name"
+                         :fsId="baseData.fs_id"
                          :budgetTitle="budgetTitle"
                          :semester="semester"/>
           <button class="card-header-icon" aria-label="more options">
             <AngleIndicator :opened="opened"/>
           </button>
       </header>
-      <SemesterContent v-if="opened" :studentBody="studentBody" :semester="semester"/>
+      <SemesterContent v-if="opened" :baseData="baseData" :semester="semester"/>
     </div>
   </template>
 </template>

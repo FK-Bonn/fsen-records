@@ -3,7 +3,7 @@ import TopLegend from "@/components/TopLegend.vue";
 import {useScieboDataStore} from "@/stores/scieboData";
 import StudentBody from "@/components/studentbody/StudentBody.vue";
 import {computed, nextTick, onBeforeMount, watch} from "vue";
-import {AnnotationLevel, type INewPayoutRequestData, type IStudentBody} from "@/interfaces";
+import {AnnotationLevel, type IBaseFsData, type INewPayoutRequestData} from "@/interfaces";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
 import FilterSettings from "@/components/FilterSettings.vue";
 import {CurrentlyCanBePaidCalculator, Interval, SemesterCalculator} from "@/Calculator";
@@ -31,9 +31,9 @@ const redirectToDiffIfNecessary = () => {
   }
 }
 
-const anySemesterHasStar = (studentBody: IStudentBody, payoutRequests: Map<string, INewPayoutRequestData> | null,
+const anySemesterHasStar = (baseData: IBaseFsData, payoutRequests: Map<string, INewPayoutRequestData> | null,
                             semesters: (Interval | undefined)[] | undefined) => {
-  if (!studentBody || !payoutRequests || !semesters) {
+  if (!baseData || !payoutRequests || !semesters) {
     return false;
   }
   for (let semester of semesters) {
@@ -41,7 +41,7 @@ const anySemesterHasStar = (studentBody: IStudentBody, payoutRequests: Map<strin
     if (semester && semesterId) {
       const payoutRequest = payoutRequests.get(semesterId);
       if (payoutRequest) {
-        const calculator = new SemesterCalculator(studentBody, semester, documents.data)
+        const calculator = new SemesterCalculator(baseData, semester, documents.data)
         if (shouldDisplayStar(calculator.calculateOverallLevel(), payoutRequest)) {
           return true;
         }
@@ -62,17 +62,20 @@ const filterPayoutRequests = (payoutRequests: Map<string, INewPayoutRequestData[
   return retval;
 }
 
-const shouldShow = (studentBody: IStudentBody,
+const shouldShow = (baseData: IBaseFsData | undefined,
                     payoutRequests: Map<string, INewPayoutRequestData[]> | null,
                     semesters: (Interval | undefined)[] | undefined) => {
+  if (!baseData) {
+    return false;
+  }
   let show = true;
   if (settings.showOnlyWhoCurrentlyCanBePaid) {
-    const calculator = new CurrentlyCanBePaidCalculator(studentBody, null, documents.data);
+    const calculator = new CurrentlyCanBePaidCalculator(baseData, null, documents.data);
     show = show && (AnnotationLevel.Error !== calculator.calculateOverallLevel());
   }
   if (settings.showOnlySemestersWithStar) {
-    const filteredPayoutRequests = filterPayoutRequests(payoutRequests, studentBody.id);
-    show = show && anySemesterHasStar(studentBody, filteredPayoutRequests, semesters);
+    const filteredPayoutRequests = filterPayoutRequests(payoutRequests, baseData.fs_id);
+    show = show && anySemesterHasStar(baseData, filteredPayoutRequests, semesters);
   }
   return show;
 }
@@ -112,12 +115,17 @@ watch(() => (sciebo.data !== null && fsData.data !== null), async () => {
       </div>
     </div>
 
-    <ul>
-      <template v-for="[key, studentBody] in sciebo.data?.studentBodies" :key="key">
-        <li v-if="shouldShow(studentBody, payoutRequests.afsg, semesters)">
-          <StudentBody :studentBody="studentBody"/>
-      </li>
-      </template>
-    </ul>
+    <template v-if="fsData.data">
+      <ul>
+        <template v-for="(singleFsData, key) in fsData.data" :key="key">
+          <li v-if="singleFsData.base && shouldShow(singleFsData.base.data, payoutRequests.afsg, semesters)">
+            <StudentBody :baseData="singleFsData.base.data"/>
+          </li>
+        </template>
+      </ul>
+    </template>
+    <template v-else>
+      <progress class="progress is-large is-info" max="100">60%</progress>
+    </template>
   </div>
 </template>

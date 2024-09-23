@@ -4,17 +4,19 @@ import {useRoute} from "vue-router";
 import {nextTick, onBeforeMount, onMounted, type Ref, ref, watch} from "vue";
 import {
   actualDateOrNull,
+  getAllFsData,
   getDocumentData,
   getPayoutRequestData,
   pojoToIData,
   scrollToHashIfPresent,
   updatePageTitle
 } from "@/util";
-import type {IData, IDocumentDataForFs, INewPayoutRequestData} from "@/interfaces";
+import type {IAllFsData, IData, IDocumentDataForFs, INewPayoutRequestData} from "@/interfaces";
 import DiffsForFsen from "@/components/diff/DiffsForFsen.vue";
+import {useTokenStore} from "@/stores/token";
 
 const route = useRoute();
-
+const token = useTokenStore();
 
 const getDateStart = () => {
   let date = route.params.dateStart as string | undefined;
@@ -25,21 +27,16 @@ const getDateEnd = () => {
   let date = route.params.dateEnd as string | undefined;
   return actualDateOrNull(date);
 }
-const loadData = (url: string): Promise<IData> => {
-  return fetch(url)
-      .then(response => response.json())
-      .then(rawdata => pojoToIData(rawdata));
-};
 
 const dateStart = ref(getDateStart());
 const dateEnd = ref(getDateEnd());
 
-const scieboStart: Ref<null | IData> = ref(null);
+const fsDataStart: Ref<null | IAllFsData> = ref(null);
 const afsgStart: Ref<null | Map<string, INewPayoutRequestData[]>> = ref(null);
 const bfsgStart: Ref<null | Map<string, INewPayoutRequestData[]>> = ref(null);
 const vorankuendigungStart: Ref<null | Map<string, INewPayoutRequestData[]>> = ref(null);
 const documentsStart: Ref<null | IDocumentDataForFs> = ref(null);
-const scieboEnd: Ref<null | IData> = ref(null);
+const fsDataEnd: Ref<null | IAllFsData> = ref(null);
 const afsgEnd: Ref<null | Map<string, INewPayoutRequestData[]>> = ref(null);
 const bfsgEnd: Ref<null | Map<string, INewPayoutRequestData[]>> = ref(null);
 const vorankuendigungEnd: Ref<null | Map<string, INewPayoutRequestData[]>> = ref(null);
@@ -47,8 +44,7 @@ const documentsEnd: Ref<null | IDocumentDataForFs> = ref(null);
 
 
 watch(dateStart, async () => {
-  const url = dateStart.value ? `/data/history/${dateStart.value}-data.json` : '/data/data.json';
-  scieboStart.value = await loadData(url);
+  fsDataStart.value = await getAllFsData(token.apiToken, dateStart.value);
   afsgStart.value = await getPayoutRequestData('afsg', dateStart.value);
   bfsgStart.value = await getPayoutRequestData('bfsg', dateStart.value);
   vorankuendigungStart.value = await getPayoutRequestData('vorankuendigung', dateStart.value);
@@ -56,8 +52,7 @@ watch(dateStart, async () => {
 }, {immediate: true});
 
 watch(dateEnd, async () => {
-  const url = dateEnd.value ? `/data/history/${dateEnd.value}-data.json` : '/data/data.json';
-  scieboEnd.value = await loadData(url);
+  fsDataEnd.value = await getAllFsData(token.apiToken, dateEnd.value);
   afsgEnd.value = await getPayoutRequestData('afsg', dateEnd.value);
   bfsgEnd.value = await getPayoutRequestData('bfsg', dateEnd.value);
   vorankuendigungEnd.value = await getPayoutRequestData('vorankuendigung', dateEnd.value);
@@ -66,11 +61,11 @@ watch(dateEnd, async () => {
 
 onMounted(() => scrollToHashIfPresent());
 
-watch(() => (scieboStart.value !== null
+watch(() => (fsDataStart.value !== null
     && afsgStart.value !== null
     && bfsgStart.value !== null
     && vorankuendigungStart.value !== null
-    && scieboEnd.value !== null
+    && fsDataEnd.value !== null
     && afsgEnd.value !== null
     && bfsgEnd.value !== null
     && vorankuendigungEnd.value !== null), async () => {
@@ -91,12 +86,12 @@ onBeforeMount(()=>{
     </h1>
 
     <DiffsForFsen
-        :scieboStart="scieboStart"
+        :fsDataStart="fsDataStart"
         :afsgStart="afsgStart"
         :bfsgStart="bfsgStart"
         :vorankuendigungStart="vorankuendigungStart"
         :documentsStart="documentsStart"
-        :scieboEnd="scieboEnd"
+        :fsDataEnd="fsDataEnd"
         :afsgEnd="afsgEnd"
         :bfsgEnd="bfsgEnd"
         :vorankuendigungEnd="vorankuendigungEnd"

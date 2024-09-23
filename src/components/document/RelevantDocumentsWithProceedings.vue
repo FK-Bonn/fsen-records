@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {AnnotationLevel, type IDocumentData, type IDocumentReference, type IStudentBody} from "@/interfaces";
+import {AnnotationLevel, type IBaseFsData, type IDocumentData, type IDocumentReference} from "@/interfaces";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
 import IconCross from "@/components/icons/IconCross.vue";
 import IconQuestionmark from "@/components/icons/IconQuestionmark.vue";
@@ -17,7 +17,7 @@ const props = defineProps<{
   overallLevel: AnnotationLevel,
   documents: IDocumentData[],
   covered: boolean,
-  studentBody: IStudentBody,
+  baseData: IBaseFsData,
 }>()
 
 const settings = usePageSettingsStore();
@@ -27,7 +27,7 @@ const getReferencedDocument = (reference: IDocumentReference): IDocumentData | n
   if (!documentsStore.data) {
     return null;
   }
-  const documentsForFs = documentsStore.data[props.studentBody.id];
+  const documentsForFs = documentsStore.data[props.baseData.fs_id];
   return documentsForFs.find(value => isReferenced(value, [reference])) || null;
 }
 
@@ -47,11 +47,11 @@ const getReferencedDocument = (reference: IDocumentReference): IDocumentData | n
     </ul>
     <template v-for="document in documents" :key="document.filename">
       <div :class="'document level-'+VerdictCalculator.getWorstAnnotationLevel(document.annotations)">
-        <SingleDocumentWithoutReferences :document="document" :studentBody="studentBody"/>
+        <SingleDocumentWithoutReferences :document="document" :baseData="baseData"/>
         <ul class="prots">
           <li v-for="reference in document.references" :key="refKey(reference)">
             <b>{{ proceedingsTitle }}:</b><br>
-            <SingleDocument :document="getReferencedDocument(reference)" :studentBody="studentBody"/>
+            <SingleDocument :document="getReferencedDocument(reference)" :baseData="baseData"/>
           </li>
           <li v-if="(document.references?.length || 0) === 0">
             <b>{{ proceedingsTitle }}:</b>

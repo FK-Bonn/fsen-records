@@ -10,7 +10,6 @@ import {usePayoutRequestStore} from "@/stores/payoutRequest";
 import {computed, onBeforeMount, type Ref, ref, watch} from "vue";
 import type {IData} from "@/interfaces";
 import {useScieboDataStore} from "@/stores/scieboData";
-import {useStudentBodiesStore} from "@/stores/studentBodies";
 import ErrorList from "@/components/ErrorList.vue";
 import {useFixedDateStore} from "@/stores/fixedDate";
 import {useDocumentsStore} from "@/stores/documents";
@@ -22,7 +21,6 @@ const allFsData = useAllFsData();
 const payoutRequests = usePayoutRequestStore();
 const sciebo = useScieboDataStore();
 const documents = useDocumentsStore();
-const studentBodies = useStudentBodiesStore();
 const fixedDate = useFixedDateStore();
 
 
@@ -45,7 +43,6 @@ const loadData = () => {
 
           sciebo.data = data;
           fetchDataError.value = null;
-          studentBodies.studentBodies = [...data.studentBodies.keys()].sort();
         } catch (err: any) {
           fetchDataError.value = err.message;
         }

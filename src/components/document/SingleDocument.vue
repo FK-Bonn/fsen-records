@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type {IDocumentData, IStudentBody} from "@/interfaces";
+import type {IBaseFsData, IDocumentData} from "@/interfaces";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
 import IconQuestionmark from "@/components/icons/IconQuestionmark.vue";
 import DateRange from "@/components/DateRange.vue";
@@ -16,7 +16,7 @@ import DocumentHistoryModal from "@/components/document/DocumentHistoryModal.vue
 const props = defineProps<{
   document: IDocumentData | null,
   withReferences?: boolean,
-  studentBody: IStudentBody,
+  baseData: IBaseFsData,
 }>()
 
 const account = useAccountStore();
@@ -33,7 +33,7 @@ const showHistoryModal = () => {
   historyModal.value = true;
 }
 
-const displayDownloadButton = computed(() => account && (account.user?.admin || hasFsPermission(account.user?.permissions, props.studentBody.id, 'read_files')))
+const displayDownloadButton = computed(() => account && (account.user?.admin || hasFsPermission(account.user?.permissions, props.baseData.fs_id, 'read_files')))
 const displayEditAnnotationsButton = computed(() => account && (account.user?.admin))
 const shortenedFilename = computed(() => shortenFilename(props.document?.filename))
 
@@ -59,7 +59,7 @@ const shortenedFilename = computed(() => shortenFilename(props.document?.filenam
 
       <div class="field is-grouped">
         <p class="control">
-          <DownloadButton v-if="displayDownloadButton" :studentBody="studentBody" :filename="document.filename"/>
+          <DownloadButton v-if="displayDownloadButton" :baseData="baseData" :filename="document.filename"/>
         </p>
         <p class="control">
           <button class="button is-small" @click.stop="showHistoryModal" title="Bearbeitungsverlauf anzeigen">
@@ -89,9 +89,9 @@ const shortenedFilename = computed(() => shortenFilename(props.document?.filenam
       </li>
     </ul>
 
-    <AnnotationsEditModal v-if="annotationsEditModal" :fs="studentBody.id" :document="document" v-model="annotationsEditModal"/>
+    <AnnotationsEditModal v-if="annotationsEditModal" :fs="baseData.fs_id" :document="document" v-model="annotationsEditModal"/>
 
-    <DocumentHistoryModal v-if="historyModal" :fs="studentBody.id" :document="document" v-model="historyModal"/>
+    <DocumentHistoryModal v-if="historyModal" :fs="baseData.fs_id" :document="document" v-model="historyModal"/>
 
   </template>
 </template>

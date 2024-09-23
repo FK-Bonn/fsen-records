@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import {onBeforeMount, type Ref, ref} from "vue";
-import type {IPublicFsDataHistoryEntry} from "@/interfaces";
-import {getFsDataHistory} from "@/util";
+import type {IBaseFsDataHistoryEntry} from "@/interfaces";
+import {getBaseFsDataHistory} from "@/util";
 import {useTokenStore} from "@/stores/token";
-import FsDataHistoryEntry from "@/components/fsdata/FsDataHistoryEntry.vue";
+import BaseFsDataHistoryEntry from "@/components/fsdata/BaseFsDataHistoryEntry.vue";
 
 const show = defineModel<boolean>({required: true});
 const props = defineProps<{
@@ -12,13 +12,13 @@ const props = defineProps<{
 
 const token = useTokenStore();
 
-const completedRequest: Ref<IPublicFsDataHistoryEntry[] | null> = ref(null);
+const completedRequest: Ref<IBaseFsDataHistoryEntry[] | null> = ref(null);
 const message: Ref<string | null> = ref(null);
 const close = () => {
   show.value = false;
 }
 const loadHistory = () => {
-  getFsDataHistory(props.fs, token.apiToken)
+  getBaseFsDataHistory(props.fs, token.apiToken)
       .then(data => {
         completedRequest.value = data;
       });
@@ -45,7 +45,7 @@ onBeforeMount(() => loadHistory());
             </article>
             <template v-else-if="completedRequest">
               <template v-for="(data, i) in completedRequest" :key="i">
-                <FsDataHistoryEntry :fs="fs" :data="data"
+                <BaseFsDataHistoryEntry :fs="fs" :data="data"
                                     :previous="i===(completedRequest.length-1)?null:completedRequest[i+1]"
                                     v-model="show"/>
                 <hr>

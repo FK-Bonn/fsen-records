@@ -1,46 +1,79 @@
 <script setup lang="ts">
-import {computed, ref} from "vue";
+import {computed, type ComputedRef, ref} from "vue";
 import {useAllFsData} from "@/stores/allFsData";
-import type {IPublicFsData, IProtectedFsData, IStudentBody} from "@/interfaces";
+import type {
+  IBaseFsData,
+  IProtectedFsData,
+  IProtectedFsDataResponse,
+  IPublicFsData,
+  IPublicFsDataResponse
+} from "@/interfaces";
 import {useAccountStore} from "@/stores/account";
-import {getPublicFsData, getProtectedFsData, hasFsPermission, putPublicFsData, putProtectedFsData} from "@/util";
+import {
+  getBaseFsData,
+  getProtectedFsData,
+  getPublicFsData,
+  hasFsPermission,
+  putBaseFsData,
+  putProtectedFsData,
+  putPublicFsData
+} from "@/util";
 import {useTokenStore} from "@/stores/token";
-import FsDataEdit from "@/components/fsdata/FsDataEdit.vue";
-import FsDataDisplay from "@/components/fsdata/FsDataDisplay.vue";
+import PublicFsDataEdit from "@/components/fsdata/PublicFsDataEdit.vue";
+import PublicFsDataDisplay from "@/components/fsdata/PublicFsDataDisplay.vue";
 import ProtectedFsDataDisplay from "@/components/fsdata/ProtectedFsDataDisplay.vue";
 import ProtectedFsDataEdit from "@/components/fsdata/ProtectedFsDataEdit.vue";
-import FsDataHistoryModal from "@/components/fsdata/FsDataHistoryModal.vue";
-import FsProtectedDataHistoryModal from "@/components/fsdata/FsProtectedDataHistoryModal.vue";
+import PublicFsDataHistoryModal from "@/components/fsdata/PublicFsDataHistoryModal.vue";
+import ProtectedFsDataHistoryModal from "@/components/fsdata/ProtectedFsDataHistoryModal.vue";
+import {usePageSettingsStore} from "@/stores/pageSettings";
+import BaseFsDataDisplay from "@/components/fsdata/BaseFsDataDisplay.vue";
+import BaseFsDataEdit from "@/components/fsdata/BaseFsDataEdit.vue";
+import BaseFsDataHistoryModal from "@/components/fsdata/BaseFsDataHistoryModal.vue";
 
 const props = defineProps<{
-  studentBody: IStudentBody,
+  baseData: IBaseFsData,
 }>()
 const allFsData = useAllFsData();
 const token = useTokenStore();
 const account = useAccountStore();
+const settings = usePageSettingsStore();
+
+const baseDataCopy = ref(props.baseData);
 
 
-const editFsData = ref(false);
+const editBaseFsData = ref(false);
+const editPublicFsData = ref(false);
 const editProtectedFsData = ref(false);
-const showFsDataHistoryModal = ref(false);
-const showFsProtectedDataHistoryModal = ref(false);
+const showBaseFsDataHistoryModal = ref(false);
+const showPublicFsDataHistoryModal = ref(false);
+const showProtectedFsDataHistoryModal = ref(false);
 
-const data = computed(() => (allFsData.data && Object.prototype.hasOwnProperty.call(allFsData.data, props.studentBody.id)) ? allFsData.data[props.studentBody.id].data : null);
-const protectedData = computed(() => (allFsData.data && Object.prototype.hasOwnProperty.call(allFsData.data, props.studentBody.id)) ? allFsData.data[props.studentBody.id].protected_data : null);
+const publicData: ComputedRef<null | IPublicFsDataResponse> = computed(() => (allFsData.data && Object.prototype.hasOwnProperty.call(allFsData.data, props.baseData.fs_id)) ? allFsData.data[props.baseData.fs_id].public : null);
+const protectedData: ComputedRef<null | IProtectedFsDataResponse> = computed(() => (allFsData.data && Object.prototype.hasOwnProperty.call(allFsData.data, props.baseData.fs_id)) ? allFsData.data[props.baseData.fs_id].protected : null);
 
-const saveFsData = (data: IPublicFsData) => {
-  putPublicFsData(props.studentBody.id, data, token.apiToken).then(() => reloadFsData())
+
+const saveBaseFsData = (data: IBaseFsData) => {
+  putBaseFsData(props.baseData.fs_id, data, token.apiToken).then(() => reloadBaseFsData())
+      .catch(() => alert('Speichern fehlgeschlagen.'));
+}
+
+const savePublicFsData = (data: IPublicFsData) => {
+  putPublicFsData(props.baseData.fs_id, data, token.apiToken).then(() => reloadPublicFsData())
       .catch(() => alert('Speichern fehlgeschlagen.'));
 }
 
 const saveProtectedFsData = (data: IProtectedFsData) => {
-  putProtectedFsData(props.studentBody.id, data, token.apiToken).then(() => reloadProtectedFsData())
+  putProtectedFsData(props.baseData.fs_id, data, token.apiToken).then(() => reloadProtectedFsData())
       .catch(() => alert('Speichern fehlgeschlagen.'));
 }
 
-const reloadFsData = () => {
-  editFsData.value = false;
-  loadFsData();
+const reloadBaseFsData = () => {
+  editBaseFsData.value = false;
+  loadBaseFsData();
+}
+const reloadPublicFsData = () => {
+  editPublicFsData.value = false;
+  loadPublicFsData();
 }
 
 const reloadProtectedFsData = () => {
@@ -48,43 +81,93 @@ const reloadProtectedFsData = () => {
   loadProtectedFsData();
 }
 
-const makeFsDataEditable = () => {
-  editFsData.value = true;
+const makeBaseFsDataEditable = () => {
+  editBaseFsData.value = true;
+}
+
+const makePublicFsDataEditable = () => {
+  editPublicFsData.value = true;
 }
 
 const makeProtectedFsDataEditable = () => {
   editProtectedFsData.value = !editProtectedFsData.value;
 }
 
-const loadFsData = () => {
-  getPublicFsData(props.studentBody.id, token.apiToken).then(data => {
+const loadBaseFsData = () => {
+  getBaseFsData(props.baseData.fs_id, token.apiToken).then(data => {
     if (allFsData.data && data) {
-      allFsData.data[props.studentBody.id].data = data;
-    }
-  });
-}
-const loadProtectedFsData = () => {
-  getProtectedFsData(props.studentBody.id, token.apiToken).then(data => {
-    if (allFsData.data && data) {
-      allFsData.data[props.studentBody.id].protected_data = data;
+      allFsData.data[props.baseData.fs_id].base = data;
     }
   });
 }
 
-const displayFsDataHistory = () => {
-  showFsDataHistoryModal.value = true;
-  showFsProtectedDataHistoryModal.value = false;
+const loadPublicFsData = () => {
+  getPublicFsData(props.baseData.fs_id, token.apiToken).then(data => {
+    if (allFsData.data && data) {
+      allFsData.data[props.baseData.fs_id].public = data;
+    }
+  });
 }
+
+const loadProtectedFsData = () => {
+  getProtectedFsData(props.baseData.fs_id, token.apiToken).then(data => {
+    if (allFsData.data && data) {
+      allFsData.data[props.baseData.fs_id].protected = data;
+    }
+  });
+}
+
+const displayBaseFsDataHistory = () => {
+  showBaseFsDataHistoryModal.value = true;
+  showPublicFsDataHistoryModal.value = false;
+  showProtectedFsDataHistoryModal.value = false;
+}
+
+const displayPublicFsDataHistory = () => {
+  showBaseFsDataHistoryModal.value = false;
+  showPublicFsDataHistoryModal.value = true;
+  showProtectedFsDataHistoryModal.value = false;
+}
+
 const displayProtectedFsDataHistory = () => {
-  showFsDataHistoryModal.value = false;
-  showFsProtectedDataHistoryModal.value = true;
+  showBaseFsDataHistoryModal.value = false;
+  showPublicFsDataHistoryModal.value = false;
+  showProtectedFsDataHistoryModal.value = true;
 }
 </script>
 
 <template>
   <div class="fs-data content">
-    <template v-if="data">
-      <article v-if="!data?.is_latest" class="message is-danger">
+    <template v-if="baseData">
+      <template v-if="editBaseFsData">
+        <button @click="()=>{if(baseData){saveBaseFsData(baseDataCopy)}}"
+                class="button is-small is-bordered is-pulled-right">
+          Speichern
+        </button>
+        <button @click="()=>reloadBaseFsData()" class="button is-small is-bordered is-pulled-right">
+          Abbrechen
+        </button>
+        <BaseFsDataEdit v-model="baseDataCopy"/>
+      </template>
+      <template v-else>
+        <template v-if="account.user?.admin">
+          <button @click="()=>displayBaseFsDataHistory()" class="button is-small is-bordered is-pulled-right">
+            Bearbeitungsverlauf
+          </button>
+        </template>
+        <template
+            v-if="account.user?.admin">
+          <button @click="()=>makeBaseFsDataEditable()" class="button is-small is-bordered is-pulled-right">
+            Bearbeiten
+          </button>
+        </template>
+        <BaseFsDataDisplay :data="baseData"/>
+      </template>
+    </template>
+
+    <template v-if="publicData && settings.displayFsData">
+      <hr>
+      <article v-if="!publicData?.is_latest" class="message is-danger">
         <div class="message-header"><p>Neuere Daten vorhanden</p></div>
         <div class="message-body">
           <p>
@@ -93,31 +176,32 @@ const displayProtectedFsDataHistory = () => {
             und deshalb nicht angezeigt werden.</p>
         </div>
       </article>
-      <template v-if="editFsData">
-        <button @click="()=>{if(data){saveFsData(data.data)}}" class="button is-small is-bordered is-pulled-right">
+      <template v-if="editPublicFsData">
+        <button @click="()=>{if(publicData){savePublicFsData(publicData.data)}}" class="button is-small is-bordered is-pulled-right">
           Speichern
         </button>
-        <button @click="()=>reloadFsData()" class="button is-small is-bordered is-pulled-right">
+        <button @click="()=>reloadPublicFsData()" class="button is-small is-bordered is-pulled-right">
           Abbrechen
         </button>
-        <FsDataEdit v-model="data"/>
+        <PublicFsDataEdit v-model="publicData"/>
       </template>
       <template v-else>
         <template v-if="account.user?.admin">
-          <button @click="()=>displayFsDataHistory()" class="button is-small is-bordered is-pulled-right">
+          <button @click="()=>displayPublicFsDataHistory()" class="button is-small is-bordered is-pulled-right">
             Bearbeitungsverlauf
           </button>
         </template>
         <template
-            v-if="account.user && hasFsPermission(account.user.permissions, studentBody.id, 'write_public_data') || account.user?.admin">
-          <button @click="()=>makeFsDataEditable()" class="button is-small is-bordered is-pulled-right">
+            v-if="account.user && hasFsPermission(account.user.permissions, baseData.fs_id, 'write_public_data') || account.user?.admin">
+          <button @click="()=>makePublicFsDataEditable()" class="button is-small is-bordered is-pulled-right">
             Bearbeiten
           </button>
         </template>
-        <FsDataDisplay :data="data.data"/>
+        <PublicFsDataDisplay :data="publicData.data"/>
       </template>
     </template>
-    <template v-if="protectedData">
+
+    <template v-if="protectedData && settings.displayFsData">
       <article v-if="!protectedData.is_latest" class="message is-danger">
         <div class="message-header"><p>Neuere interne Daten vorhanden</p></div>
         <div class="message-body">
@@ -152,13 +236,17 @@ const displayProtectedFsDataHistory = () => {
       </template>
     </template>
   </div>
-  <FsDataHistoryModal v-if="showFsDataHistoryModal" :fs="studentBody.id" v-model="showFsDataHistoryModal"/>
-  <FsProtectedDataHistoryModal v-if="showFsProtectedDataHistoryModal" :fs="studentBody.id"
-                               v-model="showFsProtectedDataHistoryModal"/>
+  <BaseFsDataHistoryModal v-if="showBaseFsDataHistoryModal" :fs="baseData.fs_id"
+                            v-model="showBaseFsDataHistoryModal"/>
+  <PublicFsDataHistoryModal v-if="showPublicFsDataHistoryModal" :fs="baseData.fs_id"
+                            v-model="showPublicFsDataHistoryModal"/>
+  <ProtectedFsDataHistoryModal v-if="showProtectedFsDataHistoryModal" :fs="baseData.fs_id"
+                               v-model="showProtectedFsDataHistoryModal"/>
 </template>
 
 <style scoped>
-.fs-data {
-  margin-top: 1em;
+ul {
+  list-style-type: square;
+  margin-left: 2rem;
 }
 </style>

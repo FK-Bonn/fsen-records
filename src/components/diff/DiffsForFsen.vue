@@ -2,8 +2,8 @@
 
 import IconPeople from "@/components/icons/IconPeople.vue";
 import type {
+  IAllFsData,
   IAnnotatedDocumentDiff,
-  IData,
   IDocumentDataForFs,
   INewPayoutRequestData,
   IPayoutRequestDiff,
@@ -12,16 +12,16 @@ import type {
 import {computed} from "vue";
 import PayoutRequestDiff from "@/components/diff/PayoutRequestDiff.vue";
 import GenericDiff from "@/components/diff/GenericDiff.vue";
-import {isSameReference} from "@/util";
+import {isSameReference, jsonRepresentationIsDifferent} from "@/util";
 import DocumentDiff from "@/components/diff/DocumentDiff.vue";
 
 const props = defineProps<{
-  scieboStart: null | IData,
+  fsDataStart: null | IAllFsData,
   afsgStart: null | Map<string, INewPayoutRequestData[]>,
   bfsgStart: null | Map<string, INewPayoutRequestData[]>,
   vorankuendigungStart: null | Map<string, INewPayoutRequestData[]>,
   documentsStart: null | IDocumentDataForFs,
-  scieboEnd: null | IData,
+  fsDataEnd: null | IAllFsData,
   afsgEnd: null | Map<string, INewPayoutRequestData[]>,
   bfsgEnd: null | Map<string, INewPayoutRequestData[]>,
   vorankuendigungEnd: null | Map<string, INewPayoutRequestData[]>,
@@ -86,7 +86,7 @@ const emptyStudentBodyDiff = (fs: string, name: string | undefined): IStudentBod
     fs,
     name: name || '?',
     documents: [],
-    financialYearAnnotationDiff: null,
+    annotationDiff: null,
     statutesDiff: null,
     modifiedPayoutRequests: [],
     modifiedBfsg: [],
@@ -108,14 +108,17 @@ const annotatedDocumentComparator = (first: IAnnotatedDocumentDiff, second: IAnn
 }
 
 const getModifiedStudentBodies = (): IStudentBodyDiff[] => {
-  const diffs = [];
+  const diffs: IStudentBodyDiff[] = [];
   const modifiedAfsg = getModifiedPayoutRequests(props.afsgStart, props.afsgEnd);
   const modifiedBfsg = getModifiedPayoutRequests(props.bfsgStart, props.bfsgEnd);
   const modifiedVorankuendigung = getModifiedPayoutRequests(props.vorankuendigungStart, props.vorankuendigungEnd);
-  for (let fs of props.scieboStart?.studentBodies.keys() || []) {
-    const firstStudentBody = props.scieboStart?.studentBodies.get(fs);
-    const secondStudentBody = props.scieboEnd?.studentBodies.get(fs);
-    const diff = emptyStudentBodyDiff(fs, firstStudentBody?.name);
+  if (!props.fsDataStart) {
+    return diffs;
+  }
+  for (let fs of Object.keys(props.fsDataStart)) {
+    const firstStudentBody = props.fsDataStart[fs];
+    const secondStudentBody = props.fsDataEnd?.[fs];
+    const diff = emptyStudentBodyDiff(fs, firstStudentBody?.base?.data.name);
     if (!secondStudentBody) {
       diff.name += ' (not found)';
       diffs.push(diff);
@@ -157,32 +160,32 @@ const getModifiedStudentBodies = (): IStudentBodyDiff[] => {
           diff.modifiedVorankuendigung.push(item);
         }
       }
-      if (firstStudentBody.financialYearAnnotation !== secondStudentBody.financialYearAnnotation) {
-        diff.financialYearAnnotationDiff = {
-          oldString: firstStudentBody.financialYearAnnotation,
-          newString: secondStudentBody.financialYearAnnotation,
+      if (firstStudentBody.base?.data.annotation !== secondStudentBody.base?.data.annotation) {
+        diff.annotationDiff = {
+          oldString: firstStudentBody.base?.data.annotation || '',
+          newString: secondStudentBody.base?.data.annotation || '',
         };
       }
-      if (firstStudentBody.statutes !== secondStudentBody.statutes) {
+      if (firstStudentBody.base?.data.statutes !== secondStudentBody.base?.data.statutes) {
         diff.statutesDiff = {
-          oldString: firstStudentBody.statutes,
-          newString: secondStudentBody.statutes,
+          oldString: firstStudentBody.base?.data.statutes || '',
+          newString: secondStudentBody.base?.data.statutes || '',
         };
       }
-      if (firstStudentBody.financialYearStart !== secondStudentBody.financialYearStart) {
+      if (firstStudentBody.base?.data.financial_year_start !== secondStudentBody.base?.data.financial_year_start) {
         diff.financialYearStartDiff = {
-          oldString: firstStudentBody.financialYearStart,
-          newString: secondStudentBody.financialYearStart,
+          oldString: firstStudentBody.base?.data.financial_year_start || '',
+          newString: secondStudentBody.base?.data.financial_year_start || '',
         };
       }
-      if (firstStudentBody.proceedingsUrl !== secondStudentBody.proceedingsUrl) {
+      if (jsonRepresentationIsDifferent(firstStudentBody.base?.data.proceedings_urls, secondStudentBody.base?.data.proceedings_urls)) {
         diff.proceedingsUrlDiff = {
-          oldString: JSON.stringify(firstStudentBody.proceedingsUrl),
-          newString: JSON.stringify(secondStudentBody.proceedingsUrl),
+          oldString: JSON.stringify(firstStudentBody.base?.data.proceedings_urls),
+          newString: JSON.stringify(secondStudentBody.base?.data.proceedings_urls),
         };
       }
     }
-    if (!isJsonEqual(diff, emptyStudentBodyDiff(fs, firstStudentBody?.name))) {
+    if (!isJsonEqual(diff, emptyStudentBodyDiff(fs, firstStudentBody?.base?.data.name))) {
       diffs.push(diff);
     }
   }
@@ -237,11 +240,11 @@ const modifiedStudentBodies = computed(() => getModifiedStudentBodies())
           <DocumentDiff :before="singleDiff.oldDocument" :after="singleDiff.newDocument"/>
         </tr>
       </template>
-      <template v-if="studentBody.financialYearAnnotationDiff">
+      <template v-if="studentBody.annotationDiff">
         <tr>
           <td>Haushaltsjahr</td>
-          <GenericDiff :before="studentBody.financialYearAnnotationDiff.oldString"
-                       :after="studentBody.financialYearAnnotationDiff.newString"/>
+          <GenericDiff :before="studentBody.annotationDiff.oldString"
+                       :after="studentBody.annotationDiff.newString"/>
         </tr>
       </template>
       <template v-if="studentBody.statutesDiff">

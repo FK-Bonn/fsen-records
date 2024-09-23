@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type {IStudentBody} from "@/interfaces";
+import type {IBaseFsData} from "@/interfaces";
 import {computed} from "vue";
 import {CurrentlyCanBePaidCalculator, Interval, SemesterCalculator} from "@/Calculator";
 import {useScieboDataStore} from "@/stores/scieboData";
@@ -10,14 +10,14 @@ import {useFixedDateStore} from "@/stores/fixedDate";
 import {useDocumentsStore} from "@/stores/documents";
 
 const props = defineProps<{
-  studentBody: IStudentBody,
+  baseData: IBaseFsData,
 }>()
 
 const sciebo = useScieboDataStore();
 const fixedDate = useFixedDateStore();
 const documents = useDocumentsStore();
 
-const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.studentBody, fixedDate.date, documents.data));
+const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.baseData, fixedDate.date, documents.data));
 const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fromStrings(value.start, value.end)))
 
 </script>
@@ -27,11 +27,11 @@ const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fr
     <div class="box">
       <div class="columns">
         <div class="column">
-          <h2 class="title is-5" :id="studentBody.id">
-            <a :href="'#'+studentBody.id">
+          <h2 class="title is-5" :id="baseData.fs_id">
+            <a :href="'#'+baseData.fs_id">
               <IconPeople/>
             </a>
-            {{ studentBody.name }}
+            {{ baseData.name }}
           </h2>
         </div>
         <div class="column is-narrow">
@@ -39,7 +39,7 @@ const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fr
           |
           <template v-for="semester in semesters" :key="semester?.start">
             <IconForLevel v-if="semester"
-                          :level="new SemesterCalculator(studentBody, semester, documents.data).calculateOverallLevel()"
+                          :level="new SemesterCalculator(baseData, semester, documents.data).calculateOverallLevel()"
                           :title="calculateSemesterId(semester)"/>
           </template>
         </div>
