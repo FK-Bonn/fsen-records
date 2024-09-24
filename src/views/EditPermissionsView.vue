@@ -13,15 +13,15 @@ import {
   updatePageTitle
 } from "@/util";
 import {useAccountStore} from "@/stores/account";
-import {useScieboDataStore} from "@/stores/scieboData";
 import type {IPermission, IPermissionKey, IUserWithPermissions} from "@/interfaces";
 import {useTokenStore} from "@/stores/token";
+import {useAllFsData} from "@/stores/allFsData";
 
 const account = useAccountStore();
-const sciebo = useScieboDataStore();
+const fsData = useAllFsData();
 const token = useTokenStore();
 
-const fsen = computed(() => [...(sciebo.data?.studentBodies.keys() || [])].sort())
+const fsen = computed(() => fsData.data ? [...(Object.keys(fsData.data))].sort() : [])
 
 const editPermissionsUsername = ref(getUsernameFromUrl());
 const editPermissionsAdmin = ref(false);

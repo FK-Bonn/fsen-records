@@ -5,21 +5,20 @@ import {computed} from "vue";
 import {Interval} from "@/Calculator";
 import CurrentlyCanBePaidSection from "@/components/studentbody/CurrentlyCanBePaidSection.vue";
 import SemesterSection from "@/components/studentbody/SemesterSection.vue";
-import {useScieboDataStore} from "@/stores/scieboData";
 import BfsgSection from "@/components/studentbody/BfsgSection.vue";
 import DocumentsSection from "@/components/studentbody/DocumentsSection.vue";
 import IconPeople from "@/components/icons/IconPeople.vue";
 import {usePageSettingsStore} from "@/stores/pageSettings";
 import CompactStudentBody from "@/components/studentbody/CompactStudentBody.vue";
+import {META} from "@/meta";
 
 defineProps<{
   baseData: IBaseFsData,
 }>()
 
-const sciebo = useScieboDataStore();
 const settings = usePageSettingsStore();
 
-const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fromStrings(value.start, value.end)).filter(value => !!value))
+const semesters = computed(() => META.semesters.map(value => Interval.fromStrings(value.start, value.end)).filter(value => !!value))
 
 </script>
 

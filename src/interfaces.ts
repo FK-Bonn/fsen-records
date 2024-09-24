@@ -92,10 +92,7 @@ export interface ISemester {
 export interface IData {
     budgetTitles: { [semester: string]: string }
     budgetTitlesBfsg: { [semester: string]: string }
-    // payoutRequests: Map<string, Map<string, IPayoutRequestData>>
     semesters: ISemester[]
-    studentBodies: Map<string, IStudentBody>
-    timestamp: number
 }
 
 export interface IUserWithPermissions {

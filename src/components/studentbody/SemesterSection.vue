@@ -13,8 +13,8 @@ import IconStar from "@/components/icons/IconStar.vue";
 import AngleIndicator from "@/components/icons/AngleIndicator.vue";
 import SemesterContent from "@/components/studentbody/SemesterContent.vue";
 import PayoutRequest from "@/components/payoutrequest/PayoutRequest.vue";
-import {useScieboDataStore} from "@/stores/scieboData";
 import {useDocumentsStore} from "@/stores/documents";
+import {META} from "@/meta";
 
 const props = defineProps<{
   baseData: IBaseFsData,
@@ -23,7 +23,6 @@ const props = defineProps<{
 
 const settings = usePageSettingsStore();
 const payoutRequests = usePayoutRequestStore();
-const sciebo = useScieboDataStore();
 const documents = useDocumentsStore();
 
 const opened = ref(false);
@@ -39,7 +38,7 @@ const toggle = () => {
 const semesterName = computed(() => calculateSemesterName(props.semester))
 const semesterId = computed(() => calculateSemesterId(props.semester))
 const payoutRequestForSemester = computed(() => payoutRequests.afsg?.get(props.baseData.fs_id)?.find(value => value.semester === semesterId.value))
-const budgetTitle = computed(() => semesterId.value ? sciebo.data?.budgetTitles[semesterId.value] : null)
+const budgetTitle = computed(() => semesterId.value ? META.budgetTitles[semesterId.value] : null)
 const level = computed(() => calculateLevel(props.baseData, props.semester))
 const displayStar = computed(() => shouldDisplayStar(level.value, payoutRequestForSemester.value))
 </script>

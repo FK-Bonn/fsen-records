@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import TopLegend from "@/components/TopLegend.vue";
-import {useScieboDataStore} from "@/stores/scieboData";
 import StudentBody from "@/components/studentbody/StudentBody.vue";
 import {computed, nextTick, onBeforeMount, watch} from "vue";
 import {AnnotationLevel, type IBaseFsData, type INewPayoutRequestData} from "@/interfaces";
-import IconForLevel from "@/components/icons/IconForLevel.vue";
 import FilterSettings from "@/components/FilterSettings.vue";
 import {CurrentlyCanBePaidCalculator, Interval, SemesterCalculator} from "@/Calculator";
 import {calculateSemesterId, scrollToHashIfPresent, shouldDisplayStar, updatePageTitle} from "@/util";
@@ -14,8 +12,8 @@ import FixedDateBanner from "@/components/FixedDateBanner.vue";
 import {useRouter} from "vue-router";
 import {useAllFsData} from "@/stores/allFsData";
 import {useDocumentsStore} from "@/stores/documents";
+import {META} from "@/meta";
 
-const sciebo = useScieboDataStore();
 const fsData = useAllFsData();
 const payoutRequests = usePayoutRequestStore();
 const documents = useDocumentsStore();
@@ -80,20 +78,13 @@ const shouldShow = (baseData: IBaseFsData | undefined,
   return show;
 }
 
-const lastUpdate = computed(() => sciebo.data && new Date(sciebo.data.timestamp * 1000).toLocaleString());
-const lastUpdateLevel = computed(() => {
-  if (!sciebo.data) {
-    return AnnotationLevel.Unchecked;
-  }
-  return (Date.now() / 1000 - sciebo.data.timestamp) > 3600 ? AnnotationLevel.Warning : AnnotationLevel.Ok;
-});
-const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fromStrings(value.start, value.end)))
+const semesters = computed(() => META.semesters.map(value => Interval.fromStrings(value.start, value.end)))
 
 onBeforeMount(()=>{
   redirectToDiffIfNecessary();
   updatePageTitle();
 });
-watch(() => (sciebo.data !== null && fsData.data !== null), async () => {
+watch(() => (fsData.data !== null), async () => {
   await nextTick();
   scrollToHashIfPresent();
 });
@@ -105,11 +96,6 @@ watch(() => (sciebo.data !== null && fsData.data !== null), async () => {
 
     <div class="message is-info">
       <div class="message-body">
-        <p class="is-pulled-right">Letzte Aktualisierung:
-          <IconForLevel :level="lastUpdateLevel"/>
-          {{ lastUpdate }}
-        </p>
-
         <TopLegend/>
         <FilterSettings/>
       </div>

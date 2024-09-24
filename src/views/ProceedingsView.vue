@@ -2,11 +2,11 @@
 import {computed, nextTick, onBeforeMount, type Ref, ref, watch} from "vue";
 import {loadProceedingsIndex, scrollToHashIfPresent, updatePageTitle} from "@/util";
 import type {IProceedings} from "@/interfaces";
-import {useScieboDataStore} from "@/stores/scieboData";
 import {useAccountStore} from "@/stores/account";
 import FsWithProceedings from "@/components/proceedings/FsWithProceedings.vue";
+import {useAllFsData} from "@/stores/allFsData";
 
-const sciebo = useScieboDataStore();
+const fsData = useAllFsData();
 const account = useAccountStore();
 const proceedings: Ref<null | IProceedings[]> = ref(null);
 
@@ -18,18 +18,18 @@ onBeforeMount(() => {
   updatePageTitle('Sitzungsprotokolle');
   loadProceedings();
 });
-watch(() => (sciebo.data !== null && proceedings.value !== null), async () => {
+watch(() => (fsData.data !== null && proceedings.value !== null), async () => {
   await nextTick();
   scrollToHashIfPresent();
 });
 
 const fsen = computed(() => {
   if (account.user?.admin) {
-    return [...(sciebo.data?.studentBodies.keys() || [])].sort();
+    return fsData.data ? [...(Object.keys(fsData.data))].sort() : [];
   }
   const fsenWithProceedings = new Set(proceedings.value?.map(value => value.fs));
   const fsenWithUploadRights = new Set(account.user?.permissions.filter(value => value.upload_proceedings).map(value => value.fs));
-  return [...(sciebo.data?.studentBodies.keys() || [])].sort().filter(fs => fsenWithProceedings.has(fs) || fsenWithUploadRights.has(fs));
+  return (fsData.data ? [...(Object.keys(fsData.data))].sort() : []).filter(fs => fsenWithProceedings.has(fs) || fsenWithUploadRights.has(fs));
 })
 
 const proceedingsByFs = computed(() => {
@@ -59,7 +59,7 @@ const proceedingsByFs = computed(() => {
     <template v-for="fs in fsen" :key="fs">
       <FsWithProceedings
           :fs="fs"
-          :name="sciebo.data?.studentBodies.get(fs)?.name||''"
+          :name="fsData.data?.[fs]?.base?.data.name||''"
           :proceedings="proceedingsByFs.get(fs)||[]"
           @reload-proceedings="()=>loadProceedings()"/>
     </template>

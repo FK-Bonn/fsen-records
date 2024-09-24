@@ -2,23 +2,22 @@
 import type {IBaseFsData} from "@/interfaces";
 import {computed} from "vue";
 import {CurrentlyCanBePaidCalculator, Interval, SemesterCalculator} from "@/Calculator";
-import {useScieboDataStore} from "@/stores/scieboData";
 import IconPeople from "@/components/icons/IconPeople.vue";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
 import {calculateSemesterId} from "@/util";
 import {useFixedDateStore} from "@/stores/fixedDate";
 import {useDocumentsStore} from "@/stores/documents";
+import {META} from "@/meta";
 
 const props = defineProps<{
   baseData: IBaseFsData,
 }>()
 
-const sciebo = useScieboDataStore();
 const fixedDate = useFixedDateStore();
 const documents = useDocumentsStore();
 
 const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.baseData, fixedDate.date, documents.data));
-const semesters = computed(() => sciebo.data?.semesters.map(value => Interval.fromStrings(value.start, value.end)))
+const semesters = computed(() => META.semesters.map(value => Interval.fromStrings(value.start, value.end)))
 
 </script>
 

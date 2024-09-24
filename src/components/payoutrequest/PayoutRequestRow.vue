@@ -1,6 +1,5 @@
 <script setup lang="ts">
 
-import {useScieboDataStore} from "@/stores/scieboData";
 import CopyableTag from "@/components/CopyableTag.vue";
 import type {IAllFsData, INewPayoutRequestData} from "@/interfaces";
 import {euroCents, getStatusTagClass} from "@/util";
@@ -10,6 +9,7 @@ import {useAllFsData} from "@/stores/allFsData";
 import RequestEditModal from "@/components/payoutrequest/RequestEditModal.vue";
 import RequestHistoryModal from "@/components/payoutrequest/RequestHistoryModal.vue";
 import SimpleCopyableTag from "@/components/SimpleCopyableTag.vue";
+import {META} from "@/meta";
 
 const props = defineProps<{
   payoutRequest: INewPayoutRequestData,
@@ -18,7 +18,6 @@ const props = defineProps<{
 }>()
 
 const account = useAccountStore();
-const sciebo = useScieboDataStore();
 const fsData = useAllFsData();
 
 
@@ -67,7 +66,7 @@ const showHistoryModal = () => {
 }
 
 const tagClass = computed(() => getStatusTagClass(props.payoutRequest));
-const budgetTitle = computed(() => sciebo.data?.budgetTitlesBfsg ? sciebo.data?.budgetTitlesBfsg[props.payoutRequest.semester] : '');
+const budgetTitle = computed(() => META.budgetTitlesBfsg[props.payoutRequest.semester]);
 const tableLine = computed(() => getTableLine(fsData.data, props.payoutRequest, budgetTitle.value));
 </script>
 

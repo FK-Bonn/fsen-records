@@ -3,13 +3,11 @@ import {RouterView} from 'vue-router'
 import NavbarView from "@/views/NavbarView.vue";
 import FooterView from "@/views/FooterView.vue";
 import {useTokenStore} from "@/stores/token";
-import {getAllFsData, getDocumentData, getPayoutRequestData, loadLoggedInUser, pojoToIData} from "@/util";
+import {getAllFsData, getDocumentData, getPayoutRequestData, loadLoggedInUser} from "@/util";
 import {useAccountStore} from "@/stores/account";
 import {useAllFsData} from "@/stores/allFsData";
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
 import {computed, onBeforeMount, type Ref, ref, watch} from "vue";
-import type {IData} from "@/interfaces";
-import {useScieboDataStore} from "@/stores/scieboData";
 import ErrorList from "@/components/ErrorList.vue";
 import {useFixedDateStore} from "@/stores/fixedDate";
 import {useDocumentsStore} from "@/stores/documents";
@@ -19,7 +17,6 @@ const token = useTokenStore();
 const account = useAccountStore();
 const allFsData = useAllFsData();
 const payoutRequests = usePayoutRequestStore();
-const sciebo = useScieboDataStore();
 const documents = useDocumentsStore();
 const fixedDate = useFixedDateStore();
 
@@ -30,26 +27,6 @@ const afsgPayoutRequestsDataError: Ref<null | string> = ref(null);
 const bfsgPayoutRequestsDataError: Ref<null | string> = ref(null);
 const vorankuendigungPayoutRequestsDataError: Ref<null | string> = ref(null);
 const errors: Ref<string[]> = ref([]);
-
-const loadData = () => {
-  const url = fixedDate.date ? `/data/history/${fixedDate.date}-data.json` : "/data/data.json";
-  fetch(url)
-      .then(response => response.json(), () => {
-        fetchDataError.value = "Fetching data failed";
-      })
-      .then(rawdata => {
-        try {
-          const data: IData = pojoToIData(rawdata);
-
-          sciebo.data = data;
-          fetchDataError.value = null;
-        } catch (err: any) {
-          fetchDataError.value = err.message;
-        }
-      }, reason => {
-        fetchDataError.value = reason;
-      });
-};
 
 const loadDocuments = () => {
   getDocumentData(fixedDate.date)
@@ -108,14 +85,12 @@ const loadUser = () => {
 onBeforeMount(() => {
   loadUser();
   loadError();
-  loadData();
   loadDocuments();
   loadPayoutRequestData();
   loadAllFsData();
 });
 
 watch(fixedDate, async () => {
-  loadData();
   loadDocuments();
   loadPayoutRequestData();
   loadAllFsData();

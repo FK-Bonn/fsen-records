@@ -4,7 +4,6 @@ import type {
     IBaseFsData,
     IBaseFsDataHistoryEntry,
     IBaseFsDataResponse,
-    IData,
     IDocumentData,
     IDocumentDataForFs,
     IDocumentReference,
@@ -549,11 +548,6 @@ export const scrollToHashIfPresent = () => {
     }
 }
 
-
-export const pojoToIData = (data: any): IData => {
-    data.studentBodies = new Map(Object.entries(data.studentBodies));
-    return data as IData;
-}
 
 export const mangleBfsgPayoutRequestData = (data: INewPayoutRequestData[]): Map<string, INewPayoutRequestData[]> => {
     const retval = new Map<string, INewPayoutRequestData[]>()

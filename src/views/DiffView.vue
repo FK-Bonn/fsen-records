@@ -7,11 +7,10 @@ import {
   getAllFsData,
   getDocumentData,
   getPayoutRequestData,
-  pojoToIData,
   scrollToHashIfPresent,
   updatePageTitle
 } from "@/util";
-import type {IAllFsData, IData, IDocumentDataForFs, INewPayoutRequestData} from "@/interfaces";
+import type {IAllFsData, IDocumentDataForFs, INewPayoutRequestData} from "@/interfaces";
 import DiffsForFsen from "@/components/diff/DiffsForFsen.vue";
 import {useTokenStore} from "@/stores/token";
 
