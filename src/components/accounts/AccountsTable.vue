@@ -2,6 +2,7 @@
 import type {IUserWithPermissions} from "@/interfaces";
 import {permissionsToString} from "@/util";
 import {useAccountStore} from "@/stores/account";
+import SimpleCopyableTag from "@/components/SimpleCopyableTag.vue";
 
 const props = defineProps<{
   users: IUserWithPermissions[],
