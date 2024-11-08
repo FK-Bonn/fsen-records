@@ -30,6 +30,13 @@ export interface IDocumentData {
     annotations_created_by?: string | null
 }
 
+export interface IDocumentHistoryData extends IDocumentData {
+    deleted_by: string | null
+    deleted_timestamp: string | null
+    obsoleted_by: string | null
+    obsoleted_timestamp: string | null
+}
+
 export interface IDocumentDataForFs {
     [key: string]: IDocumentData[]
 }

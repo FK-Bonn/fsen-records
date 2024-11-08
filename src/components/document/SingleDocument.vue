@@ -11,6 +11,7 @@ import {hasFsPermission, shortenFilename} from "@/util";
 import {usePageSettingsStore} from "@/stores/pageSettings";
 import DocumentName from "@/components/document/DocumentName.vue";
 import AnnotationsEditModal from "@/components/document/AnnotationsEditModal.vue";
+import DeleteModal from "@/components/document/DeleteModal.vue";
 import DocumentHistoryModal from "@/components/document/DocumentHistoryModal.vue";
 
 const props = defineProps<{
@@ -23,10 +24,15 @@ const account = useAccountStore();
 const settings = usePageSettingsStore();
 
 const annotationsEditModal = ref(false);
+const deleteModal = ref(false);
 const historyModal = ref(false);
 
 const showAnnotationEditModal = () => {
   annotationsEditModal.value = true;
+}
+
+const showDeleteModal = () => {
+  deleteModal.value = true;
 }
 
 const showHistoryModal = () => {
@@ -35,6 +41,7 @@ const showHistoryModal = () => {
 
 const displayDownloadButton = computed(() => account && (account.user?.admin || hasFsPermission(account.user?.permissions, props.baseData.fs_id, 'read_files')))
 const displayEditAnnotationsButton = computed(() => account && (account.user?.admin))
+const displayDeleteButton = computed(() => account && (account.user?.admin))
 const shortenedFilename = computed(() => shortenFilename(props.document?.filename))
 
 </script>
@@ -71,6 +78,11 @@ const shortenedFilename = computed(() => shortenFilename(props.document?.filenam
                   title="Annotationen bearbeiten">✏️
           </button>
         </p>
+        <p class="control">
+          <button class="button is-small" v-if="displayDeleteButton" @click="showDeleteModal"
+                  title="Datei(version) löschen">🚮
+          </button>
+        </p>
       </div>
     </div>
 
@@ -90,6 +102,8 @@ const shortenedFilename = computed(() => shortenFilename(props.document?.filenam
     </ul>
 
     <AnnotationsEditModal v-if="annotationsEditModal" :fs="baseData.fs_id" :document="document" v-model="annotationsEditModal"/>
+
+    <DeleteModal v-if="deleteModal" :fs="baseData.fs_id" :document="document" v-model="deleteModal"/>
 
     <DocumentHistoryModal v-if="historyModal" :fs="baseData.fs_id" :document="document" v-model="historyModal"/>
 

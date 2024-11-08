@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import type {IDocumentData} from "@/interfaces";
+import type {IDocumentData, IDocumentHistoryData} from "@/interfaces";
 import {refKey} from "@/util";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
 import Sha256Text from "@/components/document/Sha256Text.vue";
 import {computed} from "vue";
 
 const props = defineProps<{
-  document: IDocumentData,
-  previous: IDocumentData | null,
+  document: IDocumentHistoryData,
+  previous: IDocumentHistoryData | null,
 }>();
 
-const hasDifference = (previous: IDocumentData | null, current: IDocumentData, key: keyof IDocumentData): boolean => {
+const hasDifference = (previous: IDocumentHistoryData | null, current: IDocumentHistoryData, key: keyof IDocumentHistoryData): boolean => {
   return !previous || JSON.stringify(previous[key]) !== JSON.stringify(current[key]);
 }
 
@@ -24,6 +24,10 @@ const urlClass = computed(() => hasDifference(props.previous, props.document, 'u
 const annotationsClass = computed(() => hasDifference(props.previous, props.document, 'annotations') ? 'has-background-warning' : '')
 const annotationCreatedClass = computed(() => hasDifference(props.previous, props.document, 'annotations_created_timestamp') ? 'has-background-warning' : '')
 const annotationCreatedByClass = computed(() => hasDifference(props.previous, props.document, 'annotations_created_by') ? 'has-background-warning' : '')
+const deletedTimestampClass = 'has-background-light';
+const obsoletedTimestampClass = 'has-background-light';
+const deletedByClass = 'has-background-light';
+const obsoletedByClass = 'has-background-light';
 
 
 </script>
@@ -87,6 +91,18 @@ const annotationCreatedByClass = computed(() => hasDifference(props.previous, pr
     <td :class="uploadedByClass">{{ document.uploaded_by || '(versteckt)' }}</td>
     <th :class="annotationCreatedByClass">Annotiert von</th>
     <td :class="annotationCreatedByClass">{{ document.annotations_created_by || '(versteckt)' }}</td>
+  </tr>
+  <tr>
+    <th :class="deletedTimestampClass">Gelöscht</th>
+    <td :class="deletedTimestampClass">{{ document.deleted_timestamp || '-' }}</td>
+    <th :class="obsoletedTimestampClass">Obsoletiert</th>
+    <td :class="obsoletedTimestampClass">{{ document.obsoleted_timestamp || '-' }}</td>
+  </tr>
+  <tr>
+    <th :class="deletedByClass">Gelöscht von</th>
+    <td :class="deletedByClass">{{ document.deleted_by || '-' }}</td>
+    <th :class="obsoletedByClass">Obsoletiert von</th>
+    <td :class="obsoletedByClass">{{ document.obsoleted_by || '-' }}</td>
   </tr>
 
 </template>

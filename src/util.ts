@@ -5,7 +5,7 @@ import type {
     IBaseFsDataHistoryEntry,
     IBaseFsDataResponse,
     IDocumentData,
-    IDocumentDataForFs,
+    IDocumentDataForFs, IDocumentHistoryData,
     IDocumentReference,
     IFullPayoutRequestData,
     INewPayoutRequestData,
@@ -575,7 +575,7 @@ export const getDocumentData = async (fixedDate: string | null = null): Promise<
 };
 
 export const getDocumentHistory = async (fs: string, reference: IDocumentReference,
-                                         token: string | null): Promise<IDocumentData[]> => {
+                                         token: string | null): Promise<IDocumentHistoryData[]> => {
     const url = import.meta.env.VITE_API_URL + `/file/${fs}/history`;
     let headers: HeadersInit = {'Content-Type': 'application/json'};
     if (token) {
@@ -937,6 +937,27 @@ export const annotateDocument = async (fs: string, target: IDocumentReference, a
         url,
     }
     return fetch(import.meta.env.VITE_API_URL + `/file/${fs}/annotate`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+        body: JSON.stringify(data)
+    })
+        .then(resp => {
+            if (resp.ok) {
+                return;
+            } else {
+                return Promise.reject(resp.text());
+            }
+        });
+}
+
+export const deleteDocument = async (fs: string, target: IDocumentReference, token: string | null): Promise<void> => {
+    if (!token) {
+        return;
+    }
+    const data = {
+        target,
+    }
+    return fetch(import.meta.env.VITE_API_URL + `/file/${fs}/delete`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
         body: JSON.stringify(data)

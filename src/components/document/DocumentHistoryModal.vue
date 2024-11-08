@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import type {IDocumentData} from "@/interfaces";
+import type {IDocumentData, IDocumentHistoryData} from "@/interfaces";
 import {getDocumentHistory, toReference} from "@/util";
 import {onMounted, ref, type Ref} from "vue";
 import {useTokenStore} from "@/stores/token";
@@ -15,7 +15,7 @@ const historyModal = defineModel<boolean>({required: true})
 
 const token = useTokenStore();
 
-const completedRequest: Ref<IDocumentData[] | null> = ref(null);
+const completedRequest: Ref<IDocumentHistoryData[] | null> = ref(null);
 const message = ref('');
 
 
