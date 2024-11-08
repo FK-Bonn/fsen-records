@@ -13,6 +13,7 @@ import {
   getBaseFsData,
   getProtectedFsData,
   getPublicFsData,
+  hasAnyFsPermission,
   hasFsPermission,
   putBaseFsData,
   putProtectedFsData,
@@ -50,7 +51,7 @@ const showProtectedFsDataHistoryModal = ref(false);
 
 const publicData: ComputedRef<null | IPublicFsDataResponse> = computed(() => (allFsData.data && Object.prototype.hasOwnProperty.call(allFsData.data, props.baseData.fs_id)) ? allFsData.data[props.baseData.fs_id].public : null);
 const protectedData: ComputedRef<null | IProtectedFsDataResponse> = computed(() => (allFsData.data && Object.prototype.hasOwnProperty.call(allFsData.data, props.baseData.fs_id)) ? allFsData.data[props.baseData.fs_id].protected : null);
-
+const showPlaceholders = computed(()=>account.user && hasAnyFsPermission(account.user.permissions, props.baseData.fs_id))
 
 const saveBaseFsData = (data: IBaseFsData) => {
   putBaseFsData(props.baseData.fs_id, data, token.apiToken).then(() => reloadBaseFsData())
@@ -200,6 +201,14 @@ const displayProtectedFsDataHistory = () => {
         <PublicFsDataDisplay :data="publicData.data"/>
       </template>
     </template>
+    <template v-else-if="showPlaceholders">
+      <article class="message is-info">
+        <div class="message-body">
+          Um die öffentlichen Daten dieser Fachschaft anzuzeigen,
+          benötigst du die Berechtigung "👀 FS-Daten anzeigen".
+        </div>
+      </article>
+    </template>
 
     <template v-if="protectedData && settings.displayFsData">
       <article v-if="!protectedData.is_latest" class="message is-danger">
@@ -234,6 +243,14 @@ const displayProtectedFsDataHistory = () => {
         </button>
         <ProtectedFsDataDisplay :data="protectedData.data"/>
       </template>
+    </template>
+    <template v-else-if="showPlaceholders">
+      <article class="message is-info">
+        <div class="message-body">
+          Um die internen Daten dieser Fachschaft anzuzeigen,
+          benötigst du die Berechtigung "👀 geschützte FS-Daten anzeigen".
+        </div>
+      </article>
     </template>
   </div>
   <BaseFsDataHistoryModal v-if="showBaseFsDataHistoryModal" :fs="baseData.fs_id"

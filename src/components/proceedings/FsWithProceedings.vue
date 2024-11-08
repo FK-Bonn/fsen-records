@@ -2,7 +2,7 @@
 import type {IProceedings} from "@/interfaces";
 import IconPeople from "@/components/icons/IconPeople.vue";
 import {useAccountStore} from "@/stores/account";
-import {committeeToFullName, deleteProceedings, hasFsPermission} from "@/util";
+import {committeeToFullName, deleteProceedings, hasAnyFsPermission, hasFsPermission} from "@/util";
 import {computed} from "vue";
 import UploadForm from "@/components/proceedings/UploadForm.vue";
 import {useTokenStore} from "@/stores/token";
@@ -30,6 +30,7 @@ const deleteTheseProceedings = (item: IProceedings) => {
 
 const hasUploadPermission = computed(() => account.user?.admin || hasFsPermission(account.user?.permissions, props.fs, 'upload_proceedings'));
 const hasDeletePermission = computed(() => account.user?.admin || hasFsPermission(account.user?.permissions, props.fs, 'delete_proceedings'));
+const showPlaceholders = computed(()=>account.user && hasAnyFsPermission(account.user.permissions, props.fs))
 const proceedingsByType = computed(() => {
   const mapped = new Map();
   for (const proceeding of props.proceedings) {
@@ -53,6 +54,14 @@ const proceedingsByType = computed(() => {
 
   <template v-if="hasUploadPermission">
     <UploadForm :fs="props.fs" @reload-proceedings="()=>emit('reloadProceedings')"/>
+  </template>
+  <template v-else-if="showPlaceholders">
+    <article class="message is-info">
+      <div class="message-body">
+        Um für diese Fachschaft Protokolle hochladen zu können,
+        benötigst du die Berechtigung "📃 Protokolle hochladen".
+      </div>
+    </article>
   </template>
 
   <div class="content">
