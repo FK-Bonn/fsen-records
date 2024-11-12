@@ -1255,3 +1255,19 @@ export const refKey = (reference: IDocumentReference) => reference.category + '-
     (reference.date_start ? ('-' + reference.date_start) : '') +
     (reference.date_end ? ('--' + reference.date_end) : '') +
     (reference.request_id ? ('-' + reference.request_id) : '');
+
+export const payoutRequestToMarkdown= (payoutRequest: INewPayoutRequestData)=>{
+    const paddedAmount = euroCents(payoutRequest.amount_cents).padStart(10, ' ');
+    let value = `1. FS ${payoutRequest.fs} | Semester: ${payoutRequest.semester}  
+ **${payoutRequest.category}** · [\`${payoutRequest.request_id}\`](${window.location.href})  
+ \`${paddedAmount}\`  `;
+    if (payoutRequest.comment){
+        value += `
+ _${payoutRequest.comment}_  `;
+    }
+    if (payoutRequest.reference){
+        value += `
+ (${payoutRequest.reference})  `;
+    }
+    return value;
+}
