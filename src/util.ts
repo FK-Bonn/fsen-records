@@ -750,11 +750,17 @@ export const getAllFsData = async (token: string | null, fixedDate: string | nul
             if (resp.ok) {
                 return resp.json();
             } else {
-                return Promise.reject('An error occured');
+                return Promise.reject('An error occured fetching ' + url);
             }
         })
         .then(json => {
             return json;
+        })
+        .catch(error => {
+            console.log(error);
+            if (token){
+                return getAllFsData(null, fixedDate);
+            }
         });
 }
 

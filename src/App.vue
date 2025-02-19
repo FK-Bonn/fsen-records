@@ -78,7 +78,12 @@ const loadAllFsData = () => {
 };
 
 const loadUser = () => {
-  loadLoggedInUser(token.apiToken).then(user => account.login(user));
+  loadLoggedInUser(token.apiToken).then(user => {
+    account.login(user);
+    if (user === null) {
+      token.logout();
+    }
+  });
 };
 
 
