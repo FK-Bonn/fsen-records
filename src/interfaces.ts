@@ -290,3 +290,19 @@ export interface IDocumentReference {
     date_start: string | null
     date_end: string | null
 }
+
+export interface IElectoralRegistersStatus {
+    last_successful_run: string
+    last_data_change: string
+    unassigned_faks: string[]
+}
+
+export interface IElectoralRegisterDownloadData {
+    timestamp: string
+    username: string
+    filepath: string
+}
+
+export interface IElectoralRegistersIndex {
+    [key: string]: string[]
+}

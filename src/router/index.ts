@@ -39,6 +39,11 @@ const router = createRouter({
       component: () => import('../views/ProceedingsView.vue'),
     },
     {
+      path: '/waehlendenverzeichnisse',
+      name: 'waehlendenverzeichnisse',
+      component: () => import('../views/ElectoralRegistersView.vue'),
+    },
+    {
       path: '/diff/:dateStart/:dateEnd?',
       name: 'diff',
       component: () => import('../views/DiffView.vue'),

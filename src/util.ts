@@ -5,8 +5,12 @@ import type {
     IBaseFsDataHistoryEntry,
     IBaseFsDataResponse,
     IDocumentData,
-    IDocumentDataForFs, IDocumentHistoryData,
+    IDocumentDataForFs,
+    IDocumentHistoryData,
     IDocumentReference,
+    IElectoralRegisterDownloadData,
+    IElectoralRegistersIndex,
+    IElectoralRegistersStatus,
     IFullPayoutRequestData,
     INewPayoutRequestData,
     IPermission,
@@ -884,6 +888,41 @@ export const putProtectedFsData = async (fs: string, data: IProtectedFsData, tok
 
 export const loadProceedingsIndex = async (): Promise<IProceedings[] | null> => {
     return fetch(import.meta.env.VITE_API_URL + '/proceedings')
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                return Promise.reject('An error occured');
+            }
+        })
+        .then(json => {
+            return json;
+        });
+}
+
+export const loadElectoralRegistersStatus = async (): Promise<IElectoralRegistersStatus | null> => {
+    return fetch(import.meta.env.VITE_API_URL + '/electoral-registers/status')
+        .then(resp => {
+            return resp.json(); // HTTP Status is 500 if unhealthy, so no check for resp.ok here
+        });
+}
+
+export const loadElectoralRegistersLog = async (): Promise<IElectoralRegisterDownloadData[] | null> => {
+    return fetch(import.meta.env.VITE_API_URL + '/electoral-registers/log')
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                return Promise.reject('An error occured');
+            }
+        })
+        .then(json => {
+            return json;
+        });
+}
+
+export const loadElectoralRegistersIndex = async (): Promise<IElectoralRegistersIndex | null> => {
+    return fetch(import.meta.env.VITE_API_URL + '/electoral-registers')
         .then(resp => {
             if (resp.ok) {
                 return resp.json();

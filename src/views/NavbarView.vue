@@ -46,6 +46,14 @@ const account = useAccountStore();
     </li>
   </ul>
   <p class="menu-label">
+    Wahlen
+  </p>
+  <ul class="menu-list">
+    <li>
+      <RouterLink :to="{name: 'waehlendenverzeichnisse'}">Wählenden&shy;verzeichnisse</RouterLink>
+    </li>
+  </ul>
+  <p class="menu-label">
     Verwaltung
   </p>
   <ul class="menu-list">
