@@ -7,11 +7,15 @@ const props = defineProps<{
   filename: string,
 }>()
 
+const emit = defineEmits<{
+  reloadLog: []
+}>()
+
 const token = useTokenStore();
 
 const downloadUrl = () => {
   const url = import.meta.env.VITE_API_URL + "/electoral-registers/" + props.date + "/" + props.filename;
-  downloadFile(url, token.apiToken);
+  downloadFile(url, token.apiToken)?.then(()=>emit('reloadLog'));
 }
 </script>
 

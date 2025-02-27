@@ -1222,7 +1222,7 @@ export const downloadFile = (url: string, token: string|null) => {
     if(!token){
         return;
     }
-    fetch(url, {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
+    return fetch(url, {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
         .then(resp => {
             if (resp.ok) {
                 return resp.blob();
@@ -1233,6 +1233,7 @@ export const downloadFile = (url: string, token: string|null) => {
         .then(blob => {
             const url = URL.createObjectURL(blob);
             window.open(url, '_blank');
+            return Promise.resolve();
         })
         .catch(() => alert('Hoppla! Das hat leider nicht geklappt'));
 }

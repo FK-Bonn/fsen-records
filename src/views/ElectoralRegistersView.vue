@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import {onBeforeMount} from "vue";
+import {onBeforeMount, ref} from "vue";
 import {updatePageTitle} from "@/util";
 import ElectoralRegistersStatus from "@/components/ElectoralRegistersStatus.vue";
 import ElectoralRegistersDownloadList from "@/components/ElectoralRegistersDownloadList.vue";
 import ElectoralRegistersLog from "@/components/ElectoralRegistersLog.vue";
+
+const reloadLog = ref(0);
+
+const reload = ()=>{
+  reloadLog.value++;
+}
 
 onBeforeMount(() => {
   updatePageTitle('Wählendenverzeichnisse');
@@ -21,7 +27,7 @@ onBeforeMount(() => {
     </div>
 
     <ElectoralRegistersStatus/>
-    <ElectoralRegistersDownloadList/>
-    <ElectoralRegistersLog/>
+    <ElectoralRegistersDownloadList @reload-log="reload()"/>
+    <ElectoralRegistersLog :reloadLog="reloadLog"/>
   </div>
 </template>

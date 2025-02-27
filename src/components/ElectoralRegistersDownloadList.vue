@@ -5,6 +5,10 @@ import {loadElectoralRegistersIndex, scrollToHashIfPresent} from "@/util";
 import ElectoralRegisterDownloadButton from "@/components/document/ElectoralRegisterDownloadButton.vue";
 import {useAccountStore} from "@/stores/account";
 
+const emit = defineEmits<{
+  reloadLog: []
+}>()
+
 const account = useAccountStore();
 const index: Ref<null | IElectoralRegistersIndex> = ref(null);
 
@@ -37,7 +41,8 @@ watch(() => (index.value !== null), async () => {
         <ul>
           <li v-for="filename in files" :key="filename">
             <code>{{ date }}/{{ filename }}</code>
-            <ElectoralRegisterDownloadButton :date="date" :filename="filename" v-if="account.user?.admin"/>
+            <ElectoralRegisterDownloadButton
+                :date="date" :filename="filename" v-if="account.user?.admin" @reload-log="()=>emit('reloadLog')"/>
           </li>
         </ul>
       </details>

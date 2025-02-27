@@ -5,6 +5,10 @@ import {loadElectoralRegistersLog, scrollToHashIfPresent} from "@/util";
 
 const log: Ref<null | IElectoralRegisterDownloadData[]> = ref(null);
 
+const props = defineProps<{
+  reloadLog: number
+}>();
+
 const loadLog = () => {
   loadElectoralRegistersLog().then(value => log.value = value);
 };
@@ -15,6 +19,9 @@ onBeforeMount(() => {
 watch(() => (log.value !== null), async () => {
   await nextTick();
   scrollToHashIfPresent();
+});
+watch(() => (props.reloadLog), async () => {
+  loadLog();
 });
 </script>
 
