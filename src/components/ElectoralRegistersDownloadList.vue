@@ -34,6 +34,11 @@ watch(() => (index.value !== null), async () => {
       Jeder Download wird öffentlich protokolliert!<br>
       Ein Verzeichnis darf nur heruntergeladen werden, um es anschließend für eine Fachschaftswahl auszudrucken!
     </div>
+    <div class="notification is-info" v-else>
+      <strong>Ihr wählt bald?</strong>
+      Eure Wahlleitung muss beim <a href="https://asta-bonn.de/de/referate/fachschaftenreferat">Fachschaftenreferat</a>
+      das Wählendenverzeichnis beantragen.
+    </div>
 
     <div v-if="index">
       <details v-for="(files, date) in index" :key="date">
