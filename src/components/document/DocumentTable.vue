@@ -1,19 +1,24 @@
 <script setup lang="ts">
 import type {IDocumentData, IDocumentHistoryData} from "@/interfaces";
-import {refKey} from "@/util";
+import {hasFsPermission, refKey} from "@/util";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
 import Sha256Text from "@/components/document/Sha256Text.vue";
 import {computed} from "vue";
+import DownloadButton from "@/components/document/DownloadButton.vue";
+import {useAccountStore} from "@/stores/account";
 
 const props = defineProps<{
   document: IDocumentHistoryData,
   previous: IDocumentHistoryData | null,
+  fs: string,
 }>();
 
+const account = useAccountStore();
 const hasDifference = (previous: IDocumentHistoryData | null, current: IDocumentHistoryData, key: keyof IDocumentHistoryData): boolean => {
   return !previous || JSON.stringify(previous[key]) !== JSON.stringify(current[key]);
 }
 
+const displayDownloadButton = computed(() => account && (account.user?.admin || hasFsPermission(account.user?.permissions, props.fs, 'read_files')))
 const sha256Class = computed(() => hasDifference(props.previous, props.document, 'sha256hash') ? 'has-background-warning' : '')
 const fileExtensionClass = computed(() => hasDifference(props.previous, props.document, 'file_extension') ? 'has-background-warning' : '')
 const createdTimestampClass = computed(() => hasDifference(props.previous, props.document, 'created_timestamp') ? 'has-background-warning' : '')
@@ -33,7 +38,8 @@ const obsoletedByClass = 'has-background-light';
 </script>
 <template>
   <tr>
-    <th colspan="4">{{ document.filename }}</th>
+    <th colspan="4">{{ document.filename }} <DownloadButton
+        v-if="displayDownloadButton" :fs="fs" :filename="document.filename"/></th>
   </tr>
   <tr>
     <th colspan="2" class="has-text-centered">Dokument</th>

@@ -62,6 +62,7 @@ onMounted(() => {
                 <DocumentTable
                     :document="documentState"
                     :previous="i===(completedRequest.length-1)?null:completedRequest[i+1]"
+                    :fs="fs"
                 />
                 <tr><td colspan="4" class="has-background-grey"></td></tr>
               </template>

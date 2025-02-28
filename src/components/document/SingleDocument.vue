@@ -66,7 +66,7 @@ const shortenedFilename = computed(() => shortenFilename(props.document?.filenam
 
       <div class="field is-grouped">
         <p class="control">
-          <DownloadButton v-if="displayDownloadButton" :baseData="baseData" :filename="document.filename"/>
+          <DownloadButton v-if="displayDownloadButton" :fs="baseData.fs_id" :filename="document.filename"/>
         </p>
         <p class="control">
           <button class="button is-small" @click.stop="showHistoryModal" title="Bearbeitungsverlauf anzeigen">

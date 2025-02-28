@@ -5,7 +5,7 @@ import {downloadFile} from "@/util";
 
 defineProps<{
   filename: string,
-  baseData: IBaseFsData,
+  fs: string,
 }>()
 
 const token = useTokenStore();
@@ -17,7 +17,7 @@ const downloadUrl = (fs: string, filename: string) => {
 </script>
 
 <template>
-  <button class="button is-small" @click="()=>downloadUrl(baseData.fs_id, filename)">
+  <button class="button is-small" @click="()=>downloadUrl(fs, filename)">
     Öffnen
   </button>
 </template>
