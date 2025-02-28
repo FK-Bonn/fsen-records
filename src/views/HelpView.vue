@@ -18,7 +18,7 @@ onBeforeMount(() => {
 
     <dl>
       <dt>Wo kann ich mich vollumfassend informieren?</dt>
-      <dd>Auf der <a href="https://asta-bonn.de/Fachschaftenreferat">Webseite des Fachschaftenreferats</a>.</dd>
+      <dd>Auf der <a href="https://asta-bonn.de/de/referate/fachschaftenreferat">Webseite des Fachschaftenreferats</a>.</dd>
 
       <dt>Kann ich AFSG-Anträge stellen, obwohl meine Fachschaft aktuell nicht auszahlungsfähig ist?</dt>
       <dd>Ja.</dd>
@@ -31,7 +31,7 @@ onBeforeMount(() => {
 
       <dt>Wo kann ich Dokumente für Anträge hochladen?</dt>
       <dd>Gar nicht. Sendet die bitte per E-Mail an das
-        <a href="https://asta-bonn.de/Fachschaftenreferat">Fachschaftenreferat</a>.</dd>
+        <a href="https://asta-bonn.de/de/referate/fachschaftenreferat">Fachschaftenreferat</a>.</dd>
 
       <dt>Wo kann ich Sitzungsprotokolle hochladen?</dt>
       <dd>Direkt auf der <RouterLink :to="{name: 'sitzungsprotokolle'}">Sitzungsprotokolle-Seite</RouterLink>.
@@ -61,7 +61,7 @@ onBeforeMount(() => {
       <dd>Falls jemand aus deiner Fachschaft bereits einen Account hat,
         kann diese Person dir <RouterLink :to="{name: 'accounts-create'}">hier</RouterLink>
         einen eigenen Account erstellen.<br>
-        Andernfalls schreibst du dem <a href="https://asta-bonn.de/Fachschaftenreferat">Fachschaftenreferat</a> <em>von
+        Andernfalls schreibst du dem <a href="https://asta-bonn.de/de/referate/fachschaftenreferat">Fachschaftenreferat</a> <em>von
           eurer Fachschafts-E-Mail-Adresse</em> eine E-Mail mit deinem Namen und bittest um einen Account.</dd>
 
       <dt>Wo kann ich sehen, wer welche Berechtigungen für meine Fachschaft hat?</dt>
@@ -79,12 +79,12 @@ onBeforeMount(() => {
 
       <dt>Warum wird ein <IconCross/> angezeigt, obwohl eigentlich alles passt?</dt>
       <dd>Dann passt wohl doch noch nicht alles. Falls ihr das Problem nicht selbst erkennen könnt, fragt gerne
-        per E-Mail beim <a href="https://asta-bonn.de/Fachschaftenreferat">Fachschaftenreferat</a> nach.</dd>
+        per E-Mail beim <a href="https://asta-bonn.de/de/referate/fachschaftenreferat">Fachschaftenreferat</a> nach.</dd>
 
       <dt>Was tue ich, wenn ich der Ansicht bin,
         dass eine auf dieser Webseite dargestellte Information falsch ist?</dt>
       <dd>Sende dann bitte eine E-Mail an das
-        <a href="https://asta-bonn.de/Fachschaftenreferat">Fachschaftenreferat</a>, in der du dies schilderst.</dd>
+        <a href="https://asta-bonn.de/de/referate/fachschaftenreferat">Fachschaftenreferat</a>, in der du dies schilderst.</dd>
 
     </dl>
 
