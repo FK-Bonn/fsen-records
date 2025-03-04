@@ -1317,3 +1317,15 @@ export const payoutRequestToMarkdown= (payoutRequest: INewPayoutRequestData)=>{
     }
     return value;
 }
+
+export const isLocalStorageEnabled = () => {
+    try {
+        const key = `temp`;
+        window.localStorage.setItem(key, 'test');
+        window.localStorage.removeItem(key);
+        return true;
+    } catch (e) {
+        return false;
+    }
+};
+

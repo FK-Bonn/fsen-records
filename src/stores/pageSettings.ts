@@ -1,6 +1,7 @@
 import type {Ref} from 'vue'
 import {ref} from 'vue'
 import {defineStore} from 'pinia'
+import {isLocalStorageEnabled} from "@/util";
 
 export const usePageSettingsStore = defineStore('pageSettings', () => {
     const showOnlyWhoCurrentlyCanBePaid: Ref<boolean> = ref(false);
@@ -20,4 +21,4 @@ export const usePageSettingsStore = defineStore('pageSettings', () => {
         displayFsData,
         paleLowerDocuments,
     }
-}, {persist: true})
+}, {persist: isLocalStorageEnabled()})

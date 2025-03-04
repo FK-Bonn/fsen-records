@@ -1,6 +1,7 @@
 import type {Ref} from 'vue'
 import {ref} from 'vue'
 import {defineStore} from 'pinia'
+import {isLocalStorageEnabled} from "@/util";
 
 export const useTokenStore = defineStore('token', () => {
     const apiToken: Ref<null | string> = ref(null);
@@ -18,4 +19,4 @@ export const useTokenStore = defineStore('token', () => {
     }
 
     return {apiToken, isLoggedIn, login, logout}
-}, {persist: true})
+}, {persist: isLocalStorageEnabled()})

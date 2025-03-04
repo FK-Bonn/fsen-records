@@ -1,6 +1,7 @@
 import type {Ref} from 'vue'
 import {ref} from 'vue'
 import {defineStore} from 'pinia'
+import {isLocalStorageEnabled} from "@/util";
 
 export const useColourSchemeStore = defineStore('colourScheme', () => {
     const setting: Ref<string> = ref('auto');
@@ -17,4 +18,4 @@ export const useColourSchemeStore = defineStore('colourScheme', () => {
     }
 
     return {setting, cycle}
-}, {persist: true})
+}, {persist: isLocalStorageEnabled()})
