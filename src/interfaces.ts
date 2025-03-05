@@ -306,3 +306,16 @@ export interface IElectoralRegisterDownloadData {
 export interface IElectoralRegistersIndex {
     [key: string]: string[]
 }
+
+export interface Fraction {
+    numerator: number
+    denominator: number
+}
+
+export interface IFundsDistributions {
+    [key: string]: IFundsDistribution
+}
+
+export interface IFundsDistribution {
+    [key: string]: Fraction
+}

@@ -34,6 +34,11 @@ const router = createRouter({
       component: () => import('../views/BudgetView.vue'),
     },
     {
+      path: '/afsg-verteilung',
+      name: 'afsg-verteilung',
+      component: () => import('../views/FundsView.vue'),
+    },
+    {
       path: '/sitzungsprotokolle',
       name: 'sitzungsprotokolle',
       component: () => import('../views/ProceedingsView.vue'),

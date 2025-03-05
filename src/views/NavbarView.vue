@@ -42,6 +42,9 @@ const account = useAccountStore();
       <RouterLink :to="{name: 'hhp'}">Haushaltsplansentwurf</RouterLink>
     </li>
     <li>
+      <RouterLink :to="{name: 'afsg-verteilung'}">AFSG-Verteilung</RouterLink>
+    </li>
+    <li>
       <RouterLink :to="{name: 'sitzungsprotokolle'}">Sitzungsprotokolle</RouterLink>
     </li>
   </ul>

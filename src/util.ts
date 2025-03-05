@@ -12,6 +12,7 @@ import type {
     IElectoralRegistersIndex,
     IElectoralRegistersStatus,
     IFullPayoutRequestData,
+    IFundsDistributions,
     INewPayoutRequestData,
     IPermission,
     IPermissionKey,
@@ -888,6 +889,20 @@ export const putProtectedFsData = async (fs: string, data: IProtectedFsData, tok
 
 export const loadProceedingsIndex = async (): Promise<IProceedings[] | null> => {
     return fetch(import.meta.env.VITE_API_URL + '/proceedings')
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                return Promise.reject('An error occured');
+            }
+        })
+        .then(json => {
+            return json;
+        });
+}
+
+export const loadFundsIndex = async (): Promise<IFundsDistributions | null> => {
+    return fetch(import.meta.env.VITE_API_URL + '/electoral-registers/funds')
         .then(resp => {
             if (resp.ok) {
                 return resp.json();
