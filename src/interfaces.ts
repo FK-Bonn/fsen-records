@@ -307,6 +307,26 @@ export interface IElectoralRegistersIndex {
     [key: string]: string[]
 }
 
+export interface IElectionData {
+    election_id: string
+    fs: string
+    committee: string
+    election_method: string
+    first_election_day: string
+    last_election_day: string
+    electoral_register_request_date: string
+    electoral_register_hand_out_date: string
+    result_url: string
+    result_published_date: string
+    scrutiny_status: string
+    comments: string
+}
+
+export interface IElectionDataWithMeta extends IElectionData {
+    last_modified_timestamp: string
+    last_modified_by: string
+}
+
 export interface Fraction {
     numerator: number
     denominator: number

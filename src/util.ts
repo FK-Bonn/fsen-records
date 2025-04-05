@@ -7,7 +7,7 @@ import type {
     IDocumentData,
     IDocumentDataForFs,
     IDocumentHistoryData,
-    IDocumentReference,
+    IDocumentReference, IElectionData, IElectionDataWithMeta,
     IElectoralRegisterDownloadData,
     IElectoralRegistersIndex,
     IElectoralRegistersStatus,
@@ -947,6 +947,53 @@ export const loadElectoralRegistersIndex = async (): Promise<IElectoralRegisters
         })
         .then(json => {
             return json;
+        });
+}
+
+export const loadElectionDatesIndex = async (): Promise<IElectionData[] | null> => {
+    return fetch(import.meta.env.VITE_API_URL + '/elections/')
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                return Promise.reject('An error occured');
+            }
+        })
+        .then(json => {
+            return json;
+        });
+}
+
+export const saveElection = async (data: IElectionData | null, token: string | null): Promise<void> => {
+    if (!token || !data) {
+        return;
+    }
+    return fetch(import.meta.env.VITE_API_URL + '/elections/save', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+        body: JSON.stringify(data)
+    })
+        .then(resp => {
+            if (resp.ok) {
+                return;
+            } else {
+                return Promise.reject('An error occured');
+            }
+        });
+}
+
+export const getElectionHistory = async (electionId: string, token: string | null): Promise<IElectionDataWithMeta[] | undefined> => {
+    if (!token) {
+        return;
+    }
+    const headers = {'Authorization': `Bearer ${token}`};
+    const url = import.meta.env.VITE_API_URL + `/elections/${electionId}/history`;
+    return fetch(url, {method: 'GET', headers})
+        .then(response => response.json(), () => {
+            return Promise.reject("Fetching data failed");
+        })
+        .then(rawdata => {
+            return rawdata;
         });
 }
 

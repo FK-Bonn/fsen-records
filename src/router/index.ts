@@ -44,6 +44,11 @@ const router = createRouter({
       component: () => import('../views/ProceedingsView.vue'),
     },
     {
+      path: '/wahltermine',
+      name: 'wahltermine',
+      component: () => import('../views/ElectionDates.vue'),
+    },
+    {
       path: '/waehlendenverzeichnisse',
       name: 'waehlendenverzeichnisse',
       component: () => import('../views/ElectoralRegistersView.vue'),
