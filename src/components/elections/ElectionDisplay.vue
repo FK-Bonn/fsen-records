@@ -20,6 +20,9 @@ const cutoffDate = computed(() => {
       return base.toISOString().substring(0, 10);
     }
 )
+const smh = computed(() => (props.election.electoral_register_request_date
+    && cutoffDate.value !== '???'
+    && (props.election.electoral_register_request_date > cutoffDate.value)) ? ' 🤦' : '');
 </script>
 
 <template>
@@ -45,7 +48,7 @@ const cutoffDate = computed(() => {
       Stichtag Wählendenverzeichnis
     </div>
     <div class="column">
-      <p class="is-size-4">{{ election.electoral_register_request_date || '???' }}</p>
+      <p class="is-size-4">{{ election.electoral_register_request_date || '???' }}{{ smh }}</p>
       Wählendenverzeichnis beantragt
     </div>
     <div class="column">
