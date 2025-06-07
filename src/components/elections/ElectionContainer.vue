@@ -31,7 +31,7 @@ const showHistory = () => {
   historyModal.value = true;
 }
 const save = () => {
-  saveElection(electionCopy.value, token.apiToken).then(() => {
+  saveElection(electionCopy.value, token.token()).then(() => {
     toggleEdit();
     emit('reloadElectionList');
   })

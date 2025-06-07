@@ -15,7 +15,7 @@ const token = useTokenStore();
 
 const downloadUrl = () => {
   const url = import.meta.env.VITE_API_URL + "/electoral-registers/" + props.date + "/" + props.filename;
-  downloadFile(url, token.apiToken)?.then(()=>emit('reloadLog'));
+  downloadFile(url, token.token())?.then(()=>emit('reloadLog'));
 }
 </script>
 

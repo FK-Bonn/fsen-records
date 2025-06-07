@@ -43,7 +43,7 @@ const documentsEnd: Ref<null | IDocumentDataForFs> = ref(null);
 
 
 watch(dateStart, async () => {
-  fsDataStart.value = await getAllFsData(token.apiToken, dateStart.value);
+  fsDataStart.value = await getAllFsData(token.token(), dateStart.value);
   afsgStart.value = await getPayoutRequestData('afsg', dateStart.value);
   bfsgStart.value = await getPayoutRequestData('bfsg', dateStart.value);
   vorankuendigungStart.value = await getPayoutRequestData('vorankuendigung', dateStart.value);
@@ -51,7 +51,7 @@ watch(dateStart, async () => {
 }, {immediate: true});
 
 watch(dateEnd, async () => {
-  fsDataEnd.value = await getAllFsData(token.apiToken, dateEnd.value);
+  fsDataEnd.value = await getAllFsData(token.token(), dateEnd.value);
   afsgEnd.value = await getPayoutRequestData('afsg', dateEnd.value);
   bfsgEnd.value = await getPayoutRequestData('bfsg', dateEnd.value);
   vorankuendigungEnd.value = await getPayoutRequestData('vorankuendigung', dateEnd.value);

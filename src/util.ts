@@ -206,8 +206,10 @@ export const copyToClipboard = (str: string) => {
     return Promise.reject('The Clipboard API is not available.');
 };
 
-export const loadLoggedInUser = async (token: string | null): Promise<IUserWithPermissions | null> => {
+export const loadLoggedInUser = async (tokenPromise: Promise<string | null>): Promise<IUserWithPermissions | null> => {
+    const token = await tokenPromise;
     if (!token) {
+        console.log('token is null, not loading user')
         return null;
     }
     return fetch(import.meta.env.VITE_API_URL + '/user/me', {
@@ -229,7 +231,8 @@ export const loadLoggedInUser = async (token: string | null): Promise<IUserWithP
         });
 }
 
-export const loadUsersList = async (token: string|null): Promise<Map<string, IUserWithPermissions> | null> => {
+export const loadUsersList = async (tokenPromise: Promise<string | null>): Promise<Map<string, IUserWithPermissions> | null> => {
+    const token = await tokenPromise;
     if(!token){
         return null;
     }
@@ -249,10 +252,11 @@ export const loadUsersList = async (token: string|null): Promise<Map<string, IUs
         });
 }
 
-export const createAccount = async (username: string, password: string, admin: boolean, permissions: IPermission[], token: string | null): Promise<{
+export const createAccount = async (username: string, password: string, admin: boolean, permissions: IPermission[], tokenPromise: Promise<string | null>): Promise<{
     user: IUserWithPermissions | null,
     message: string | null
 } | undefined> => {
+    const token = await tokenPromise;
     if (!token) {
         return;
     }
@@ -277,10 +281,11 @@ export const createAccount = async (username: string, password: string, admin: b
         });
 }
 
-export const editPermissions = async (isAdmin: boolean | undefined, username: string, admin: boolean, permissions: IPermission[], token: string | null): Promise<{
+export const editPermissions = async (isAdmin: boolean | undefined, username: string, admin: boolean, permissions: IPermission[], tokenPromise: Promise<string | null>): Promise<{
     user: IUserWithPermissions | null,
     message: string | null
 } | undefined> => {
+    const token = await tokenPromise;
     if (!token) {
         return;
     }
@@ -336,7 +341,8 @@ export const editPermissionsPatch = async (username: string, permissions: IPermi
         });
 }
 
-export const resetPassword = async (username: string, password: string, token: string | null): Promise<string> => {
+export const resetPassword = async (username: string, password: string, tokenPromise: Promise<string | null>): Promise<string> => {
+    const token = await tokenPromise;
     if (!token) {
         return 'missing token';
     }
@@ -354,7 +360,8 @@ export const resetPassword = async (username: string, password: string, token: s
         });
 }
 
-export const changePassword = async (current_password: string, new_password: string, token: string | null): Promise<string | undefined> => {
+export const changePassword = async (current_password: string, new_password: string, tokenPromise: Promise<string | null>): Promise<string | undefined> => {
+    const token = await tokenPromise;
     if (!token) {
         return;
     }
@@ -374,10 +381,11 @@ export const changePassword = async (current_password: string, new_password: str
         });
 }
 
-export const createPayoutRequest = async (fs: string, semester: string | undefined, token: string | null): Promise<{
+export const createPayoutRequest = async (fs: string, semester: string | undefined, tokenPromise: Promise<string | null>): Promise<{
     payoutRequest: INewPayoutRequestData | null,
     message: string | null
 } | undefined> => {
+    const token = await tokenPromise;
     if (!token || !semester) {
         return;
     }
@@ -403,10 +411,11 @@ export const createPayoutRequest = async (fs: string, semester: string | undefin
 export const createBfsgPayoutRequest = async (fs: string, semester: string, category: string, amount_cents: number,
                                               status: string, status_date: string, comment: string,
                                               completion_deadline: string, reference: string, request_date: string,
-                                              token: string | null): Promise<{
+                                              tokenPromise: Promise<string | null>): Promise<{
     payoutRequest: INewPayoutRequestData | null,
     message: string | null
 } | undefined> => {
+    const token = await tokenPromise;
     if (!token) {
         return;
     }
@@ -452,10 +461,11 @@ export const createBfsgPayoutRequest = async (fs: string, semester: string, cate
 export const createVorankuendigungPayoutRequest = async (fs: string, semester: string, category: string,
                                                          amount_cents: number, status: string, status_date: string,
                                                          comment: string, completion_deadline: string, reference: string,
-                                                         request_date: string, token: string | null): Promise<{
+                                                         request_date: string, tokenPromise: Promise<string | null>): Promise<{
     payoutRequest: INewPayoutRequestData | null,
     message: string | null
 } | undefined> => {
+    const token = await tokenPromise;
     if (!token) {
         return;
     }
@@ -497,10 +507,11 @@ export const createVorankuendigungPayoutRequest = async (fs: string, semester: s
         });
 }
 
-export const editPayoutRequest = async (request_id: string, type: string, payload: any, token: string | null): Promise<{
+export const editPayoutRequest = async (request_id: string, type: string, payload: any, tokenPromise: Promise<string | null>): Promise<{
     payoutRequest: IFullPayoutRequestData | null,
     message: string | null
 } | undefined> => {
+    const token = await tokenPromise;
     if (!token) {
         return;
     }
@@ -580,7 +591,8 @@ export const getDocumentData = async (fixedDate: string | null = null): Promise<
 };
 
 export const getDocumentHistory = async (fs: string, reference: IDocumentReference,
-                                         token: string | null): Promise<IDocumentHistoryData[]> => {
+                                         tokenPromise: Promise<string | null>): Promise<IDocumentHistoryData[]> => {
+    const token = await tokenPromise;
     const url = import.meta.env.VITE_API_URL + `/file/${fs}/history`;
     let headers: HeadersInit = {'Content-Type': 'application/json'};
     if (token) {
@@ -611,7 +623,8 @@ export const getPayoutRequestData = async (type: string, fixedDate: string | nul
         });
 };
 
-export const getPayoutRequestHistory = async (request_id: string, type: string, token: string | null): Promise<IFullPayoutRequestData[] | undefined> => {
+export const getPayoutRequestHistory = async (request_id: string, type: string, tokenPromise: Promise<string | null>): Promise<IFullPayoutRequestData[] | undefined> => {
+    const token = await tokenPromise;
     const headers = token ? {'Authorization': `Bearer ${token}`} : undefined;
     const url = import.meta.env.VITE_API_URL + `/payout-request/${type}/${request_id}/history`;
     return fetch(url, {method: 'GET', headers})
@@ -623,7 +636,8 @@ export const getPayoutRequestHistory = async (request_id: string, type: string, 
         });
 }
 
-export const getBaseFsDataHistory = async (fs: string, token: string | null): Promise<IBaseFsDataHistoryEntry[] | null> => {
+export const getBaseFsDataHistory = async (fs: string, tokenPromise: Promise<string | null>): Promise<IBaseFsDataHistoryEntry[] | null> => {
+    const token = await tokenPromise;
     if (!token) {
         return null;
     }
@@ -637,7 +651,8 @@ export const getBaseFsDataHistory = async (fs: string, token: string | null): Pr
         });
 };
 
-export const getPublicFsDataHistory = async (fs: string, token: string | null): Promise<IPublicFsDataHistoryEntry[] | null> => {
+export const getPublicFsDataHistory = async (fs: string, tokenPromise: Promise<string | null>): Promise<IPublicFsDataHistoryEntry[] | null> => {
+    const token = await tokenPromise;
     if (!token) {
         return null;
     }
@@ -651,7 +666,8 @@ export const getPublicFsDataHistory = async (fs: string, token: string | null): 
         });
 };
 
-export const getProtectedFsDataHistory = async (fs: string, token: string | null): Promise<IProtectedFsDataHistoryEntry[] | null> => {
+export const getProtectedFsDataHistory = async (fs: string, tokenPromise: Promise<string | null>): Promise<IProtectedFsDataHistoryEntry[] | null> => {
+    const token = await tokenPromise;
     if (!token) {
         return null;
     }
@@ -666,7 +682,10 @@ export const getProtectedFsDataHistory = async (fs: string, token: string | null
 };
 
 
-export const approveBaseFsData = async (id: number, token: string | null): Promise<{ message: string } | null> => {
+export const approveBaseFsData = async (id: number, tokenPromise: Promise<string | null>): Promise<{
+    message: string
+} | null> => {
+    const token = await tokenPromise;
     if (!token) {
         return null;
     }
@@ -691,7 +710,10 @@ export const approveBaseFsData = async (id: number, token: string | null): Promi
         });
 }
 
-export const approvePublicFsData = async (id: number, token: string | null): Promise<{ message: string } | null> => {
+export const approvePublicFsData = async (id: number, tokenPromise: Promise<string | null>): Promise<{
+    message: string
+} | null> => {
+    const token = await tokenPromise;
     if (!token) {
         return null;
     }
@@ -716,7 +738,10 @@ export const approvePublicFsData = async (id: number, token: string | null): Pro
         });
 }
 
-export const approveProtectedFsData = async (id: number, token: string | null): Promise<{ message: string } | null> => {
+export const approveProtectedFsData = async (id: number, tokenPromise: Promise<string | null>): Promise<{
+    message: string
+} | null> => {
+    const token = await tokenPromise;
     if (!token) {
         return null;
     }
@@ -741,8 +766,9 @@ export const approveProtectedFsData = async (id: number, token: string | null): 
         });
 }
 
-export const getAllFsData = async (token: string | null, fixedDate: string | null = null): Promise<IAllFsData | null> => {
+export const getAllFsData = async (tokenPromise: Promise<string | null>, fixedDate: string | null = null): Promise<IAllFsData | null> => {
     let headers = {};
+    const token = await tokenPromise;
     if(token){
         headers = {'Authorization': `Bearer ${token}`};
     }
@@ -764,12 +790,13 @@ export const getAllFsData = async (token: string | null, fixedDate: string | nul
         .catch(error => {
             console.log(error);
             if (token){
-                return getAllFsData(null, fixedDate);
+                return getAllFsData(new Promise(() => null), fixedDate);
             }
         });
 }
 
-export const getBaseFsData = async (fs: string, token: string | null): Promise<IBaseFsDataResponse | null> => {
+export const getBaseFsData = async (fs: string, tokenPromise: Promise<string | null>): Promise<IBaseFsDataResponse | null> => {
+    const token = await tokenPromise;
     const headers: HeadersInit = token ? {'Authorization': `Bearer ${token}`} : {};
     return fetch(import.meta.env.VITE_API_URL + '/data/' + fs + '/base', {
         method: 'GET',
@@ -790,7 +817,8 @@ export const getBaseFsData = async (fs: string, token: string | null): Promise<I
         });
 }
 
-export const putBaseFsData = async (fs: string, data: IBaseFsData, token: string | null): Promise<void> => {
+export const putBaseFsData = async (fs: string, data: IBaseFsData, tokenPromise: Promise<string | null>): Promise<void> => {
+    const token = await tokenPromise;
     if (!token) {
         return;
     }
@@ -808,7 +836,8 @@ export const putBaseFsData = async (fs: string, data: IBaseFsData, token: string
         });
 }
 
-export const getPublicFsData = async (fs: string, token: string | null): Promise<IPublicFsDataResponse | null> => {
+export const getPublicFsData = async (fs: string, tokenPromise: Promise<string | null>): Promise<IPublicFsDataResponse | null> => {
+    const token = await tokenPromise;
     if (!token) {
         return null;
     }
@@ -831,7 +860,8 @@ export const getPublicFsData = async (fs: string, token: string | null): Promise
         });
 }
 
-export const putPublicFsData = async (fs: string, data: IPublicFsData, token: string | null): Promise<void> => {
+export const putPublicFsData = async (fs: string, data: IPublicFsData, tokenPromise: Promise<string | null>): Promise<void> => {
+    const token = await tokenPromise;
     if (!token) {
         return;
     }
@@ -849,7 +879,8 @@ export const putPublicFsData = async (fs: string, data: IPublicFsData, token: st
         });
 }
 
-export const getProtectedFsData = async (fs: string, token: string | null): Promise<IProtectedFsDataResponse | null> => {
+export const getProtectedFsData = async (fs: string, tokenPromise: Promise<string | null>): Promise<IProtectedFsDataResponse | null> => {
+    const token = await tokenPromise;
     if (!token) {
         return null;
     }
@@ -869,7 +900,8 @@ export const getProtectedFsData = async (fs: string, token: string | null): Prom
         });
 }
 
-export const putProtectedFsData = async (fs: string, data: IProtectedFsData, token: string | null): Promise<void> => {
+export const putProtectedFsData = async (fs: string, data: IProtectedFsData, tokenPromise: Promise<string | null>): Promise<void> => {
+    const token = await tokenPromise;
     if (!token) {
         return;
     }
@@ -964,7 +996,8 @@ export const loadElectionDatesIndex = async (): Promise<IElectionData[] | null> 
         });
 }
 
-export const saveElection = async (data: IElectionData | null, token: string | null): Promise<void> => {
+export const saveElection = async (data: IElectionData | null, tokenPromise: Promise<string | null>): Promise<void> => {
+    const token = await tokenPromise;
     if (!token || !data) {
         return;
     }
@@ -982,7 +1015,8 @@ export const saveElection = async (data: IElectionData | null, token: string | n
         });
 }
 
-export const getElectionHistory = async (electionId: string, token: string | null): Promise<IElectionDataWithMeta[] | undefined> => {
+export const getElectionHistory = async (electionId: string, tokenPromise: Promise<string | null>): Promise<IElectionDataWithMeta[] | undefined> => {
+    const token = await tokenPromise;
     if (!token) {
         return;
     }
@@ -999,7 +1033,8 @@ export const getElectionHistory = async (electionId: string, token: string | nul
 
 export const uploadDocument = async (fs: string, file: File, category: string, base_name: string,
                                      date_start: string | null, date_end: string | null,
-                                     request_id: string | null, token: string | null): Promise<void> => {
+                                     request_id: string | null, tokenPromise: Promise<string | null>): Promise<void> => {
+    const token = await tokenPromise;
     if (!token) {
         return;
     }
@@ -1032,7 +1067,8 @@ export const uploadDocument = async (fs: string, file: File, category: string, b
 
 export const annotateDocument = async (fs: string, target: IDocumentReference, annotations: IAnnotation[] | null,
                                        tags: string[] | null, references: IDocumentReference[] | null,
-                                       url: string | null, token: string | null): Promise<void> => {
+                                       url: string | null, tokenPromise: Promise<string | null>): Promise<void> => {
+    const token = await tokenPromise;
     if (!token) {
         return;
     }
@@ -1057,7 +1093,8 @@ export const annotateDocument = async (fs: string, target: IDocumentReference, a
         });
 }
 
-export const deleteDocument = async (fs: string, target: IDocumentReference, token: string | null): Promise<void> => {
+export const deleteDocument = async (fs: string, target: IDocumentReference, tokenPromise: Promise<string | null>): Promise<void> => {
+    const token = await tokenPromise;
     if (!token) {
         return;
     }
@@ -1079,7 +1116,8 @@ export const deleteDocument = async (fs: string, target: IDocumentReference, tok
 }
 
 export const uploadProceedings = async (fs: string, file: File, committee: string, date: string, tags: string,
-                                        token: string | null): Promise<void> => {
+                                        tokenPromise: Promise<string | null>): Promise<void> => {
+    const token = await tokenPromise;
     if (!token) {
         return;
     }
@@ -1102,7 +1140,8 @@ export const uploadProceedings = async (fs: string, file: File, committee: strin
         });
 }
 
-export const deleteProceedings = async (fs: string, committee: string, date: string, token: string | null): Promise<void> => {
+export const deleteProceedings = async (fs: string, committee: string, date: string, tokenPromise: Promise<string | null>): Promise<void> => {
+    const token = await tokenPromise;
     if (!token) {
         return;
     }
@@ -1391,3 +1430,7 @@ export const isLocalStorageEnabled = () => {
     }
 };
 
+export const until = (predicateFunction: () => boolean) => {
+    const poll = (done: (value: unknown) => void) => (predicateFunction() ? done(null) : setTimeout(() => poll(done), 500));
+    return new Promise(poll);
+};

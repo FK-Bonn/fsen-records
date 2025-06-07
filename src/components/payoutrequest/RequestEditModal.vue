@@ -51,7 +51,7 @@ const yeetRequest = () => {
     completion_deadline: completion_deadline.value,
     reference: reference.value,
   };
-  editPayoutRequest(props.payoutRequest.request_id, props.type, data, token.apiToken).then(value => {
+  editPayoutRequest(props.payoutRequest.request_id, props.type, data, token.token()).then(value => {
     if (value) {
       message.value = value.message;
       completedRequest.value = value.payoutRequest;

@@ -96,7 +96,7 @@ const upload = () => {
       date_end: showDateEnd.value ? date_end.value : null,
     }
     uploadDocument(props.fs, file.value, 'AFSG', base_name.value, date_start.value,
-        showDateEnd.value ? date_end.value : null, null, token.apiToken).catch(reason => {
+        showDateEnd.value ? date_end.value : null, null, token.token()).catch(reason => {
       error.value = 'Ein Fehler beim Hochladen ist aufgetreten: ' + reason;
     }).then(() => {
       success.value = 'Upload erfolgreich';
@@ -111,7 +111,7 @@ const upload = () => {
       const tagsData = tags.value.length ? tags.value.split(',').map(value => value.trim()) : null;
       const referencesData = references.value.length ? references.value : null;
       const urlData = url.value ? url.value : null;
-      return annotateDocument(props.fs, target, annotationsData, tagsData, referencesData, urlData, token.apiToken);
+      return annotateDocument(props.fs, target, annotationsData, tagsData, referencesData, urlData, token.token());
     }).then(() => {
       annotateSuccess.value = 'Annotation erfolgreich';
       annotations.value = [];

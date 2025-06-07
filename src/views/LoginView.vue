@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import {useTokenStore} from "@/stores/token";
 import {useAccountStore} from "@/stores/account";
-import {onBeforeMount, ref} from "vue";
+import {computed, onBeforeMount, ref} from "vue";
 import {getAllFsData, loadLoggedInUser, updatePageTitle} from "@/util";
 import {useAllFsData} from "@/stores/allFsData";
 import {useRouter} from "vue-router";
+import Keycloak from "keycloak-js";
 
 const token = useTokenStore();
 const account = useAccountStore();
@@ -15,6 +16,7 @@ const password = ref('');
 
 const router = useRouter();
 
+const doLogin = () => token.keycloak.login()
 
 const login = () => {
   const formData = new FormData();
@@ -31,11 +33,11 @@ const login = () => {
       .then(response => {
         const accessToken = response['access_token'];
         token.login(accessToken);
-        return loadLoggedInUser(token.apiToken);
+        return loadLoggedInUser(token.token());
       })
       .then(user => {
         account.login(user);
-        return getAllFsData(token.apiToken);
+        return getAllFsData(token.token());
       }).then(fsData => {
         allFsData.set(fsData);
         router.push({name: 'home'});
@@ -53,6 +55,11 @@ onBeforeMount(()=>{
   <div class="section">
 
     <h1 class="title">Login</h1>
+    <div class="mb-4">
+      <button class="button is-primary is-large" @click="doLogin">Login mit Uni-ID</button>
+    </div>
+
+    <hr>
 
     <form @submit.prevent="login">
     <div class="field">
@@ -67,7 +74,7 @@ onBeforeMount(()=>{
     </div>
     <div class="field">
       <p class="control">
-        <button class="button is-primary" @click="login">
+        <button class="button" @click="login">
           Login
         </button>
       </p>

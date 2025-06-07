@@ -25,7 +25,7 @@ const close = () => {
 
 
 const loadHistory = () => {
-  getDocumentHistory(props.fs, toReference(props.document), token.apiToken)
+  getDocumentHistory(props.fs, toReference(props.document), token.token())
       .then(data => {
         if (data) {
           completedRequest.value = data;

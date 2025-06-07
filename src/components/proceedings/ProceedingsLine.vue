@@ -15,13 +15,13 @@ const downloadUrl = computed(() => `${baseUrl}/proceedings/${props.fs}/Prot-${pr
 const tags = computed(() => props.item.tags.split(',').map((t: string) => t.trim()).filter((t: string) => t !== ''));
 
 const download = () => {
-  downloadFile(downloadUrl.value, token.apiToken);
+  downloadFile(downloadUrl.value, token.token());
 }
 
 </script>
 
 <template>
-  <template v-if="token.apiToken">
+  <template v-if="token.token()">
     <a :href="downloadUrl" class="mr-3" @click.prevent="download">
       📃 {{ item.committee }}-Protokoll vom {{ formatDate(new Date(item.date)) }}
     </a>

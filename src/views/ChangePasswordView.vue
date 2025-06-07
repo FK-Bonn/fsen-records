@@ -15,7 +15,7 @@ const changePasswordWithData = async () => {
   message.value = await changePassword(
       currentPassword.value,
       newPassword.value,
-      token.apiToken,
+      token.token(),
   ) || null;
 }
 

@@ -10,7 +10,7 @@ const token = useTokenStore();
 const usersList: Ref<Map<string, IUserWithPermissions> | null> = ref(null);
 
 onBeforeMount(async () => {
-  usersList.value = await loadUsersList(token.apiToken);
+  usersList.value = await loadUsersList(token.token());
 })
 
 const sortUsers = (a: IUserWithPermissions, b: IUserWithPermissions) => {

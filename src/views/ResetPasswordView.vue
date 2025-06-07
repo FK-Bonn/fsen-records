@@ -16,7 +16,7 @@ const resetPasswordWithData = async () => {
   resetMessage.value = await resetPassword(
       resetPasswordUsername.value,
       resetPasswordPassword.value,
-      token.apiToken,
+      token.token(),
   );
 }
 

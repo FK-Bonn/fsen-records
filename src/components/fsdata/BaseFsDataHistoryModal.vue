@@ -18,7 +18,7 @@ const close = () => {
   show.value = false;
 }
 const loadHistory = () => {
-  getBaseFsDataHistory(props.fs, token.apiToken)
+  getBaseFsDataHistory(props.fs, token.token())
       .then(data => {
         completedRequest.value = data;
       });

@@ -49,7 +49,7 @@ const resetNewElection = () => {
 
 
 const save = () => {
-  saveElection(newElection.value, token.apiToken).then(() => {
+  saveElection(newElection.value, token.token()).then(() => {
     resetNewElection();
     loadIndex();
   })

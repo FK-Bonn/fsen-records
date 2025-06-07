@@ -104,6 +104,7 @@ export interface IData {
 
 export interface IUserWithPermissions {
     username: string
+    full_name: string
     admin: boolean
     permissions: IPermission[]
     created_by: string

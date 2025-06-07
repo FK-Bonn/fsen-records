@@ -12,7 +12,7 @@ const token = useTokenStore();
 
 const downloadUrl = (fs: string, filename: string) => {
   const url = import.meta.env.VITE_API_URL + "/file/get/" + fs + "/" + filename;
-  downloadFile(url, token.apiToken);
+  downloadFile(url, token.token());
 }
 </script>
 

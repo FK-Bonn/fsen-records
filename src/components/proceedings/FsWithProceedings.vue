@@ -24,7 +24,7 @@ const token = useTokenStore();
 const deleteTheseProceedings = (item: IProceedings) => {
   const result = confirm(`Soll Prot-${item.committee}-${item.date}.pdf wirklich gelöscht werden?`);
   if (result) {
-    deleteProceedings(props.fs, item.committee, item.date, token.apiToken).then(() => emit('reloadProceedings'));
+    deleteProceedings(props.fs, item.committee, item.date, token.token()).then(() => emit('reloadProceedings'));
   }
 }
 
