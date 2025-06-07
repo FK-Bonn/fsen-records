@@ -25,7 +25,7 @@ const close = () => {
 
 
 const loadHistory = () => {
-  getPayoutRequestHistory(props.payoutRequestId, props.type, token.apiToken)
+  getPayoutRequestHistory(props.payoutRequestId, props.type, token.token())
       .then(data => {
         if (data) {
           completedRequest.value = data;

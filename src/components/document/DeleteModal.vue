@@ -45,7 +45,7 @@ const yeetRequest = () => {
     date_start: props.document.date_start || null,
     date_end: props.document.date_end || null,
   }
-  return deleteDocument(props.fs, target, token.apiToken).then(() => {
+  return deleteDocument(props.fs, target, token.token()).then(() => {
     message.value = 'Datei(version) gelöscht';
     reloadDocuments();
   }).catch(reason => {

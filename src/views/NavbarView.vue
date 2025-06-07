@@ -9,8 +9,9 @@ const account = useAccountStore();
 
 <template>
   <span class="tag is-primary" v-if="token.isLoggedIn()">
-    Hallo,&thinsp;<b>{{ account.user?.username }}</b>!
+    Hallo,&thinsp;<b>{{ account.user?.full_name }}</b>!
   </span>
+  <code>{{ account.user?.username }}</code>
   <span class="tag is-info ml-1" v-if="account.user?.admin">
     Admin
   </span>

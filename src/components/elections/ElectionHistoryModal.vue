@@ -24,7 +24,7 @@ const close = () => {
 
 
 const loadHistory = () => {
-  getElectionHistory(props.electionId, token.apiToken)
+  getElectionHistory(props.electionId, token.token())
       .then(data => {
         if (data) {
           completedRequest.value = data;

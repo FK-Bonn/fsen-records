@@ -74,11 +74,11 @@ const loadError = () => {
 };
 
 const loadAllFsData = () => {
-  getAllFsData(token.apiToken).then(data => allFsData.set(data));
+  getAllFsData(token.token()).then(data => allFsData.set(data));
 };
 
 const loadUser = () => {
-  loadLoggedInUser(token.apiToken).then(user => {
+  loadLoggedInUser(token.token()).then(user => {
     account.login(user);
     if (user === null) {
       token.logout();

@@ -56,7 +56,7 @@ const createAccountWithData = async () => {
       createAccountPassword.value,
       createAccountAdmin.value,
       createAccountPermissions.value,
-      token.apiToken,
+      token.token(),
   );
   createdMessage.value = createResult?.message || null;
 }

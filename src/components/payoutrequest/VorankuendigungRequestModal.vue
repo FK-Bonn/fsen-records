@@ -59,7 +59,7 @@ const parseNumber = (value: string) => {
 
 const yeetRequest = () => {
   createVorankuendigungPayoutRequest(props.fsId, semesterId.value, category.value, amount_cents.value, status.value, status_date.value,
-      comment.value, completion_deadline.value, reference.value, request_date.value, token.apiToken).then(value => {
+      comment.value, completion_deadline.value, reference.value, request_date.value, token.token()).then(value => {
     if (value) {
       message.value = value.message;
       completedRequest.value = value.payoutRequest;

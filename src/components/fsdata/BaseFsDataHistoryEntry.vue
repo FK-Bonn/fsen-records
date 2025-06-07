@@ -19,7 +19,7 @@ const allFsData = useAllFsData();
 const message: Ref<string | null> = ref(null);
 
 const loadFsData = () => {
-  getBaseFsData(props.fs, token.apiToken).then(data => {
+  getBaseFsData(props.fs, token.token()).then(data => {
     if (allFsData.data && data) {
       allFsData.data[props.fs].base = data;
     }
@@ -27,14 +27,14 @@ const loadFsData = () => {
 }
 
 const approve = () => {
-  approveBaseFsData(props.data.id, token.apiToken).then(value => {
+  approveBaseFsData(props.data.id, token.token()).then(value => {
     message.value = value?.message || null;
     loadFsData();
   })
 }
 
 const restore = () => {
-  putBaseFsData(props.fs, props.data, token.apiToken).then(() => {
+  putBaseFsData(props.fs, props.data, token.token()).then(() => {
     loadFsData();
     show.value = false;
   }).catch(() => alert('Speichern fehlgeschlagen.'));

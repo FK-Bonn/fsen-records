@@ -54,17 +54,17 @@ const protectedData: ComputedRef<null | IProtectedFsDataResponse> = computed(() 
 const showPlaceholders = computed(()=>account.user && hasAnyFsPermission(account.user.permissions, props.baseData.fs_id))
 
 const saveBaseFsData = (data: IBaseFsData) => {
-  putBaseFsData(props.baseData.fs_id, data, token.apiToken).then(() => reloadBaseFsData())
+  putBaseFsData(props.baseData.fs_id, data, token.token()).then(() => reloadBaseFsData())
       .catch(() => alert('Speichern fehlgeschlagen.'));
 }
 
 const savePublicFsData = (data: IPublicFsData) => {
-  putPublicFsData(props.baseData.fs_id, data, token.apiToken).then(() => reloadPublicFsData())
+  putPublicFsData(props.baseData.fs_id, data, token.token()).then(() => reloadPublicFsData())
       .catch(() => alert('Speichern fehlgeschlagen.'));
 }
 
 const saveProtectedFsData = (data: IProtectedFsData) => {
-  putProtectedFsData(props.baseData.fs_id, data, token.apiToken).then(() => reloadProtectedFsData())
+  putProtectedFsData(props.baseData.fs_id, data, token.token()).then(() => reloadProtectedFsData())
       .catch(() => alert('Speichern fehlgeschlagen.'));
 }
 
@@ -95,7 +95,7 @@ const makeProtectedFsDataEditable = () => {
 }
 
 const loadBaseFsData = () => {
-  getBaseFsData(props.baseData.fs_id, token.apiToken).then(data => {
+  getBaseFsData(props.baseData.fs_id, token.token()).then(data => {
     if (allFsData.data && data) {
       allFsData.data[props.baseData.fs_id].base = data;
     }
@@ -103,7 +103,7 @@ const loadBaseFsData = () => {
 }
 
 const loadPublicFsData = () => {
-  getPublicFsData(props.baseData.fs_id, token.apiToken).then(data => {
+  getPublicFsData(props.baseData.fs_id, token.token()).then(data => {
     if (allFsData.data && data) {
       allFsData.data[props.baseData.fs_id].public = data;
     }
@@ -111,7 +111,7 @@ const loadPublicFsData = () => {
 }
 
 const loadProtectedFsData = () => {
-  getProtectedFsData(props.baseData.fs_id, token.apiToken).then(data => {
+  getProtectedFsData(props.baseData.fs_id, token.token()).then(data => {
     if (allFsData.data && data) {
       allFsData.data[props.baseData.fs_id].protected = data;
     }

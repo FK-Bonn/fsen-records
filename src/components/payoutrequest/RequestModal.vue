@@ -30,7 +30,7 @@ const close = () => {
 }
 
 const yeetRequest = () => {
-  createPayoutRequest(props.fsId, semesterId.value, token.apiToken).then(value => {
+  createPayoutRequest(props.fsId, semesterId.value, token.token()).then(value => {
     if (value) {
       message.value = value.message;
       completedRequest.value = value.payoutRequest;

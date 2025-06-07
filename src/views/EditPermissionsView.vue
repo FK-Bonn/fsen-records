@@ -60,10 +60,10 @@ const editPermissionsWithData = async () => {
       editPermissionsUsername.value,
       editPermissionsAdmin.value,
       editPermissionsPermissions.value,
-      token.apiToken,
+      token.token(),
   );
   permissionsMessage.value = editResult?.message || null;
-  usersList.value = await loadUsersList(token.apiToken);
+  usersList.value = await loadUsersList(token.token());
 }
 
 
@@ -78,7 +78,7 @@ const loadEditPermissions = (user: IUserWithPermissions | undefined) => {
 
 const usersList: Ref<Map<string, IUserWithPermissions> | null> = ref(null);
 onBeforeMount(async () => {
-  usersList.value = await loadUsersList(token.apiToken);
+  usersList.value = await loadUsersList(token.token());
   if (editPermissionsUsername.value) {
     loadEditPermissions(usersList.value?.get(editPermissionsUsername.value));
   }

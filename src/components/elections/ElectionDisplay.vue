@@ -10,7 +10,7 @@ const props = defineProps<{
 
 const fsData = useAllFsData();
 
-const fsName = computed(() => fsData.data ? fsData.data[props.election.fs].base?.data.name || props.election.fs : props.election.fs)
+const fsName = computed(() => fsData.data ? fsData.data[props.election.fs]?.base?.data.name || props.election.fs : props.election.fs)
 const cutoffDate = computed(() => {
       if (!props.election.first_election_day) {
         return '???';

@@ -66,7 +66,7 @@ const yeetRequest = () => {
   const tagsData = tags.value.length ? tags.value.split(',').map(value => value.trim()) : null;
   const referencesData = references.value.length ? references.value : null;
   const urlData = url.value ? url.value : null;
-  return annotateDocument(props.fs, target, annotationsData, tagsData, referencesData, urlData, token.apiToken).then(() => {
+  return annotateDocument(props.fs, target, annotationsData, tagsData, referencesData, urlData, token.token()).then(() => {
     message.value = 'Annotationen aktualisiert';
     reloadDocuments();
   }).catch(reason => {
