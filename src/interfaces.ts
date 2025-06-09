@@ -99,7 +99,6 @@ export interface ISemester {
 export interface IData {
     budgetTitles: { [semester: string]: string }
     budgetTitlesBfsg: { [semester: string]: string }
-    semesters: ISemester[]
 }
 
 export interface IUserWithPermissions {

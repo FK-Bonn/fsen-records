@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import type {IBaseFsData} from "@/interfaces";
+import type {IBaseFsData, INewPayoutRequestData} from "@/interfaces";
 import {computed} from "vue";
-import {CurrentlyCanBePaidCalculator, Interval, SemesterCalculator} from "@/Calculator";
+import {CurrentlyCanBePaidCalculator, SemesterCalculator} from "@/Calculator";
 import IconPeople from "@/components/icons/IconPeople.vue";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
-import {calculateSemesterId} from "@/util";
+import {calculateSemesterId, getCurrentAndPastSemesters, semestersToIntervals} from "@/util";
 import {useFixedDateStore} from "@/stores/fixedDate";
 import {useDocumentsStore} from "@/stores/documents";
-import {META} from "@/meta";
+import {usePageSettingsStore} from "@/stores/pageSettings";
+import {usePayoutRequestStore} from "@/stores/payoutRequest";
 
 const props = defineProps<{
   baseData: IBaseFsData,
@@ -15,9 +16,18 @@ const props = defineProps<{
 
 const fixedDate = useFixedDateStore();
 const documents = useDocumentsStore();
+const settings = usePageSettingsStore();
+const payoutRequests = usePayoutRequestStore();
 
 const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.baseData, fixedDate.date, documents.data));
-const semesters = computed(() => META.semesters.map(value => Interval.fromStrings(value.start, value.end)))
+
+const shouldDisplay = (value: INewPayoutRequestData) => settings.displayAllAfsgSemesters ? true : !['ÜBERWIESEN', 'FAILED'].includes(value.status)
+
+const semesters = computed(() => {
+  const relevantSemesters = payoutRequests.afsg?.get(props.baseData.fs_id)?.filter(shouldDisplay).map((value) => value.semester) || []
+  const requiredSemesters = getCurrentAndPastSemesters(new Date(), 6, relevantSemesters);
+  return semestersToIntervals(requiredSemesters).reverse();
+})
 
 </script>
 
@@ -34,13 +44,13 @@ const semesters = computed(() => META.semesters.map(value => Interval.fromString
           </h2>
         </div>
         <div class="column is-narrow">
-          <IconForLevel :level="calculator.calculateOverallLevel()" title="Auszahlungsfähigkeit"/>
-          |
           <template v-for="semester in semesters" :key="semester?.start">
             <IconForLevel v-if="semester"
                           :level="new SemesterCalculator(baseData, semester, documents.data).calculateOverallLevel()"
                           :title="calculateSemesterId(semester)"/>
           </template>
+          |
+          <IconForLevel :level="calculator.calculateOverallLevel()" title="Auszahlungsfähigkeit"/>
         </div>
       </div>
     </div>

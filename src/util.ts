@@ -26,7 +26,7 @@ import type {
     IUserWithPermissions
 } from "@/interfaces";
 import {AnnotationLevel} from "@/interfaces";
-import type {Interval} from "@/Calculator";
+import {Interval} from "@/Calculator";
 
 export const PERMISSIONS: (IPermissionKey)[] = [
     'read_files',
@@ -205,6 +205,50 @@ export const copyToClipboard = (str: string) => {
     }
     return Promise.reject('The Clipboard API is not available.');
 };
+
+export const getCurrentAndPastSemesters = (start: Date, count: number, mandatoryIncludes: string[]) => {
+    if (count <= 0) {
+        return [];
+    }
+    const semesters: string[] = []
+    let currentYear = start.getFullYear();
+    const currentMonth = start.getMonth();
+    let currentType = '';
+    if (currentMonth < 3) {
+        currentYear = currentYear - 1;
+        currentType = 'WiSe';
+    } else if (currentMonth > 8) {
+        currentType = 'WiSe';
+    } else {
+        currentType = 'SoSe';
+    }
+    semesters.push(`${currentYear}-${currentType}`)
+    while (semesters.length < count || !mandatoryIncludes.every(value => semesters.includes(value))) {
+        if (currentType === 'WiSe') {
+            currentType = 'SoSe';
+            semesters.push(`${currentYear}-${currentType}`)
+        } else {
+            currentYear = currentYear - 1;
+            currentType = 'WiSe';
+            semesters.push(`${currentYear}-${currentType}`)
+        }
+    }
+    return semesters;
+}
+
+export const semesterToInterval = (semester: string) => {
+    const semesterType = semester.substring(5);
+    const year = parseInt(semester.substring(0, 4));
+    if (semesterType === 'WiSe') {
+        return new Interval(new Date(year, 9, 1), new Date(year + 1, 2, 31));
+    } else {
+        return new Interval(new Date(year, 3, 1), new Date(year, 9, 30));
+    }
+}
+
+export const semestersToIntervals = (semesters: string[]) => {
+    return semesters.map(semesterToInterval)
+}
 
 export const loadLoggedInUser = async (tokenPromise: Promise<string | null>): Promise<IUserWithPermissions | null> => {
     const token = await tokenPromise;

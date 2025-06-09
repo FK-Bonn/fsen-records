@@ -11,6 +11,7 @@ export const usePageSettingsStore = defineStore('pageSettings', () => {
     const showFilenames: Ref<boolean> = ref(true);
     const displayFsData: Ref<boolean> = ref(true);
     const paleLowerDocuments: Ref<boolean> = ref(true);
+    const displayAllAfsgSemesters: Ref<boolean> = ref(false);
 
     return {
         showOnlyWhoCurrentlyCanBePaid,
@@ -20,5 +21,6 @@ export const usePageSettingsStore = defineStore('pageSettings', () => {
         showFilenames,
         displayFsData,
         paleLowerDocuments,
+        displayAllAfsgSemesters,
     }
 }, {persist: isLocalStorageEnabled()})

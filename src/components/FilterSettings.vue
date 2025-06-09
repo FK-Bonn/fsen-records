@@ -22,13 +22,19 @@ const settings = usePageSettingsStore();
     <li>
       <label class="checkbox">
         <input type="checkbox" v-model="settings.showOnlySemestersWithPayoutRequests" :disabled="settings.compactMode">
-        Nur Semester mit Anträgen anzeigen
+        Nur Semester mit AFSG-Anträgen anzeigen
       </label>
     </li>
     <li>
       <label class="checkbox">
         <input type="checkbox" v-model="settings.showOnlySemestersWithStar" :disabled="settings.compactMode">
         Nur Semester anzeigen, die ggf. als vollständig markiert werden können
+      </label>
+    </li>
+    <li>
+      <label class="checkbox">
+        <input type="checkbox" v-model="settings.displayAllAfsgSemesters">
+        Alle Semester mit AFSG-Anträgen auflisten (auch abgeschlossene)
       </label>
     </li>
     <li>

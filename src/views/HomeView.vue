@@ -1,18 +1,17 @@
 <script setup lang="ts">
 import TopLegend from "@/components/TopLegend.vue";
 import StudentBody from "@/components/studentbody/StudentBody.vue";
-import {computed, nextTick, onBeforeMount, watch} from "vue";
+import {nextTick, onBeforeMount, watch} from "vue";
 import {AnnotationLevel, type IBaseFsData, type INewPayoutRequestData} from "@/interfaces";
 import FilterSettings from "@/components/FilterSettings.vue";
-import {CurrentlyCanBePaidCalculator, Interval, SemesterCalculator} from "@/Calculator";
-import {calculateSemesterId, scrollToHashIfPresent, shouldDisplayStar, updatePageTitle} from "@/util";
+import {CurrentlyCanBePaidCalculator, SemesterCalculator} from "@/Calculator";
+import {scrollToHashIfPresent, semesterToInterval, shouldDisplayStar, updatePageTitle} from "@/util";
 import {usePageSettingsStore} from "@/stores/pageSettings";
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
 import FixedDateBanner from "@/components/FixedDateBanner.vue";
 import {useRouter} from "vue-router";
 import {useAllFsData} from "@/stores/allFsData";
 import {useDocumentsStore} from "@/stores/documents";
-import {META} from "@/meta";
 
 const fsData = useAllFsData();
 const payoutRequests = usePayoutRequestStore();
@@ -29,21 +28,15 @@ const redirectToDiffIfNecessary = () => {
   }
 }
 
-const anySemesterHasStar = (baseData: IBaseFsData, payoutRequests: Map<string, INewPayoutRequestData> | null,
-                            semesters: (Interval | undefined)[] | undefined) => {
-  if (!baseData || !payoutRequests || !semesters) {
+const anySemesterHasStar = (baseData: IBaseFsData, payoutRequests: Map<string, INewPayoutRequestData> | null) => {
+  if (!baseData || !payoutRequests) {
     return false;
   }
-  for (let semester of semesters) {
-    const semesterId = calculateSemesterId(semester);
-    if (semester && semesterId) {
-      const payoutRequest = payoutRequests.get(semesterId);
-      if (payoutRequest) {
-        const calculator = new SemesterCalculator(baseData, semester, documents.data)
-        if (shouldDisplayStar(calculator.calculateOverallLevel(), payoutRequest)) {
-          return true;
-        }
-      }
+  for (let payoutRequest of payoutRequests.values()) {
+    const semester = semesterToInterval(payoutRequest.semester);
+    const calculator = new SemesterCalculator(baseData, semester, documents.data)
+    if (shouldDisplayStar(calculator.calculateOverallLevel(), payoutRequest)) {
+      return true;
     }
   }
   return false;
@@ -61,8 +54,7 @@ const filterPayoutRequests = (payoutRequests: Map<string, INewPayoutRequestData[
 }
 
 const shouldShow = (baseData: IBaseFsData | undefined,
-                    payoutRequests: Map<string, INewPayoutRequestData[]> | null,
-                    semesters: (Interval | undefined)[] | undefined) => {
+                    payoutRequests: Map<string, INewPayoutRequestData[]> | null) => {
   if (!baseData) {
     return false;
   }
@@ -73,12 +65,10 @@ const shouldShow = (baseData: IBaseFsData | undefined,
   }
   if (settings.showOnlySemestersWithStar) {
     const filteredPayoutRequests = filterPayoutRequests(payoutRequests, baseData.fs_id);
-    show = show && anySemesterHasStar(baseData, filteredPayoutRequests, semesters);
+    show = show && anySemesterHasStar(baseData, filteredPayoutRequests);
   }
   return show;
 }
-
-const semesters = computed(() => META.semesters.map(value => Interval.fromStrings(value.start, value.end)))
 
 onBeforeMount(()=>{
   redirectToDiffIfNecessary();
@@ -104,7 +94,7 @@ watch(() => (fsData.data !== null), async () => {
     <template v-if="fsData.data">
       <ul>
         <template v-for="(singleFsData, key) in fsData.data" :key="key">
-          <li v-if="singleFsData.base && shouldShow(singleFsData.base.data, payoutRequests.afsg, semesters)">
+          <li v-if="singleFsData.base && shouldShow(singleFsData.base.data, payoutRequests.afsg)">
             <StudentBody :baseData="singleFsData.base.data"/>
           </li>
         </template>

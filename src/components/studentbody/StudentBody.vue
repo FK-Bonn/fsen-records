@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import type {IBaseFsData} from "@/interfaces";
+import type {IBaseFsData, INewPayoutRequestData} from "@/interfaces";
 import FsDataSection from "@/components/fsdata/FsDataSection.vue";
 import {computed} from "vue";
-import {Interval} from "@/Calculator";
 import CurrentlyCanBePaidSection from "@/components/studentbody/CurrentlyCanBePaidSection.vue";
 import SemesterSection from "@/components/studentbody/SemesterSection.vue";
 import BfsgSection from "@/components/studentbody/BfsgSection.vue";
@@ -10,15 +9,23 @@ import DocumentsSection from "@/components/studentbody/DocumentsSection.vue";
 import IconPeople from "@/components/icons/IconPeople.vue";
 import {usePageSettingsStore} from "@/stores/pageSettings";
 import CompactStudentBody from "@/components/studentbody/CompactStudentBody.vue";
-import {META} from "@/meta";
+import {usePayoutRequestStore} from "@/stores/payoutRequest";
+import {getCurrentAndPastSemesters, semestersToIntervals} from "@/util";
 
-defineProps<{
+const props = defineProps<{
   baseData: IBaseFsData,
 }>()
 
 const settings = usePageSettingsStore();
+const payoutRequests = usePayoutRequestStore();
 
-const semesters = computed(() => META.semesters.map(value => Interval.fromStrings(value.start, value.end)).filter(value => !!value))
+const shouldDisplay = (value: INewPayoutRequestData) => settings.displayAllAfsgSemesters ? true : !['ÜBERWIESEN', 'FAILED'].includes(value.status)
+
+const semesters = computed(() => {
+  const relevantSemesters = payoutRequests.afsg?.get(props.baseData.fs_id)?.filter(shouldDisplay).map((value) => value.semester) || []
+  const requiredSemesters = getCurrentAndPastSemesters(new Date(), 6, relevantSemesters);
+  return semestersToIntervals(requiredSemesters);
+})
 
 </script>
 
