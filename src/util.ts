@@ -242,7 +242,7 @@ export const semesterToInterval = (semester: string) => {
     if (semesterType === 'WiSe') {
         return new Interval(new Date(year, 9, 1), new Date(year + 1, 2, 31));
     } else {
-        return new Interval(new Date(year, 3, 1), new Date(year, 9, 30));
+        return new Interval(new Date(year, 3, 1), new Date(year, 8, 30));
     }
 }
 
