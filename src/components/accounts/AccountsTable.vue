@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import type {IUserWithPermissions} from "@/interfaces";
-import {permissionsToString} from "@/util";
+import {PERMISSIONS, permissionsToString, permissionToString} from "@/util";
 import {useAccountStore} from "@/stores/account";
 import SimpleCopyableTag from "@/components/SimpleCopyableTag.vue";
+import {computed} from "vue";
 
 const props = defineProps<{
   users: IUserWithPermissions[],
+  filterValue: string,
 }>()
 
 const account = useAccountStore();
@@ -16,19 +18,33 @@ const hasEditPermission = () => {
   }
   return account.user.admin || account.user.permissions.some(permission => permission.write_permissions);
 }
+
+const filterUser = (user: IUserWithPermissions)=>{
+  const filterValue = props.filterValue.toLowerCase();
+  return user.full_name.toLowerCase().includes(filterValue)
+      || user.username.toLowerCase().includes(filterValue)
+      || (user.admin ? 'admin' : '').includes(filterValue)
+      || user.permissions.some(permission => permission.fs.toLowerCase().includes(filterValue))
+      || PERMISSIONS.some(permissionName => user.permissions.some(
+          permission => permission[permissionName] && permissionToString(permissionName)?.toLowerCase().includes(filterValue)
+      ));
+}
+
+const filteredUsers = computed(() => props.users.filter(filterUser));
 </script>
 
 <template>
+  <p><b>{{filteredUsers.length}}</b> von {{props.users.length}} Accounts werden angezeigt</p>
   <table class="table">
     <thead>
     <tr>
-      <th>Login-Name</th>
+      <th>Name</th>
       <th></th>
       <th>Berechtigungen</th>
     </tr>
     </thead>
     <tbody>
-    <tr v-for="user in props.users" :key="user.username">
+    <tr v-for="user in filteredUsers" :key="user.username">
       <td>
         <b>{{ user.full_name }}</b>
         <br>
