@@ -30,8 +30,11 @@ const hasEditPermission = () => {
     <tbody>
     <tr v-for="user in props.users" :key="user.username">
       <td>
+        <b>{{ user.full_name }}</b>
+        <br>
         <SimpleCopyableTag :text="user.username"/>
-        <br><small class="has-text-grey-light">erstellt von {{ user.created_by }}</small>
+        <br>
+        <small class="has-text-grey-light">erstellt von {{ user.created_by }}</small>
       </td>
       <td>
         <RouterLink v-if="hasEditPermission()" class="is-inline-block"

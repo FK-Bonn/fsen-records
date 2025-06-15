@@ -14,7 +14,7 @@ onBeforeMount(async () => {
 })
 
 const sortUsers = (a: IUserWithPermissions, b: IUserWithPermissions) => {
-  return a.username > b.username ? 1 : b.username > a.username ? -1 : 0;
+  return a.full_name > b.full_name ? 1 : b.full_name > a.full_name ? -1 : 0;
 }
 
 const usersWithPermissions: ComputedRef<IUserWithPermissions[]> = computed(() => [...(usersList.value?.values() || [])]
