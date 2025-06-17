@@ -1202,6 +1202,23 @@ export const deleteProceedings = async (fs: string, committee: string, date: str
         });
 }
 
+
+export const transfer = async (token: string | null, kcTokenPromise: Promise<string | null>): Promise<void> => {
+    const oidc_token = await kcTokenPromise;
+    return fetch(import.meta.env.VITE_API_URL + '/user/transfer', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({token, oidc_token}),
+    })
+        .then(resp => {
+            if (resp.ok) {
+                return;
+            } else {
+                return resp.json().then((json)=>Promise.reject(json.detail));
+            }
+        });
+}
+
 export const permissionToString = (key: keyof IPermission) => {
     switch (key) {
         case 'read_files':

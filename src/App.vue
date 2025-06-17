@@ -11,6 +11,7 @@ import {computed, onBeforeMount, type Ref, ref, watch} from "vue";
 import ErrorList from "@/components/ErrorList.vue";
 import {useFixedDateStore} from "@/stores/fixedDate";
 import {useDocumentsStore} from "@/stores/documents";
+import MigrationHeaderView from "@/views/MigrationHeaderView.vue";
 
 
 const token = useTokenStore();
@@ -106,6 +107,7 @@ const backgroundColourIfFixed = computed(()=>fixedDate.date ? ' has-background-g
 </script>
 
 <template>
+  <MigrationHeaderView/>
   <section class="main-content columns is-fullheight">
     <aside class="column is-2 is-narrow-mobile is-fullheight section has-background-white-bis menu">
       <NavbarView/>
