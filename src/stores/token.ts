@@ -20,11 +20,16 @@ export const useTokenStore = defineStore('token', () => {
     async function token() {
         await until(() => kcReady);
         if (refreshToken.value) {
-            const refreshed = await keycloak.updateToken();
-            if (refreshed) {
-                kcToken.value = keycloak.token || null;
-                refreshToken.value = keycloak.refreshToken || null;
-                timeSkew.value = keycloak.timeSkew || null;
+            try {
+                const refreshed = await keycloak.updateToken();
+                if (refreshed) {
+                    kcToken.value = keycloak.token || null;
+                    refreshToken.value = keycloak.refreshToken || null;
+                    timeSkew.value = keycloak.timeSkew || null;
+                }
+            } catch (e) {
+                kcToken.value = null;
+                refreshToken.value = null;
             }
         }
         if (kcToken.value) {
@@ -76,6 +81,9 @@ export const useTokenStore = defineStore('token', () => {
                 context.store.kcToken = context.store.keycloak.token || null;
                 context.store.refreshToken = context.store.keycloak.refreshToken || null;
                 context.store.timeSkew = context.store.keycloak.timeSkew || null;
+            }).catch(() => {
+                context.store.kcToken = null;
+                context.store.refreshToken = null;
             })
         },
     } : false
