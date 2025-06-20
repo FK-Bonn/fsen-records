@@ -7,8 +7,6 @@ import FinancialStatusAfsgView from "@/views/FinancialStatusAfsgView.vue";
 import FinancialStatusBfsgView from "@/views/FinancialStatusBfsgView.vue";
 import CashFlowView from "@/views/CashFlowView.vue";
 
-const route = useRoute()
-
 onBeforeMount(()=>{
   updatePageTitle('Antrags-Finanzübersicht');
 });

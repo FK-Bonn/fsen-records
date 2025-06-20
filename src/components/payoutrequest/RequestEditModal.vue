@@ -162,7 +162,7 @@ const reloadPayoutRequestData = () => {
                 <tr>
                   <th>Status-Datum</th>
                   <td>
-                    <input class="input" type="text" v-model="status_date">
+                    <input class="input" type="date" v-model="status_date">
                   </td>
                 </tr>
                 <tr>
@@ -180,7 +180,7 @@ const reloadPayoutRequestData = () => {
                 <tr>
                   <th>Frist zur Vervollständigung</th>
                   <td>
-                    <input class="input" type="text" v-model="completion_deadline">
+                    <input class="input" type="date" v-model="completion_deadline">
                   </td>
                 </tr>
                 <tr>
