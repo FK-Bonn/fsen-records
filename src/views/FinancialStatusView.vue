@@ -3,11 +3,11 @@ import {RouterView, useRoute} from "vue-router";
 import {computed, onBeforeMount} from "vue";
 import FixedDateBanner from "@/components/FixedDateBanner.vue";
 import {updatePageTitle} from "@/util";
+import FinancialStatusAfsgView from "@/views/FinancialStatusAfsgView.vue";
+import FinancialStatusBfsgView from "@/views/FinancialStatusBfsgView.vue";
+import CashFlowView from "@/views/CashFlowView.vue";
 
 const route = useRoute()
-
-const afsgActive = computed(()=>route.name === 'finanzuebersicht-afsg' ? 'is-active' : '');
-const bfsgActive = computed(()=>route.name === 'finanzuebersicht-bfsg' ? 'is-active' : '');
 
 onBeforeMount(()=>{
   updatePageTitle('Antrags-Finanzübersicht');
@@ -20,19 +20,15 @@ onBeforeMount(()=>{
 
     <h1 class="title is-1">Antrags-Finanzübersicht</h1>
 
-    <div class="tabs">
-      <ul>
-        <li :class="afsgActive">
-          <RouterLink to="/finanzuebersicht/afsg">AFSG</RouterLink>
-        </li>
-        <li :class="bfsgActive">
-          <RouterLink to="/finanzuebersicht/bfsg">BFSG</RouterLink>
-        </li>
-      </ul>
+    <div class="content">
+
+      <FinancialStatusAfsgView/>
+
+      <FinancialStatusBfsgView/>
+
+      <CashFlowView/>
+
     </div>
-
-    <RouterView/>
-
   </div>
 </template>
 

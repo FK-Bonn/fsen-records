@@ -30,14 +30,6 @@ const account = useAccountStore();
     </li>
     <li>
       <RouterLink :to="{name: 'finanzuebersicht'}">Antrags-Finanzübersicht</RouterLink>
-      <ul>
-        <li>
-          <RouterLink :to="{name: 'finanzuebersicht-afsg'}">AFSG</RouterLink>
-        </li>
-        <li>
-          <RouterLink :to="{name: 'finanzuebersicht-bfsg'}">BFSG</RouterLink>
-        </li>
-      </ul>
     </li>
     <li>
       <RouterLink :to="{name: 'hhp'}">Haushaltsplansentwurf</RouterLink>

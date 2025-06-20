@@ -23,10 +23,6 @@ const router = createRouter({
       path: '/finanzuebersicht',
       name: 'finanzuebersicht',
       component: () => import('../views/FinancialStatusView.vue'),
-      children: [
-        {path: 'afsg', name: 'finanzuebersicht-afsg', component: () => import('../views/FinancialStatusAfsgView.vue')},
-        {path: 'bfsg', name: 'finanzuebersicht-bfsg', component: () => import('../views/FinancialStatusBfsgView.vue')},
-      ],
     },
     {
       path: '/hhp',

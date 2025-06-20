@@ -1481,6 +1481,16 @@ export const payoutRequestToMarkdown= (payoutRequest: INewPayoutRequestData)=>{
     return value;
 }
 
+export const toFinancialYear = (date: string) => {
+    const year = parseInt(date.substring(0, 4));
+    const month = date.substring(5, 7);
+    if (month < '07') {
+        return `${year - 1}/${year}`;
+    }
+    return `${year}/${year + 1}`;
+
+}
+
 export const isLocalStorageEnabled = () => {
     try {
         const key = `temp`;

@@ -82,38 +82,45 @@ const totalPayoutRequestCount = () => {
 </script>
 
 <template>
+  <h2>Statusübersicht AFSG-Anträge</h2>
+
   <table class="table is-striped is-hoverable">
     <thead>
     <tr>
       <th>Semester</th>
-      <th colspan="2" v-for="header in headers" :key="header">{{ header }}</th>
       <th>#</th>
+      <th colspan="2" v-for="header in headers" :key="header">{{ header }}</th>
     </tr>
     </thead>
     <tbody>
     <tr v-for="semester in [...semesters.keys()].sort().reverse()" :key="semester">
       <th>{{ semester }}</th>
+      <td><span class="tag is-info is-light">{{rowCountSum(semester)}}</span></td>
       <template v-for="status in headers" :key="status">
         <td><span class="tag is-light">{{ semesters.get(semester)?.get(status)?.count || 0 }}</span></td>
         <td>{{ euroCents(semesters.get(semester)?.get(status)?.sum) }}</td>
       </template>
-      <td><span class="tag is-info is-light">{{rowCountSum(semester)}}</span></td>
     </tr>
     </tbody>
     <tfoot>
     <tr>
       <th>Semester</th>
-      <th colspan="2" v-for="header in headers" :key="header">{{ header }}</th>
       <th>#</th>
+      <th colspan="2" v-for="header in headers" :key="header">{{ header }}</th>
     </tr>
     <tr>
       <th>Gesamt</th>
+      <td><span class="tag is-info is-light">{{ totalPayoutRequestCount() }}</span></td>
       <template v-for="header in headers" :key="header">
         <th><span class="tag is-light">{{ totalSum(header).count }}</span></th>
         <th>{{ euroCents(totalSum(header).sum) }}</th>
       </template>
-      <td><span class="tag is-info is-light">{{ totalPayoutRequestCount() }}</span></td>
     </tr>
     </tfoot>
   </table>
 </template>
+<style scoped>
+.table td {
+  text-align: right;
+}
+</style>
