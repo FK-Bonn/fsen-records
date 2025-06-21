@@ -672,11 +672,36 @@ export const getPayoutRequestHistory = async (request_id: string, type: string, 
     const headers = token ? {'Authorization': `Bearer ${token}`} : undefined;
     const url = import.meta.env.VITE_API_URL + `/payout-request/${type}/${request_id}/history`;
     return fetch(url, {method: 'GET', headers})
-        .then(response => response.json(), () => {
+        .then(response => {
+            if (response.ok) {
+                return response.json()
+            } else {
+                return response.json().then(content => Promise.reject(content.detail))
+            }
+        }, () => {
             return Promise.reject("Fetching data failed");
         })
         .then(rawdata => {
             return rawdata;
+        });
+}
+
+export const deletePayoutRequest = async (request_id: string, type: string, tokenPromise: Promise<string | null>): Promise<string | null> => {
+    const token = await tokenPromise;
+    if (!token) {
+        return null;
+    }
+    const headers = {'Authorization': `Bearer ${token}`};
+    const url = import.meta.env.VITE_API_URL + `/payout-request/${type}/${request_id}`;
+    return fetch(url, {method: 'DELETE', headers})
+        .then(response => {
+            if (response.ok) {
+                return 'Antrag gelöscht';
+            } else {
+                return response.json().then(content => Promise.reject(content.detail));
+            }
+        }, () => {
+            return Promise.reject("Deleting failed");
         });
 }
 

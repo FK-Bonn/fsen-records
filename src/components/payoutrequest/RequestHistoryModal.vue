@@ -5,6 +5,7 @@ import {getPayoutRequestHistory} from "@/util";
 import {onMounted, ref, type Ref} from "vue";
 import {useTokenStore} from "@/stores/token";
 import PayoutRequestTable from "@/components/payoutrequest/PayoutRequestTable.vue";
+import {useAccountStore} from "@/stores/account";
 
 const props = defineProps<{
   type: string,
@@ -14,6 +15,7 @@ const props = defineProps<{
 const historyModal = defineModel<boolean>({required: true})
 
 const token = useTokenStore();
+const account = useAccountStore();
 
 const completedRequest: Ref<IFullPayoutRequestData[] | null> = ref(null);
 const message = ref('');
@@ -61,6 +63,10 @@ onMounted(() => {
                     :payoutRequest="requestState"
                     :previous="i===(completedRequest.length-1)?null:completedRequest[i+1]"
                 />
+                <RouterLink v-if="account.user?.admin && i === 0"
+                            :to="{name: 'delete-request', params: {requestId: payoutRequestId}}">
+                  <small>😵 Aktuelle Version dieses Antrags löschen</small>
+                </RouterLink>
                 <hr>
               </template>
             </template>

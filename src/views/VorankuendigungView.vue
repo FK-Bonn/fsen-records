@@ -2,10 +2,9 @@
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
 import PayoutRequestsTable from "@/components/payoutrequest/PayoutRequestsTable.vue";
 import {computed, onBeforeMount} from "vue";
-import {euroCents, payoutRequestToMarkdown, sortPayoutRequests, updatePageTitle} from "@/util";
+import {payoutRequestToMarkdown, sortPayoutRequests, updatePageTitle} from "@/util";
 import FixedDateBanner from "@/components/FixedDateBanner.vue";
 import CopyableTag from "@/components/CopyableTag.vue";
-import type {INewPayoutRequestData, IPayoutRequestData} from "@/interfaces";
 
 const payoutRequests = usePayoutRequestStore();
 
