@@ -17,6 +17,17 @@ export const useTokenStore = defineStore('token', () => {
     })
     keycloak.onReady = () => kcReady = true;
 
+    if (!isLocalStorageEnabled()) {
+        keycloak.init({
+            adapter: 'default',
+            checkLoginIframe: false,
+            responseMode: 'query',
+            token: undefined,
+            refreshToken: undefined,
+            timeSkew: undefined,
+        })
+    }
+
     async function token() {
         await until(() => kcReady);
         if (refreshToken.value) {
