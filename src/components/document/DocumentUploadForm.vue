@@ -45,6 +45,9 @@ const mandatoryFields: ComputedRef<boolean> = computed(() => {
   if (base_name.value == 'HHP') {
     return !!(date_start.value && date_end.value);
   }
+  if (base_name.value.startsWith('NHHP')) {
+    return !!(date_start.value && date_end.value);
+  }
   if (base_name.value == 'HHR') {
     return !!(date_start.value && date_end.value);
   }
@@ -58,7 +61,7 @@ const mandatoryFields: ComputedRef<boolean> = computed(() => {
 });
 
 const showDateEnd = computed(() => {
-  return ['HHP', 'HHR', 'KP', 'Wahlergebnis'].includes(base_name.value);
+  return ['HHP', 'HHR', 'KP', 'Wahlergebnis'].includes(base_name.value) || base_name.value.startsWith('NHHP');
 });
 
 const showUrl = computed(() => {
@@ -168,6 +171,9 @@ const upload = () => {
                     <select v-model="base_name">
                       <option value="Prot">Protokoll</option>
                       <option value="HHP">Haushaltsplan</option>
+                      <option value="NHHP1">1. Nachtragshaushaltsplan</option>
+                      <option value="NHHP2">2. Nachtragshaushaltsplan</option>
+                      <option value="NHHP3">3. Nachtragshaushaltsplan</option>
                       <option value="HHR">Haushaltsrechnung</option>
                       <option value="KP">Kassenprüfung</option>
                       <option value="Wahlergebnis">Wahlergebnis</option>

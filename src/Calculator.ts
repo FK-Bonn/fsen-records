@@ -357,7 +357,7 @@ export class SemesterCalculator {
             this.documents = documents[baseData.fs_id];
             this.electionResults = this.documents.filter(value => value.base_name === 'Wahlergebnis');
             this.proceedings = this.documents.filter(value => value.base_name === 'Prot');
-            this.budgets = this.documents.filter(value => value.base_name === 'HHP');
+            this.budgets = this.documents.filter(value => value.base_name === 'HHP' || value.base_name.startsWith('NHHP'));
             this.balances = this.documents.filter(value => value.base_name === 'HHR');
             this.cashAudits = this.documents.filter(value => value.base_name === 'KP');
         }

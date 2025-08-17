@@ -11,7 +11,7 @@ const props = defineProps<{
 
 
 const hasDateInParentheses = (document: IDocumentData|IDocumentReference) => {
-  return ['HHP', 'HHR'].includes(document.base_name)
+  return ['HHP', 'HHR'].includes(document.base_name) || document.base_name.startsWith('NHHP');
 }
 
 const prefix = computed(() => getDocumentPrefix(props.document));

@@ -11,7 +11,7 @@ const props = defineProps<{
 
 const documents = useDocumentsStore();
 const documentsForFs: ComputedRef<IDocumentData[]> = computed(()=>documents.data ? documents.data[props.baseData.fs_id] :[]);
-const budgets = computed(()=>documentsForFs.value.filter(value => value.base_name == 'HHP'))
+const budgets = computed(()=>documentsForFs.value.filter(value => value.base_name == 'HHP' || value.base_name.startsWith('NHHP')))
 const balances = computed(()=>documentsForFs.value.filter(value => value.base_name == 'HHR'))
 const cashAudits = computed(()=>documentsForFs.value.filter(value => value.base_name == 'KP'))
 const proceedings = computed(()=>documentsForFs.value.filter(value => value.base_name == 'Prot'))

@@ -141,11 +141,11 @@ const shortenedFilename = computed(() => shortenFilename(props.document?.filenam
                       </button>
                       <button class="button is-small" @click.prevent="()=>addTag('HHP')" title="Haushaltsplan">HHP
                       </button>
-                      <button class="button is-small" @click.prevent="()=>addTag('NHHP')"
-                              title="Nachtragshaushaltsplan">NHHP
+                      <button class="button is-small" @click.prevent="()=>addTag('NHHP1')"
+                              title="1. Nachtragshaushaltsplan">NHHP
                       </button>
                       <button class="button is-small" @click.prevent="()=>addTag('NHHP2')"
-                              title="Nachtragshaushaltsplan">NHHP2
+                              title="2. Nachtragshaushaltsplan">NHHP2
                       </button>
                       <button class="button is-small" @click.prevent="()=>addTag('Wahl KP')"
                               title="Wahl von Kassenprüfer*innen">Wahl KP

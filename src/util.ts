@@ -1449,21 +1449,25 @@ export const getFinancialYearShort = (start?: string, end?: string): string => {
 
 export const getDocumentPrefix = (document: IDocumentData) => {
     if (document.base_name === 'HHP') {
-        let prefix = 'Haushaltsplan ';
-        if (document.tags){
-            if (document.tags.includes('NHHP5')) {
-                prefix = '5. Nachtragshaushaltsplan ';
-            } else if (document.tags.includes('NHHP4')) {
-                prefix = '4. Nachtragshaushaltsplan ';
-            } else if (document.tags.includes('NHHP3')) {
-                prefix = '3. Nachtragshaushaltsplan ';
-            } else if (document.tags.includes('NHHP2')) {
-                prefix = '2. Nachtragshaushaltsplan ';
-            } else if (document.tags.includes('NHHP')) {
-                prefix = 'Nachtragshaushaltsplan ';
-            }
-        }
-        return prefix + getFinancialYearShort(document.date_start, document.date_end);
+        return 'Haushaltsplan ' + getFinancialYearShort(document.date_start, document.date_end);
+    }
+    if (document.base_name === 'NHHP1') {
+        return '1. Nachtragshaushaltsplan ' + getFinancialYearShort(document.date_start, document.date_end);
+    }
+    if (document.base_name === 'NHHP2') {
+        return '2. Nachtragshaushaltsplan ' + getFinancialYearShort(document.date_start, document.date_end);
+    }
+    if (document.base_name === 'NHHP3') {
+        return '3. Nachtragshaushaltsplan ' + getFinancialYearShort(document.date_start, document.date_end);
+    }
+    if (document.base_name === 'NHHP4') {
+        return '4. Nachtragshaushaltsplan ' + getFinancialYearShort(document.date_start, document.date_end);
+    }
+    if (document.base_name === 'NHHP5') {
+        return '5. Nachtragshaushaltsplan ' + getFinancialYearShort(document.date_start, document.date_end);
+    }
+    if (document.base_name.startsWith('NHHP')) {
+        return 'Nachtragshaushaltsplan ' + getFinancialYearShort(document.date_start, document.date_end);
     }
     if (document.base_name === 'HHR') {
         return 'Haushaltsrechnung ' + getFinancialYearShort(document.date_start, document.date_end);
