@@ -23,6 +23,10 @@ const fixedDate = useFixedDateStore();
 const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.baseData, fixedDate.date, documents.data));
 const mostRecentElection = computed(() => calculator.value.getMostRecentElection());
 const mostRecentInauguralMeetingProceedings = computed(() => calculator.value.getProceedingsOfMostRecentInauguralMeeting());
+const mostRecentBudgetAsArray = computed(() => {
+  const budget = calculator.value.getMostRecentBudgetForCurrentFinancialYear();
+  return budget ? [budget] : []
+})
 </script>
 
 <template>
@@ -75,10 +79,10 @@ const mostRecentInauguralMeetingProceedings = computed(() => calculator.value.ge
       </template>
 
       <RelevantDocumentsWithProceedings
-          title="Aktueller Haushaltsplan"
+          title="Letzter beschlossener Haushaltsplan des aktuellen Haushaltsjahres"
           proceedingsTitle="Beschluss"
           :overallLevel="calculator.getCurrentFinancialYearBudgetLevel()"
-          :documents="calculator.getRelevantBudgetsForCurrentFinancialYear()"
+          :documents="mostRecentBudgetAsArray"
           :covered="calculator.isCurrentFinanicalYearCoveredByBudgets()"
           :baseData="baseData"/>
 

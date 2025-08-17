@@ -111,7 +111,7 @@ export class CurrentlyCanBePaidCalculator {
             this.documents = documents[this.baseData.fs_id];
             this.electionResults = this.documents.filter(value => value.base_name === 'Wahlergebnis');
             this.proceedings = this.documents.filter(value => value.base_name === 'Prot');
-            this.budgets = this.documents.filter(value => value.base_name === 'HHP');
+            this.budgets = this.documents.filter(value => value.base_name === 'HHP' || value.base_name.startsWith('NHHP'));
             this.balances = this.documents.filter(value => value.base_name === 'HHR');
             this.cashAudits = this.documents.filter(value => value.base_name === 'KP');
         }
@@ -177,7 +177,12 @@ export class CurrentlyCanBePaidCalculator {
     }
 
     public getCurrentFinancialYearBudgetLevel(): AnnotationLevel {
-        return this.getBudgetLevel(this.getCurrentFinancialYear());
+        const budget = this.getMostRecentBudgetForCurrentFinancialYear();
+        if (!budget) {
+            return AnnotationLevel.Error;
+        }
+        const references = this.documents.filter(value => isReferenced(value, budget.references));
+        return getDocumentAnnotationLevel(budget, true, references)
     }
 
     public isCurrentFinanicalYearCoveredByBudgets(): boolean {
@@ -266,6 +271,16 @@ export class CurrentlyCanBePaidCalculator {
 
     public getRelevantBudgetsForCurrentFinancialYear(): IDocumentData[] {
         return this.getRelevantBudgets(this.getCurrentFinancialYear());
+    }
+
+    public getMostRecentBudgetForCurrentFinancialYear(): IDocumentData | null {
+        const budgets = this.getRelevantBudgetsForCurrentFinancialYear();
+        budgets.sort((a, b) => b.base_name.localeCompare(a.base_name));
+        budgets.sort((a, b) => (a.date_start && b.date_start) ? b.date_start.localeCompare(a.date_start) : 0);
+        if (budgets.length) {
+            return budgets[0];
+        }
+        return null;
     }
 
     public getRelevantBudgetsForPreviousFinancialYear(): IDocumentData[] {
