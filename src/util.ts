@@ -315,7 +315,7 @@ export const createAccount = async (username: string, password: string, admin: b
             } else if (resp.status == 409) {
                 return Promise.reject('Account existiert bereits.');
             } else {
-                return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
+                return resp.json().then(json => Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')\n' + JSON.stringify(json)));
             }
         })
         .then(json => {
@@ -352,7 +352,7 @@ export const editPermissionsPost = async (username: string, admin: boolean, perm
             if (resp.ok) {
                 return resp.json();
             } else {
-                return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
+                return resp.json().then(json => Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')\n' + JSON.stringify(json)));
             }
         })
         .then(json => {
@@ -375,7 +375,7 @@ export const editPermissionsPatch = async (username: string, permissions: IPermi
             if (resp.ok) {
                 return resp.json();
             } else {
-                return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
+                return resp.json().then(json => Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')\n' + JSON.stringify(json)));
             }
         })
         .then(json => {
@@ -399,7 +399,7 @@ export const resetPassword = async (username: string, password: string, tokenPro
             if (resp.ok) {
                 return 'Passwort geändert.';
             } else {
-                return 'Ein Problem ist aufgetreten (' + resp.status + ')';
+                return 'Ein Problem ist aufgetreten (' + resp.status + ')\n' + JSON.stringify(resp.json());
             }
         });
 }
@@ -420,7 +420,7 @@ export const changePassword = async (current_password: string, new_password: str
             } else if (resp.status === 401) {
                 return 'Falsches aktuelles Passwort.';
             } else {
-                return 'Ein Problem ist aufgetreten (' + resp.status + ')';
+                return 'Ein Problem ist aufgetreten (' + resp.status + ')\n' + JSON.stringify(resp.json());
             }
         });
 }
@@ -442,7 +442,7 @@ export const createPayoutRequest = async (fs: string, semester: string | undefin
             if (resp.ok) {
                 return resp.json();
             } else {
-                return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
+                return resp.json().then(json => Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')\n' + JSON.stringify(json)));
             }
         })
         .then(json => {
@@ -491,7 +491,7 @@ export const createBfsgPayoutRequest = async (fs: string, semester: string, cate
             if (resp.ok) {
                 return resp.json();
             } else {
-                return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
+                return resp.json().then(json => Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')\n' + JSON.stringify(json)));
             }
         })
         .then(json => {
@@ -541,7 +541,7 @@ export const createVorankuendigungPayoutRequest = async (fs: string, semester: s
             if (resp.ok) {
                 return resp.json();
             } else {
-                return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
+                return resp.json().then(json => Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')\n' + JSON.stringify(json)));
             }
         })
         .then(json => {
@@ -568,7 +568,7 @@ export const editPayoutRequest = async (request_id: string, type: string, payloa
             if (resp.ok) {
                 return resp.json();
             } else {
-                return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
+                return resp.json().then(json => Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')\n' + JSON.stringify(json)));
             }
         })
         .then(json => {
@@ -769,7 +769,7 @@ export const approveBaseFsData = async (id: number, tokenPromise: Promise<string
             } else if (resp.status == 404) {
                 return Promise.reject(`Daten mit ID ${id} existieren nicht.`);
             } else {
-                return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
+                return resp.json().then(json => Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')\n' + JSON.stringify(json)));
             }
         })
         .then(() => {
@@ -797,7 +797,7 @@ export const approvePublicFsData = async (id: number, tokenPromise: Promise<stri
             } else if (resp.status == 404) {
                 return Promise.reject(`Daten mit ID ${id} existieren nicht.`);
             } else {
-                return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
+                return resp.json().then(json => Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')\n' + JSON.stringify(json)));
             }
         })
         .then(() => {
@@ -825,7 +825,7 @@ export const approveProtectedFsData = async (id: number, tokenPromise: Promise<s
             } else if (resp.status == 404) {
                 return Promise.reject(`Daten mit ID ${id} existieren nicht.`);
             } else {
-                return Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')');
+                return resp.json().then(json => Promise.reject('Ein Problem ist aufgetreten (' + resp.status + ')\n' + JSON.stringify(json)));
             }
         })
         .then(() => {
