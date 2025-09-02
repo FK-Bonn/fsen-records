@@ -149,13 +149,13 @@ const reloadPayoutRequestData = () => {
               <div class="field">
                 <label class="label" for="statusDate">Status-Datum</label>
                 <div class="control">
-                  <input class="input" id="statusDate" type="text" v-model="status_date">
+                  <input class="input" id="statusDate" type="date" v-model="status_date">
                 </div>
               </div>
               <div class="field">
                 <label class="label" for="requestDate">Antragsdatum</label>
                 <div class="control">
-                  <input class="input" id="requestDate" type="text" v-model="request_date">
+                  <input class="input" id="requestDate" type="date" v-model="request_date">
                 </div>
               </div>
               <div class="field">
@@ -167,7 +167,7 @@ const reloadPayoutRequestData = () => {
               <div class="field">
                 <label class="label" for="completionDeadline">Frist zur Vervollständigung</label>
                 <div class="control">
-                  <input class="input" id="completionDeadline" type="text" v-model="completion_deadline">
+                  <input class="input" id="completionDeadline" type="date" v-model="completion_deadline">
                 </div>
               </div>
               <div class="field">
