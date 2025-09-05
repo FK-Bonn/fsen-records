@@ -178,7 +178,7 @@ export const getStatusTagClass = (payoutRequest: INewPayoutRequestData | IFullPa
     }
     const status = payoutRequest.status;
     const type = payoutRequest.type;
-    if (['ÜBERWIESEN', 'ANGEWIESEN', 'GENUTZT'].includes(status)) {
+    if (['ANGEWIESEN', 'GENUTZT'].includes(status)) {
         return 'is-light';
     }
     if (status === 'VOLLSTÄNDIG') {

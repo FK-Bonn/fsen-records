@@ -10,9 +10,9 @@ const props = defineProps<{
 const payoutRequests = usePayoutRequestStore();
 
 const afsgRequested = computed(() => [...payoutRequests.afsg?.values() || []].flat().filter(pr => pr.semester === props.semester).reduce((sum, current) => sum + current.amount_cents, 0))
-const afsgRequired = computed(() => [...payoutRequests.afsg?.values() || []].flat().filter(pr => pr.semester === props.semester).filter(pr => ['ANGEWIESEN', 'ÜBERWIESEN'].includes(pr.status)).reduce((sum, current) => sum + current.amount_cents, 0))
+const afsgRequired = computed(() => [...payoutRequests.afsg?.values() || []].flat().filter(pr => pr.semester === props.semester).filter(pr => ['ANGEWIESEN'].includes(pr.status)).reduce((sum, current) => sum + current.amount_cents, 0))
 const bfsgRequested = computed(() => [...payoutRequests.bfsg?.values() || []].flat().filter(pr => pr.semester === props.semester).reduce((sum, current) => sum + current.amount_cents, 0))
-const bfsgRequired = computed(() => [...payoutRequests.bfsg?.values() || []].flat().filter(pr => pr.semester === props.semester).filter(pr => ['ANGEWIESEN', 'ÜBERWIESEN'].includes(pr.status)).reduce((sum, current) => sum + current.amount_cents, 0))
+const bfsgRequired = computed(() => [...payoutRequests.bfsg?.values() || []].flat().filter(pr => pr.semester === props.semester).filter(pr => ['ANGEWIESEN'].includes(pr.status)).reduce((sum, current) => sum + current.amount_cents, 0))
 const totalRequested = computed(() => afsgRequested.value + bfsgRequested.value)
 const totalRequired = computed(() => afsgRequired.value + bfsgRequired.value)
 

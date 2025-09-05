@@ -30,7 +30,7 @@ const mangleData = (data: Map<string, INewPayoutRequestData[]> | null): Map<stri
       if (['GESTELLT', 'VOLLSTÄNDIG'].includes(request.status)) {
         newValue = {open: oldValue.open + request.amount_cents, completed: oldValue.completed};
       }
-      if (['ANGEWIESEN', 'ÜBERWIESEN', 'FAILED'].includes(request.status)) {
+      if (['ANGEWIESEN', 'FAILED'].includes(request.status)) {
         newValue = {open: oldValue.open, completed: oldValue.completed + request.amount_cents};
       }
       retval.set(request.semester, newValue);
@@ -155,7 +155,7 @@ onBeforeMount(()=>{
           <tr>
             <td>BFSG</td>
             <td>{{ euroCents(acceptedBfsg) }}</td>
-            <td>Bereits zugesprochene, aber noch nicht überwiesene BFSG</td>
+            <td>Bereits zugesprochene, aber noch nicht angewiesene BFSG</td>
           </tr>
           <tr>
             <td>Sonstige</td>

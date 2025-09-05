@@ -34,7 +34,7 @@ const getHeaders = (data: Map<string, INewPayoutRequestData[]> | null): string[]
   if (!data) {
     return [];
   }
-  const headers: string[] = ['GESTELLT', 'VOLLSTÄNDIG', 'ANGEWIESEN', 'ÜBERWIESEN', 'FAILED'];
+  const headers: string[] = ['GESTELLT', 'VOLLSTÄNDIG', 'ANGEWIESEN', 'FAILED'];
   for (let [, requests] of data) {
     for (let request of requests) {
       if (!headers.includes(request.status)) {

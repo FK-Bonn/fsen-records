@@ -11,7 +11,6 @@ defineProps<{
     <option value='GESTELLT'>GESTELLT</option>
     <option value='VOLLSTÄNDIG'>VOLLSTÄNDIG</option>
     <option value='ANGEWIESEN'>ANGEWIESEN</option>
-    <option value='ÜBERWIESEN'>ÜBERWIESEN</option>
     <option value='FAILED'>FAILED</option>
   </template>
   <template v-else-if="type === 'bfsg'">
@@ -21,7 +20,6 @@ defineProps<{
     <option value='ANGENOMMEN'>ANGENOMMEN</option>
     <option value='ABGELEHNT'>ABGELEHNT</option>
     <option value='ANGEWIESEN'>ANGEWIESEN</option>
-    <option value='ÜBERWIESEN'>ÜBERWIESEN</option>
     <option value='FAILED'>FAILED</option>
   </template>
   <template v-else-if="type === 'vorankuendigung'">

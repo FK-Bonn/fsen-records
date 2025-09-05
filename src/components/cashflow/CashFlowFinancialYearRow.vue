@@ -9,8 +9,8 @@ const props = defineProps<{
 
 const payoutRequests = usePayoutRequestStore();
 
-const afsg = computed(() => [...payoutRequests.afsg?.values() || []].flat().filter(pr => ['ANGEWIESEN', 'ÜBERWIESEN'].includes(pr.status)).filter(pr => toFinancialYear(pr.status_date) === props.financialYear).reduce((sum, current) => sum + current.amount_cents, 0))
-const bfsg = computed(() => [...payoutRequests.bfsg?.values() || []].flat().filter(pr => ['ANGEWIESEN', 'ÜBERWIESEN'].includes(pr.status)).filter(pr => toFinancialYear(pr.status_date) === props.financialYear).reduce((sum, current) => sum + current.amount_cents, 0))
+const afsg = computed(() => [...payoutRequests.afsg?.values() || []].flat().filter(pr => ['ANGEWIESEN'].includes(pr.status)).filter(pr => toFinancialYear(pr.status_date) === props.financialYear).reduce((sum, current) => sum + current.amount_cents, 0))
+const bfsg = computed(() => [...payoutRequests.bfsg?.values() || []].flat().filter(pr => ['ANGEWIESEN'].includes(pr.status)).filter(pr => toFinancialYear(pr.status_date) === props.financialYear).reduce((sum, current) => sum + current.amount_cents, 0))
 const total = computed(() => afsg.value + bfsg.value)
 
 </script>

@@ -19,7 +19,7 @@ const props = defineProps<{
 const settings = usePageSettingsStore();
 const payoutRequests = usePayoutRequestStore();
 
-const shouldDisplay = (value: INewPayoutRequestData) => settings.displayAllAfsgSemesters ? true : !['ÜBERWIESEN', 'FAILED'].includes(value.status)
+const shouldDisplay = (value: INewPayoutRequestData) => settings.displayAllAfsgSemesters ? true : !['ANGEWIESEN', 'FAILED'].includes(value.status)
 
 const semesters = computed(() => {
   const relevantSemesters = payoutRequests.afsg?.get(props.baseData.fs_id)?.filter(shouldDisplay).map((value) => value.semester) || []

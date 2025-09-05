@@ -4,6 +4,7 @@
 import {onBeforeMount} from "vue";
 import {updatePageTitle} from "@/util";
 import IconCross from "@/components/icons/IconCross.vue";
+import SimpleCopyableTag from "@/components/SimpleCopyableTag.vue";
 
 onBeforeMount(() => {
   updatePageTitle('Hilfe');
@@ -102,6 +103,9 @@ onBeforeMount(() => {
         <dt>Warum wird ein <IconCross/> angezeigt, obwohl eigentlich alles passt?</dt>
         <dd>Dann passt wohl doch noch nicht alles. Falls ihr das Problem nicht selbst erkennen könnt, fragt gerne
           per E-Mail beim <a href="https://asta-bonn.de/de/referate/fachschaftenreferat">Fachschaftenreferat</a> nach.</dd>
+
+        <dt>Warum gibt es keinen Status <SimpleCopyableTag text="ÜBERWIESEN"/> mehr?</dt>
+        <dd>Weil Luc ein lazy boi ist.</dd>
 
         <dt>Was tue ich, wenn ich der Ansicht bin,
           dass eine auf dieser Webseite dargestellte Information falsch ist?</dt>

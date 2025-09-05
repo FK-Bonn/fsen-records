@@ -60,7 +60,7 @@ const financialYears = computed(() => {
 
   <h2>Gebuchte AFSG und BFSG pro Haushaltsjahr</h2>
 
-  <p>Summen sind gruppiert nach dem Haushaltsjahr, in dem der jeweilige Antrag angewiesen/überwiesen wurde.</p>
+  <p>Summen sind gruppiert nach dem Haushaltsjahr, in dem der jeweilige Antrag angewiesen wurde.</p>
 
   <table class="table">
     <thead>
