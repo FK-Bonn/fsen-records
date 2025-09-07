@@ -1472,14 +1472,27 @@ export const refKey = (reference: IDocumentReference) => reference.category + '-
     (reference.date_end ? ('--' + reference.date_end) : '') +
     (reference.request_id ? ('-' + reference.request_id) : '');
 
-export const payoutRequestToMarkdown= (payoutRequest: INewPayoutRequestData)=>{
+export const payoutRequestToMarkdown = (payoutRequest: INewPayoutRequestData)=>{
+    const parsedComment = parseCommentFields(payoutRequest.comment);
     const paddedAmount = euroCents(payoutRequest.amount_cents).padStart(10, ' ');
     let value = `1. FS ${payoutRequest.fs} | Semester: ${payoutRequest.semester}  
  **${payoutRequest.category}** · [\`${payoutRequest.request_id}\`](${window.location.href})  
  \`${paddedAmount}\`  `;
-    if (payoutRequest.comment){
+    if (parsedComment.title){
         value += `
- _${payoutRequest.comment}_  `;
+ **${parsedComment.title}**  `;
+    }
+    if (parsedComment.description){
+        value += `
+ ${parsedComment.description}  `;
+    }
+    if (parsedComment.participantscount){
+        value += `
+ Anzahl Teilnehmende: \`${parsedComment.participantscount}\`  `;
+    }
+    if (parsedComment.comment){
+        value += `
+ _${parsedComment.comment}_  `;
     }
     if (payoutRequest.reference){
         value += `
@@ -1513,3 +1526,34 @@ export const until = (predicateFunction: () => boolean) => {
     const poll = (done: (value: unknown) => void) => (predicateFunction() ? done(null) : setTimeout(() => poll(done), 10));
     return new Promise(poll);
 };
+
+export const parseCommentFields = (commentString: string | undefined) => {
+    if (!commentString) {
+        return {
+            title: '',
+            description: '',
+            participantscount: '',
+            fid: '',
+            comment: '',
+        };
+    }
+    try {
+        const parsed = JSON.parse(commentString);
+        return {
+            title: parsed.title || '',
+            description: parsed.description || '',
+            participantscount: parsed.participantscount || '',
+            fid: parsed.fid || '',
+            comment: parsed.comment || '',
+        };
+
+    } catch (e) {
+        return {
+            title: '',
+            description: '',
+            participantscount: '',
+            fid: '',
+            comment: commentString,
+        };
+    }
+}
