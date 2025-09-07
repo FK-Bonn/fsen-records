@@ -2,7 +2,7 @@
 
 import CopyableTag from "@/components/CopyableTag.vue";
 import type {IAllFsData, INewPayoutRequestData} from "@/interfaces";
-import {euroCents, getStatusTagClass} from "@/util";
+import {euroCents, getStatusTagClass, parseCommentFields} from "@/util";
 import {useAccountStore} from "@/stores/account";
 import {computed, ref} from "vue";
 import {useAllFsData} from "@/stores/allFsData";
@@ -23,6 +23,7 @@ const fsData = useAllFsData();
 
 const editModal = ref(false);
 const historyModal = ref(false);
+const showFull = ref(false);
 
 const getTableLine = (allData: IAllFsData | null, payoutRequest: INewPayoutRequestData, budgetTitle: string): string => {
   if (!payoutRequest || !allData) {
@@ -34,6 +35,7 @@ const getTableLine = (allData: IAllFsData | null, payoutRequest: INewPayoutReque
   let iban = 'IBAN';
   const fsId = payoutRequest.fs;
   const fsName = fsId;
+  const commentParsed = parseCommentFields(payoutRequest.comment);
   if (Object.prototype.hasOwnProperty.call(allData, fsId)) {
     const fsData = allData[fsId];
     if (fsData.protected) {
@@ -48,7 +50,8 @@ const getTableLine = (allData: IAllFsData | null, payoutRequest: INewPayoutReque
     budgetTitle,
     fsName,
     payoutRequest.request_id,
-    payoutRequest.request_date,
+    commentParsed.title || payoutRequest.category,
+    payoutRequest.status_date + ' FID ' + commentParsed.fid,
     euroCents(payoutRequest.amount_cents),
     iban,
   ].join('\t')
@@ -65,13 +68,19 @@ const showHistoryModal = () => {
   historyModal.value = true;
 }
 
+const toggleShowFull = () => {
+  showFull.value = !showFull.value;
+}
+
 const tagClass = computed(() => getStatusTagClass(props.payoutRequest));
 const budgetTitle = computed(() => META.budgetTitlesBfsg[props.payoutRequest.semester]);
 const tableLine = computed(() => getTableLine(fsData.data, props.payoutRequest, budgetTitle.value));
+const trClass = computed(() => showFull.value ? "selected-tr-top" : "");
+const commentFields = computed(() => parseCommentFields(props.payoutRequest.comment));
 </script>
 
 <template>
-  <tr>
+  <tr @click="toggleShowFull" :class="trClass">
     <td>
       <SimpleCopyableTag :text="payoutRequest.request_id"/>
     </td>
@@ -98,6 +107,23 @@ const tableLine = computed(() => getTableLine(fsData.data, props.payoutRequest, 
       </button>
     </td>
   </tr>
+  <tr v-if="showFull" class="selected-tr-bottom">
+    <td></td>
+    <td :colspan="singleFS ? 6 : 7">
+      <dl>
+        <dt>Titel</dt>
+        <dd>{{ commentFields.title || '–' }}</dd>
+        <dt>Beschreibung</dt>
+        <dd>{{ commentFields.description || '–' }}</dd>
+        <dt>Anzahl Teilnehmende</dt>
+        <dd>{{ commentFields.participantscount || '–' }}</dd>
+        <dt>FID zur Abstimmung</dt>
+        <dd>{{ commentFields.fid || '–' }}</dd>
+        <dt>Kommentar</dt>
+        <dd>{{ commentFields.comment || '–' }}</dd>
+      </dl>
+    </td>
+  </tr>
   <RequestEditModal v-if="editModal && payoutRequest" :payoutRequest="payoutRequest" :type="type" v-model="editModal"/>
   <RequestHistoryModal v-if="historyModal && payoutRequest" :payoutRequestId="payoutRequest.request_id" :type="type"
                        v-model="historyModal"/>
@@ -120,4 +146,25 @@ const tableLine = computed(() => getTableLine(fsData.data, props.payoutRequest, 
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+.selected-tr-top {
+  border-width: 2px 2px 0 2px;
+  border-style: solid;
+  border-color: #888;
+}
+
+.selected-tr-bottom {
+  border-width: 0 2px 2px 2px;
+  border-style: solid;
+  border-color: #888;
+}
+
+dt {
+  font-weight: bold;
+}
+
+dd {
+  margin-inline-start: 0;
+}
+
 </style>

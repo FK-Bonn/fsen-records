@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import type {IFullPayoutRequestData, INewPayoutRequestData} from "@/interfaces";
-import {editPayoutRequest, formatIsoDate, getPayoutRequestData} from "@/util";
+import {editPayoutRequest, formatIsoDate, getPayoutRequestData, parseCommentFields} from "@/util";
 import {computed, ref, type Ref, watch} from "vue";
 import {useTokenStore} from "@/stores/token";
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
@@ -17,11 +17,16 @@ const editModal = defineModel<boolean>({required: true})
 
 const token = useTokenStore();
 const payoutRequests = usePayoutRequestStore();
+const parsedComment = parseCommentFields(props.payoutRequest.comment);
 
 const status = ref(props.payoutRequest.status);
 const status_date = ref(props.payoutRequest.status_date);
 const amount_cents = ref(props.payoutRequest.amount_cents);
-const comment = ref(props.payoutRequest.comment);
+const title = ref(parsedComment.title);
+const description = ref(parsedComment.description);
+const participantscount = ref(parsedComment.participantscount);
+const fid = ref(parsedComment.fid);
+const comment = ref(parsedComment.comment);
 const completion_deadline = ref(props.payoutRequest.completion_deadline);
 const reference = ref(props.payoutRequest.reference);
 
@@ -43,7 +48,7 @@ watch(status, async () => {
 })
 
 const yeetRequest = () => {
-  const data = {
+  const baseData = {
     status: status.value,
     status_date: status_date.value,
     amount_cents: amount_cents.value,
@@ -51,6 +56,16 @@ const yeetRequest = () => {
     completion_deadline: completion_deadline.value,
     reference: reference.value,
   };
+  const data = props.type !== 'bfsg' ? baseData : {
+    ...baseData,
+    comment: JSON.stringify({
+      title: title.value,
+      description: description.value,
+      participantscount: participantscount.value,
+      fid: fid.value,
+      comment: comment.value,
+    })
+  }
   editPayoutRequest(props.payoutRequest.request_id, props.type, data, token.token()).then(value => {
     if (value) {
       message.value = value.message;
@@ -171,10 +186,36 @@ const reloadPayoutRequestData = () => {
                     <input class="input" :value="valueFormatted" @keyup="moneyInputHandler">
                   </td>
                 </tr>
+                <template v-if="props.type !== 'afsg'">
+                  <tr>
+                    <th>Titel</th>
+                    <td>
+                      <input class="input" type="text" v-model="title">
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Beschreibung</th>
+                    <td>
+                      <textarea class="textarea" type="text" v-model="description"></textarea>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Anzahl Teilnehmende</th>
+                    <td>
+                      <input class="input" type="number" v-model.number="participantscount">
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>FID zur Abstimmung</th>
+                    <td>
+                      <input class="input" type="text" v-model="fid">
+                    </td>
+                  </tr>
+                </template>
                 <tr>
                   <th>Kommentar</th>
                   <td>
-                    <textarea class="input" type="text" rows="4" v-model="comment"></textarea>
+                    <textarea class="textarea" type="text" rows="2" v-model="comment"></textarea>
                   </td>
                 </tr>
                 <tr>

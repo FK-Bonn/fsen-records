@@ -2,7 +2,7 @@
 import type {IFullPayoutRequestData, INewPayoutRequestData} from "@/interfaces";
 import CopyableTag from "@/components/CopyableTag.vue";
 import {computed} from "vue";
-import {euroCents} from "@/util";
+import {euroCents, parseCommentFields} from "@/util";
 import SimpleCopyableTag from "@/components/SimpleCopyableTag.vue";
 
 const props = defineProps<{
@@ -14,7 +14,13 @@ const requestDateChanged = computed(() => props.previous && props.previous?.requ
 const statusChanged = computed(() => props.previous && props.previous?.status !== props.payoutRequest?.status);
 const statusDateChanged = computed(() => props.previous && props.previous?.status_date !== props.payoutRequest?.status_date);
 const amountCentsChanged = computed(() => props.previous && props.previous?.amount_cents !== props.payoutRequest?.amount_cents);
-const commentChanged = computed(() => props.previous && props.previous?.comment !== props.payoutRequest?.comment);
+const previousCommentFields = computed(()=>parseCommentFields(props.previous?.comment))
+const currentCommentFields = computed(()=>parseCommentFields(props.payoutRequest?.comment))
+const titleChanged = computed(() => props.previous && previousCommentFields.value.title !== currentCommentFields.value.title);
+const descriptionChanged = computed(() => props.previous && previousCommentFields.value.description !== currentCommentFields.value.description);
+const participantscountChanged = computed(() => props.previous && previousCommentFields.value.participantscount !== currentCommentFields.value.participantscount);
+const fidChanged = computed(() => props.previous && previousCommentFields.value.fid !== currentCommentFields.value.fid);
+const commentChanged = computed(() => props.previous && previousCommentFields.value.comment !== currentCommentFields.value.comment);
 const deadlineChanged = computed(() => props.previous && props.previous?.completion_deadline !== props.payoutRequest?.completion_deadline);
 const referenceChanged = computed(() => props.previous && props.previous?.reference !== props.payoutRequest?.reference);
 </script>
@@ -85,13 +91,51 @@ const referenceChanged = computed(() => props.previous && props.previous?.refere
                      tag-class="is-light"/>
       </td>
     </tr>
+    <template v-if="!payoutRequest.request_id.startsWith('A')">
+    <tr :class="titleChanged ? 'has-background-warning' : ''">
+      <th>Titel</th>
+      <td v-if="!titleChanged">{{ currentCommentFields.title }}</td>
+      <td v-else>
+        <del>{{ previousCommentFields.title }}</del>
+        <br>
+        <b>{{ currentCommentFields.title }}</b>
+      </td>
+    </tr>
+    <tr :class="descriptionChanged ? 'has-background-warning' : ''">
+      <th>Beschreibung</th>
+      <td v-if="!descriptionChanged">{{ currentCommentFields.description }}</td>
+      <td v-else>
+        <del>{{ previousCommentFields.description }}</del>
+        <br>
+        <b>{{ currentCommentFields.description }}</b>
+      </td>
+    </tr>
+    <tr :class="participantscountChanged ? 'has-background-warning' : ''">
+      <th>Anzahl Teilnehmende</th>
+      <td v-if="!participantscountChanged">{{ currentCommentFields.participantscount }}</td>
+      <td v-else>
+        <del>{{ previousCommentFields.participantscount }}</del>
+        <br>
+        <b>{{ currentCommentFields.participantscount }}</b>
+      </td>
+    </tr>
+    </template>
     <tr :class="commentChanged ? 'has-background-warning' : ''">
       <th>Kommentar</th>
-      <td v-if="!commentChanged">{{ payoutRequest.comment }}</td>
+      <td v-if="!commentChanged">{{ currentCommentFields.comment }}</td>
       <td v-else>
-        <del>{{ previous?.comment }}</del>
+        <del>{{ previousCommentFields.comment }}</del>
         <br>
-        <b>{{ payoutRequest.comment }}</b>
+        <b>{{ currentCommentFields.comment }}</b>
+      </td>
+    </tr>
+    <tr :class="fidChanged ? 'has-background-warning' : ''">
+      <th>FID zur Abstimmung</th>
+      <td v-if="!fidChanged">{{ currentCommentFields.fid }}</td>
+      <td v-else>
+        <del>{{ previousCommentFields.fid }}</del>
+        <br>
+        <b>{{ currentCommentFields.fid }}</b>
       </td>
     </tr>
     <tr :class="deadlineChanged ? 'has-background-warning' : ''">

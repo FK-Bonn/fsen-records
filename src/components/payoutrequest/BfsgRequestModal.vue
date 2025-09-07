@@ -28,6 +28,10 @@ const request_date = ref('');
 const status = ref('');
 const status_date = ref('');
 const amount_cents = ref(0);
+const title = ref('');
+const description = ref('');
+const participantscount: Ref<string | number> = ref('');
+const fid = ref('');
 const comment = ref('');
 const completion_deadline = ref('');
 const reference = ref('');
@@ -58,8 +62,15 @@ const parseNumber = (value: string) => {
 }
 
 const yeetRequest = () => {
+  const commentField = JSON.stringify({
+    title: title.value,
+    description: description.value,
+    participantscount: participantscount.value,
+    fid: fid.value,
+    comment: comment.value,
+  });
   createBfsgPayoutRequest(props.fsId, semesterId.value, category.value, amount_cents.value, status.value, status_date.value,
-      comment.value, completion_deadline.value, reference.value, request_date.value, token.token()).then(value => {
+      commentField, completion_deadline.value, reference.value, request_date.value, token.token()).then(value => {
     if (value) {
       message.value = value.message;
       completedRequest.value = value.payoutRequest;
@@ -104,26 +115,66 @@ const reloadPayoutRequestData = () => {
         <template v-else>
           <div class="card-content">
             <div class="content">
-              BFSG-Antrag für die Fachschaft <b>{{fsName}}</b> stellen?
-              <div class="field">
-                <label class="label" for="semesterId">Semester*</label>
-                <div class="control">
-                  <select class="select" id="semesterId" v-model="semesterId">
-                    <option value='2020-SoSe'>2020-SoSe</option>
-                    <option value='2020-WiSe'>2020-WiSe</option>
-                    <option value='2021-SoSe'>2021-SoSe</option>
-                    <option value='2021-WiSe'>2021-WiSe</option>
-                    <option value='2022-SoSe'>2022-SoSe</option>
-                    <option value='2022-WiSe'>2022-WiSe</option>
-                    <option value='2023-SoSe'>2023-SoSe</option>
-                    <option value='2023-WiSe'>2023-WiSe</option>
-                    <option value='2024-SoSe'>2024-SoSe</option>
-                    <option value='2024-WiSe'>2024-WiSe</option>
-                    <option value='2025-SoSe'>2025-SoSe</option>
-                    <option value='2025-WiSe'>2025-WiSe</option>
-                  </select>
+              BFSG-Antrag für die Fachschaft <b>{{ fsName }}</b> stellen?
+              <div class="columns">
+                <div class="column">
+                  <div class="field">
+                    <label class="label" for="semesterId">Semester*</label>
+                    <div class="control">
+                      <div class="select">
+                        <select class="select" id="semesterId" v-model="semesterId">
+                          <option value='2024-WiSe'>2024-WiSe</option>
+                          <option value='2025-SoSe'>2025-SoSe</option>
+                          <option value='2025-WiSe'>2025-WiSe</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="field">
+                    <label class="label" for="category">Kategorie*</label>
+                    <div class="control">
+                      <div class="select">
+                        <select class="select" id="category" v-model="category">
+                          <RequestCategoryOptions/>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
+              <div class="columns">
+                <div class="column">
+                  <div class="field">
+                    <label class="label" for="status">Status</label>
+                    <div class="control">
+                      <div class="select">
+                        <select class="select" id="status" v-model="status">
+                          <RequestStatusOptions type="bfsg"/>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="field">
+                    <label class="label" for="statusDate">Status-Datum</label>
+                    <div class="control">
+                      <input class="input" id="statusDate" type="date" v-model="status_date">
+                    </div>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="field">
+                    <label class="label" for="requestDate">Antragsdatum</label>
+                    <div class="control">
+                      <input class="input" id="requestDate" type="date" v-model="request_date">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div class="field">
                 <label class="label" for="valueFormatted">Betrag*</label>
                 <div class="control">
@@ -131,49 +182,57 @@ const reloadPayoutRequestData = () => {
                 </div>
               </div>
               <div class="field">
-                <label class="label" for="category">Kategorie*</label>
+                <label class="label" for="title">Titel</label>
                 <div class="control">
-                  <select class="select" id="category" v-model="category">
-                    <RequestCategoryOptions/>
-                  </select>
+                  <input class="input" id="title" type="text" v-model="title">
                 </div>
               </div>
               <div class="field">
-                <label class="label" for="status">Status</label>
+                <label class="label" for="title">Beschreibung</label>
                 <div class="control">
-                  <select class="select" id="status" v-model="status">
-                    <RequestStatusOptions type="bfsg"/>
-                  </select>
+                  <textarea class="textarea" id="title" type="text" v-model="description" rows="3"></textarea>
                 </div>
               </div>
-              <div class="field">
-                <label class="label" for="statusDate">Status-Datum</label>
-                <div class="control">
-                  <input class="input" id="statusDate" type="date" v-model="status_date">
+              <div class="columns">
+                <div class="column">
+                  <div class="field">
+                    <label class="label" for="participantscount">Anzahl Teilnehmende</label>
+                    <div class="control">
+                      <input class="input" id="participantscount" type="number" v-model.number="participantscount">
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div class="field">
-                <label class="label" for="requestDate">Antragsdatum</label>
-                <div class="control">
-                  <input class="input" id="requestDate" type="date" v-model="request_date">
+                <div class="column">
+                  <div class="field">
+                    <label class="label" for="fid">FID zur Abstimmung</label>
+                    <div class="control">
+                      <input class="input" id="fid" type="text" v-model="fid">
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="field">
                 <label class="label" for="comment">Kommentar</label>
                 <div class="control">
-                  <textarea class="input" id="comment" type="text" v-model="comment"></textarea>
+                  <textarea class="textarea" id="comment" type="text" v-model="comment" rows="2"></textarea>
                 </div>
               </div>
-              <div class="field">
-                <label class="label" for="completionDeadline">Frist zur Vervollständigung</label>
-                <div class="control">
-                  <input class="input" id="completionDeadline" type="date" v-model="completion_deadline">
+              <div class="columns">
+                <div class="column">
+                  <div class="field">
+                    <label class="label" for="reference">Referenz</label>
+                    <div class="control">
+                      <input class="input" id="reference" type="text" v-model="reference">
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div class="field">
-                <label class="label" for="reference">Referenz</label>
-                <div class="control">
-                  <input class="input" id="reference" type="text" v-model="reference">
+                <div class="column">
+                  <div class="field">
+                    <label class="label" for="completionDeadline">Frist zur Vervollständigung</label>
+                    <div class="control">
+                      <input class="input" id="completionDeadline" type="date" v-model="completion_deadline">
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
