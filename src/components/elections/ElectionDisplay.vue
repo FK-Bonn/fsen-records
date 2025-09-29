@@ -16,7 +16,7 @@ const cutoffDate = computed(() => {
         return '???';
       }
       const base = new Date(props.election.first_election_day);
-      base.setDate(base.getDate() - 30);
+      base.setUTCDate(base.getUTCDate() - 30);
       return base.toISOString().substring(0, 10);
     }
 )
