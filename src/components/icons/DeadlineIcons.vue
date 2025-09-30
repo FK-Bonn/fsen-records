@@ -1,9 +1,17 @@
 <script setup lang="ts">
 import type {Interval} from "@/Calculator";
-import {formatDate, getLastDayForSubmission, isBeforeOrOnLastDayForSubmission, stringToDate} from "@/util";
+import {
+  deNow,
+  formatDate,
+  formatDateTime,
+  getLastDayForSubmission,
+  isBeforeOrOnLastDayForSubmission,
+  stringToDate
+} from "@/util";
 import {computed} from "vue";
 import IconCalendar from "@/components/icons/IconCalendar.vue";
 import {useFixedDateStore} from "@/stores/fixedDate";
+import {DateTime} from "luxon";
 
 const props = defineProps<{
   interval: Interval,
@@ -24,28 +32,28 @@ const isFutureSemester = (interval: Interval, fixedDate: string | null): boolean
 }
 
 
-const getLastDayForCompletion = (interval: Interval): Date => {
+const getLastDayForCompletion = (interval: Interval): DateTime => {
   for (let key in completionDeadlineOverrides) {
     if (interval.end.getTime() === stringToDate(key).getTime()) {
-      return stringToDate(completionDeadlineOverrides[key]);
+      return DateTime.fromISO(completionDeadlineOverrides[key]);
     }
   }
-  const lastDayForCompletion = new Date(interval.end);
-  lastDayForCompletion.setFullYear(lastDayForCompletion.getFullYear() + 2);
-  return lastDayForCompletion;
+  return DateTime.fromISO(interval.end.toISOString(), {zone: 'utc'})
+      .setZone('Europe/Berlin')
+      .plus({years: 2});
 }
 
-const isBeforeLastDayForCompletion = (interval: Interval, fixedDate: string | null): boolean => {
-  const today = fixedDate ? new Date(fixedDate) : new Date();
-  return today < getLastDayForCompletion(interval);
+const isLastDayForCompletionOrEarlier = (interval: Interval, fixedDate: string | null): boolean => {
+  const today = fixedDate ? fixedDate : deNow().toFormat('yyyy-MM-dd');
+  return today <= getLastDayForCompletion(interval).toFormat('yyyy-MM-dd');
 }
 
 const getSubmissionDeadline = (interval: Interval): string => {
-  return 'Antragsfrist: ' + formatDate(getLastDayForSubmission(interval));
+  return 'Antragsfrist: ' + formatDateTime(getLastDayForSubmission(interval));
 }
 
 const getCompletionDeadline = (interval: Interval): string => {
-  return 'Frist zur Vervollständigung: ' + formatDate(getLastDayForCompletion(interval));
+  return 'Frist zur Vervollständigung: ' + formatDateTime(getLastDayForCompletion(interval));
 }
 
 const getColourClassForSubmission = (interval: Interval, fixedDate: string | null): string => {
@@ -62,7 +70,7 @@ const getColourClassForCompletion = (interval: Interval, fixedDate: string | nul
   if (isFutureSemester(interval, fixedDate)) {
     return 'has-text-danger';
   }
-  if (isBeforeLastDayForCompletion(interval, fixedDate)) {
+  if (isLastDayForCompletionOrEarlier(interval, fixedDate)) {
     return 'has-text-warning';
   }
   return 'has-text-secondary';

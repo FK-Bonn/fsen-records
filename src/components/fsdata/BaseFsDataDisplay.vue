@@ -8,6 +8,8 @@ import {useFixedDateStore} from "@/stores/fixedDate";
 import DateRange from "@/components/DateRange.vue";
 import IconInfo from "@/components/icons/IconInfo.vue";
 import IconWarning from "@/components/icons/IconWarning.vue";
+import {dateToDateTime, deNow, parseDEDate} from "@/util";
+import {DateTime} from "luxon";
 
 const props = defineProps<{
   data: IBaseFsData,
@@ -18,6 +20,11 @@ const fixedDate = useFixedDateStore();
 
 
 const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.data, fixedDate.date, documents.data));
+const currentFinancialYearExpired = computed(()=>{
+  const endDate = dateToDateTime(calculator.value.getCurrentFinancialYear()?.end || new Date()).setZone('Europe/Berlin');
+  const today = fixedDate.date ? parseDEDate(fixedDate.date) : deNow();
+  return endDate.toFormat('yyyy-MM-dd') < today.toFormat('yyyy-MM-dd');
+});
 
 </script>
 
@@ -35,8 +42,7 @@ const calculator = computed(() => new CurrentlyCanBePaidCalculator(props.data, f
   <br>
   Aktuelles Haushaltsjahr:
   <DateRange :interval="calculator.getCurrentFinancialYear()"/>
-  <IconWarning
-      v-if="(calculator.getCurrentFinancialYear()?.end || new Date()) < (fixedDate.date ? new Date(fixedDate.date) : new Date())"/>
+  <IconWarning v-if="currentFinancialYearExpired"/>
   <IconInfo v-if="data.financial_year_override" title="Dieser Zeitraum wurde manuell überschrieben"/>
   <br>
   Vergangenes Haushaltsjahr:
