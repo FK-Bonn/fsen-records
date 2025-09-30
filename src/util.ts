@@ -7,7 +7,9 @@ import type {
     IDocumentData,
     IDocumentDataForFs,
     IDocumentHistoryData,
-    IDocumentReference, IElectionData, IElectionDataWithMeta,
+    IDocumentReference,
+    IElectionData,
+    IElectionDataWithMeta,
     IElectoralRegisterDownloadData,
     IElectoralRegistersIndex,
     IElectoralRegistersStatus,
@@ -27,6 +29,7 @@ import type {
 } from "@/interfaces";
 import {AnnotationLevel} from "@/interfaces";
 import {Interval} from "@/Calculator";
+import {DateTime} from "luxon";
 
 export const PERMISSIONS: (IPermissionKey)[] = [
     'read_files',
@@ -583,8 +586,24 @@ export const formatDate = (date: Date): string => {
     return date.toLocaleDateString('de-DE', formatDateOptions);
 }
 
+export const formatDateTime = (date: DateTime): string => {
+    return date.setLocale('de-DE').toLocaleString(formatDateOptions);
+}
+
+export const dateToDateTime = (date: Date):DateTime => {
+    return DateTime.fromISO(date.toISOString(), {zone: 'utc'});
+}
+
 export const formatIsoDate = (date: Date): string => {
     return date.toISOString().substring(0, 10);
+}
+
+export const parseDEDate = (date: string): DateTime => {
+    return DateTime.fromISO(date, {zone: 'Europe/Berlin'});
+}
+
+export const deNow = (): DateTime => {
+    return DateTime.now().setZone('Europe/Berlin');
 }
 
 export const getUrlParameter = (key: string): string | null => {
@@ -1339,16 +1358,14 @@ export const hasAnyPermission = (u: IUserWithPermissions) => {
     return false;
 }
 
-export const getLastDayForSubmission = (interval: Interval): Date => {
-    const lastDayForSubmission = new Date(interval.end);
-    lastDayForSubmission.setFullYear(lastDayForSubmission.getFullYear() + 1);
-    return lastDayForSubmission;
+export const getLastDayForSubmission = (interval: Interval): DateTime => {
+    return dateToDateTime(interval.end).plus({years: 1}).setZone('Europe/Berlin');
 }
 
 export const isBeforeOrOnLastDayForSubmission = (interval: Interval, fixedDate: string | null): boolean => {
-    const yesterday = fixedDate ? new Date(fixedDate) : new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    return yesterday < getLastDayForSubmission(interval);
+    const today = fixedDate ? DateTime.fromISO(fixedDate, {zone: 'Europe/Berlin'}) : deNow();
+    const yesterday = today.minus({days: 1});
+    return yesterday.toFormat('yyyy-MM-dd') <= getLastDayForSubmission(interval).toFormat('yyyy-MM-dd');
 }
 
 export const sortPayoutRequests = (a: INewPayoutRequestData, b: INewPayoutRequestData) => {
