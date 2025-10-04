@@ -4,12 +4,12 @@ import SingleDocument from "@/components/document/SingleDocument.vue";
 
 defineProps<{
   document: IDocumentData,
-  baseData: IBaseFsData,
+  fsId: string,
 }>()
 </script>
 
 <template>
-  <SingleDocument :document="document" :baseData="baseData" :withReferences="false"/>
+  <SingleDocument :document="document" :fsId="fsId" :withReferences="false"/>
 </template>
 
 <style scoped>

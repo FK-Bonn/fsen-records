@@ -47,11 +47,11 @@ const getReferencedDocument = (reference: IDocumentReference): IDocumentData | n
     </ul>
     <template v-for="document in documents" :key="document.filename">
       <div :class="'document level-'+VerdictCalculator.getWorstAnnotationLevel(document.annotations)">
-        <SingleDocumentWithoutReferences :document="document" :baseData="baseData"/>
+        <SingleDocumentWithoutReferences :document="document" :fsId="baseData.fs_id"/>
         <ul class="prots">
           <li v-for="reference in document.references" :key="refKey(reference)">
             <b>{{ proceedingsTitle }}:</b><br>
-            <SingleDocument :document="getReferencedDocument(reference)" :baseData="baseData"/>
+            <SingleDocument :document="getReferencedDocument(reference)" :fsId="baseData.fs_id"/>
           </li>
           <li v-if="(document.references?.length || 0) === 0">
             <b>{{ proceedingsTitle }}:</b>

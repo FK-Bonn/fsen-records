@@ -48,7 +48,7 @@ const mostRecentBudgetAsArray = computed(() => {
           </template>
         </li>
         <li>
-          <SingleDocument :document="mostRecentElection" :baseData="baseData"/>
+          <SingleDocument :document="mostRecentElection" :fsId="baseData.fs_id"/>
         </li>
       </ul>
       <template v-else>
@@ -70,7 +70,7 @@ const mostRecentBudgetAsArray = computed(() => {
           nach letzter Wahl?
         </li>
         <li>
-          <SingleDocument :document="mostRecentInauguralMeetingProceedings" :baseData="baseData"/>
+          <SingleDocument :document="mostRecentInauguralMeetingProceedings" :fsId="baseData.fs_id"/>
         </li>
       </ul>
       <template v-else>
@@ -101,7 +101,7 @@ const mostRecentBudgetAsArray = computed(() => {
       <ul :class="('documents level-'+calculator.getBalanceLevel())+ (settings.paleLowerDocuments ? ' pale' : '')">
         <template v-for="balance in calculator.getRelevantBalancesForPreviousFinancialYear()" :key="balance.filename">
           <li :class="'document level-'+VerdictCalculator.getWorstAnnotationLevel(balance.annotations)">
-            <SingleDocument :document="balance" :baseData="baseData"/>
+            <SingleDocument :document="balance" :fsId="baseData.fs_id"/>
           </li>
         </template>
         <template v-if="calculator.getRelevantBalancesForPreviousFinancialYear().length === 0">

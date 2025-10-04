@@ -44,7 +44,7 @@ const mostRecentElection = computed(() => calculator.value.getMostRecentElection
         </li>
         <template v-for="balance in calculator.getRelevantBalances()" :key="balance.filename">
           <li class="document level-{VerdictCalculator.getWorstAnnotationLevel(balance.annotations)}">
-            <SingleDocument :document="balance" :baseData="baseData"/>
+            <SingleDocument :document="balance" :fsId="baseData.fs_id"/>
           </li>
         </template>
         <li v-if="calculator.getRelevantBalances().length === 0">
@@ -65,7 +65,7 @@ const mostRecentElection = computed(() => calculator.value.getMostRecentElection
         <IconForLevel :level="calculator.getElectionLevel()"/>
         Wahlergebnis
       </h5>
-      <SingleDocument v-if="mostRecentElection" :document="mostRecentElection" :baseData="baseData"/>
+      <SingleDocument v-if="mostRecentElection" :document="mostRecentElection" :fsId="baseData.fs_id"/>
       <template v-else>
         <IconCross/>
         Fehlt!

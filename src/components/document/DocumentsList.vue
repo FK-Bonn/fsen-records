@@ -25,7 +25,7 @@ const electionResults = computed(()=>documentsForFs.value.filter(value => value.
       <template v-if="budgets.length > 0">
         <ul>
           <li v-for="document in budgets" :key="document.filename">
-            <SingleDocument :document="document" :baseData="baseData"/>
+            <SingleDocument :document="document" :fsId="baseData.fs_id"/>
           </li>
         </ul>
       </template>
@@ -37,7 +37,7 @@ const electionResults = computed(()=>documentsForFs.value.filter(value => value.
       <template v-if="balances.length > 0">
         <ul>
           <li v-for="document in balances" :key="document.filename">
-            <SingleDocument :document="document" :baseData="baseData"/>
+            <SingleDocument :document="document" :fsId="baseData.fs_id"/>
           </li>
         </ul>
       </template>
@@ -49,7 +49,7 @@ const electionResults = computed(()=>documentsForFs.value.filter(value => value.
       <template v-if="cashAudits.length > 0">
         <ul>
           <li v-for="document in cashAudits" :key="document.filename">
-            <SingleDocument :document="document" :baseData="baseData"/>
+            <SingleDocument :document="document" :fsId="baseData.fs_id"/>
           </li>
         </ul>
       </template>
@@ -61,7 +61,7 @@ const electionResults = computed(()=>documentsForFs.value.filter(value => value.
       <template v-if="proceedings.length > 0">
         <ul>
           <li v-for="document in proceedings" :key="document.filename">
-            <SingleDocument :document="document" :baseData="baseData"/>
+            <SingleDocument :document="document" :fsId="baseData.fs_id"/>
           </li>
         </ul>
       </template>
@@ -73,7 +73,7 @@ const electionResults = computed(()=>documentsForFs.value.filter(value => value.
       <template v-if="electionResults.length > 0">
         <ul>
           <li v-for="document in electionResults" :key="document.filename">
-            <SingleDocument :document="document" :baseData="baseData"/>
+            <SingleDocument :document="document" :fsId="baseData.fs_id"/>
           </li>
         </ul>
       </template>
