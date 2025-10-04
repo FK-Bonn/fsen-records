@@ -69,6 +69,12 @@ const shortenedFilename = computed(() => shortenFilename(props.document?.filenam
           <DownloadButton v-if="displayDownloadButton" :fs="fsId" :filename="document.filename"/>
         </p>
         <p class="control">
+          <RouterLink :to="{name: 'single-document', params: {filename: document.filename}}"
+                      class="button is-small" title="Detailseite öffnen">
+            🔗
+          </RouterLink>
+        </p>
+        <p class="control">
           <button class="button is-small" @click.stop="showHistoryModal" title="Bearbeitungsverlauf anzeigen">
             📜
           </button>

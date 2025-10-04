@@ -99,6 +99,11 @@ const router = createRouter({
       name: 'delete-request',
       component: () => import('../views/RequestDeleteView.vue'),
     },
+    {
+      path: '/document/:filename',
+      name: 'single-document',
+      component: () => import('../views/SingleDocumentView.vue'),
+    },
   ]
 })
 
