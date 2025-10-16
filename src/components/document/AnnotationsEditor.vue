@@ -42,7 +42,7 @@ const overallAnnotation = computed(()=>getWorstDocumentAnnotationLevel(annotatio
         </span>
         </p>
         <p class="control is-expanded">
-          <input class="input" type="text" v-model="annotation.text">
+          <textarea class="input" type="text" rows="1" v-model="annotation.text"></textarea>
         </p>
         <p class="control">
           <button class="button is-outlined is-danger" @click.prevent="deleteAnnotation(i)">Löschen</button>
