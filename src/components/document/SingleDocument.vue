@@ -49,63 +49,65 @@ const shortenedFilename = computed(() => shortenFilename(props.document?.filenam
 <template>
   <template v-if="document === null"></template>
   <template v-else>
-    <div class="is-flex flex-direction-row is-align-items-center is-column-gap-0.5">
-      <IconForLevel v-if="document" :level="VerdictCalculator.getWorstAnnotationLevel(document.annotations)"/>
-      <IconQuestionmark v-else/>
-      <template v-if="settings.showFilenames">
-        <code>{{ shortenedFilename }}</code>
-        (
-        <DateRange :interval="Interval.fromStrings(document.date_start, document.date_end || document.date_start)"/>
-        )
+    <div class="single-document">
+      <div class="is-flex flex-direction-row is-align-items-center is-column-gap-0.5">
+        <IconForLevel v-if="document" :level="VerdictCalculator.getWorstAnnotationLevel(document.annotations)"/>
+        <IconQuestionmark v-else/>
+        <template v-if="settings.showFilenames">
+          <code>{{ shortenedFilename }}</code>
+          (
+          <DateRange :interval="Interval.fromStrings(document.date_start, document.date_end || document.date_start)"/>
+          )
+        </template>
+        <DocumentName v-else :document="document"/>
+
+        <div class="tags" v-if="document.tags && document.tags.length > 0">
+          <span v-for="tag in document.tags" :key="tag" class="tag is-light">{{ tag }}</span>
+        </div>
+
+        <div class="field is-grouped">
+          <p class="control">
+            <DownloadButton v-if="displayDownloadButton" :fs="fsId" :filename="document.filename"/>
+          </p>
+          <p class="control">
+            <RouterLink :to="{name: 'single-document', params: {filename: document.filename}}"
+                        class="button is-small" title="Detailseite öffnen">
+              🔗
+            </RouterLink>
+          </p>
+          <p class="control">
+            <button class="button is-small" @click.stop="showHistoryModal" title="Bearbeitungsverlauf anzeigen">
+              📜
+            </button>
+          </p>
+          <p class="control">
+            <button class="button is-small" v-if="displayEditAnnotationsButton" @click="showAnnotationEditModal"
+                    title="Annotationen bearbeiten">✏️
+            </button>
+          </p>
+          <p class="control">
+            <button class="button is-small" v-if="displayDeleteButton" @click="showDeleteModal"
+                    title="Datei(version) löschen">🚮
+            </button>
+          </p>
+        </div>
+      </div>
+
+      <template v-if="withReferences">
+        <template v-if="document.url">
+          <a :href="document.url">Link</a>
+        </template>
+        <template v-for="reference in document.references" :key="reference">
+          <code>{{ reference }}</code>
+        </template>
       </template>
-      <DocumentName v-else :document="document"/>
-
-      <div class="tags" v-if="document.tags && document.tags.length > 0">
-        <span v-for="tag in document.tags" :key="tag" class="tag is-light">{{ tag }}</span>
-      </div>
-
-      <div class="field is-grouped">
-        <p class="control">
-          <DownloadButton v-if="displayDownloadButton" :fs="fsId" :filename="document.filename"/>
-        </p>
-        <p class="control">
-          <RouterLink :to="{name: 'single-document', params: {filename: document.filename}}"
-                      class="button is-small" title="Detailseite öffnen">
-            🔗
-          </RouterLink>
-        </p>
-        <p class="control">
-          <button class="button is-small" @click.stop="showHistoryModal" title="Bearbeitungsverlauf anzeigen">
-            📜
-          </button>
-        </p>
-        <p class="control">
-          <button class="button is-small" v-if="displayEditAnnotationsButton" @click="showAnnotationEditModal"
-                  title="Annotationen bearbeiten">✏️
-          </button>
-        </p>
-        <p class="control">
-          <button class="button is-small" v-if="displayDeleteButton" @click="showDeleteModal"
-                  title="Datei(version) löschen">🚮
-          </button>
-        </p>
-      </div>
+      <ul v-if="document.annotations">
+        <li v-for="annotation in document.annotations" :key="annotation.text">
+          <IconForLevel :level="annotation.level"/>
+          {{ annotation.text }}
+        </li>
+      </ul>
     </div>
-
-    <template v-if="withReferences">
-      <template v-if="document.url">
-        <a :href="document.url">Link</a>
-      </template>
-      <template v-for="reference in document.references" :key="reference">
-        <code>{{ reference }}</code>
-      </template>
-    </template>
-    <ul v-if="document.annotations">
-      <li v-for="annotation in document.annotations" :key="annotation.text">
-        <IconForLevel :level="annotation.level"/>
-        {{ annotation.text }}
-      </li>
-    </ul>
 
     <AnnotationsEditModal v-if="annotationsEditModal" :fs="fsId" :document="document" v-model="annotationsEditModal"/>
 
@@ -129,5 +131,11 @@ ul, ul:not(:last-child) {
   list-style: none !important;
   margin-top: .2em !important;
   margin-bottom: .1em;
+}
+
+.pale.documents.level-Ok .document.level-Warning .single-document,
+.pale.documents.level-Ok .document.level-Error .single-document,
+.pale.documents.level-Warning .document.level-Error .single-document {
+  opacity: 0.3;
 }
 </style>

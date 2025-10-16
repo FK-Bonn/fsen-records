@@ -89,9 +89,9 @@ ul, ul:not(:last-child) {
   list-style: none !important;
 }
 
-.pale.documents.level-Ok .document.level-Warning,
-.pale.documents.level-Ok .document.level-Error,
-.pale.documents.level-Warning .document.level-Error {
+.pale.documents.level-Ok .document.level-Warning .single-document,
+.pale.documents.level-Ok .document.level-Error .single-document,
+.pale.documents.level-Warning .document.level-Error .single-document {
   opacity: 0.3;
 }
 </style>
