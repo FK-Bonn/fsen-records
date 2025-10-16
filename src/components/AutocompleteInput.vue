@@ -26,7 +26,7 @@ const arrowCounter = ref(-1);
 
 watch(props.items, (value, oldValue) => {
   if (value.length !== oldValue.length) {
-    results.value = value;
+    results.value = [...value].reverse();
     isLoading.value = false;
   }
 })
@@ -60,7 +60,7 @@ const filterResults = () => {
       }
     }
     return true;
-  });
+  }).reverse();
 }
 
 const onChange = () => {
@@ -72,6 +72,15 @@ const onChange = () => {
     filterResults();
     isOpen.value = true;
   }
+}
+
+const onFocus = () => {
+  if (search.value === '') {
+    results.value = [...props.items].reverse();
+  } else {
+    filterResults();
+  }
+  isOpen.value = true;
 }
 
 const handleClickOutside = (event: Event) => {
@@ -100,6 +109,7 @@ onUnmounted(() => {
            type="text"
            placeholder="Tippen, um auszuwählen…"
            @input="onChange"
+           @focus="onFocus"
            v-model="search"
            @keydown.down="onArrowDown"
            @keydown.up="onArrowUp"
@@ -138,25 +148,21 @@ onUnmounted(() => {
 .autocomplete-results {
   padding: 0;
   margin: 0;
-  border: 1px solid #eeeeee;
+  border: 1px solid var(--bulma-border);
   height: 120px;
   overflow: auto;
-  background-color: white;
+  background-color: var(--bulma-box-background-color);
 }
 
 .autocomplete-result {
   list-style: none;
   text-align: left;
-  padding-bottom: var(--bulma-control-padding-vertical);
-  padding-left: var(--bulma-control-padding-horizontal);
-  padding-right: var(--bulma-control-padding-horizontal);
-  padding-top: var(--bulma-control-padding-vertical);
+  padding: var(--bulma-control-padding-vertical) var(--bulma-control-padding-horizontal);
   cursor: pointer;
 }
 
 .autocomplete-result.is-active,
 .autocomplete-result:hover {
-  background-color: #4AAE9B;
-  color: white;
+  background-color: var(--bulma-background-hover);
 }
 </style>
