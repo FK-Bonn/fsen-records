@@ -20,7 +20,7 @@ import type {
     IProtectedFsDataResponse,
     IPublicFsData,
     IPublicFsDataHistoryEntry,
-    IPublicFsDataResponse,
+    IPublicFsDataResponse, ISGliedSStatusData,
     IUserWithPermissions
 } from "@/interfaces";
 import {AnnotationLevel} from "@/interfaces";
@@ -1005,6 +1005,20 @@ export const putProtectedFsData = async (fs: string, data: IProtectedFsData, tok
 
 export const loadProceedingsIndex = async (): Promise<IProceedings[] | null> => {
     return fetch(import.meta.env.VITE_API_URL + '/proceedings')
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                return Promise.reject('An error occured');
+            }
+        })
+        .then(json => {
+            return json;
+        });
+}
+
+export const loadSGliedSData = async (): Promise<ISGliedSStatusData | null> => {
+    return fetch(import.meta.env.VITE_API_URL + '/sglieds')
         .then(resp => {
             if (resp.ok) {
                 return resp.json();

@@ -39,11 +39,14 @@ const account = useAccountStore();
     </li>
   </ul>
   <p class="menu-label">
-    Wahlen
+    Wahlen &amp; Satzungen
   </p>
   <ul class="menu-list">
     <li>
       <RouterLink :to="{name: 'wahltermine'}">Wahl&shy;termine</RouterLink>
+    </li>
+    <li>
+      <RouterLink :to="{name: 'sglieds'}">SGliedS</RouterLink>
     </li>
   </ul>
   <p class="menu-label">

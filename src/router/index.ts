@@ -40,6 +40,11 @@ const router = createRouter({
       component: () => import('../views/ElectionDates.vue'),
     },
     {
+      path: '/sglieds',
+      name: 'sglieds',
+      component: () => import('../views/SGliedSView.vue'),
+    },
+    {
       path: '/diff/:dateStart/:dateEnd?',
       name: 'diff',
       component: () => import('../views/DiffView.vue'),

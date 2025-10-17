@@ -310,3 +310,46 @@ export interface IElectionDataWithMeta extends IElectionData {
     last_modified_timestamp: string
     last_modified_by: string
 }
+
+
+export interface ISGliedSLine {
+    nr: string
+    fs: string
+    subject: string
+    degree: string
+    m: string
+}
+
+
+export interface ICrmLine {
+    subject: string
+    subject_id: string
+    degree: string
+    degree_id: string
+}
+
+
+export interface ICrmLineWithFsId extends ICrmLine {
+    fs_id: string
+}
+
+
+export interface ISGliedSWithCrmAssignment {
+    sglieds: ISGliedSLine
+    crm: ICrmLineWithFsId[]
+}
+
+
+export interface INeedsAssignmentInCrm {
+    unassigned: ICrmLine
+    fs: string
+}
+
+export interface ISGliedSStatusData {
+    sglieds_with_crm_assignments: ISGliedSWithCrmAssignment[]
+    in_sglieds_but_not_in_crm: ISGliedSWithCrmAssignment[]
+    wrong_crm_assignments: ICrmLineWithFsId[]
+    needs_assignment_in_crm: INeedsAssignmentInCrm[]
+    needs_assignment_in_sglieds: ICrmLine[]
+    last_run: string
+}
