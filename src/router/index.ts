@@ -30,11 +30,6 @@ const router = createRouter({
       component: () => import('../views/BudgetView.vue'),
     },
     {
-      path: '/afsg-verteilung',
-      name: 'afsg-verteilung',
-      component: () => import('../views/FundsView.vue'),
-    },
-    {
       path: '/sitzungsprotokolle',
       name: 'sitzungsprotokolle',
       component: () => import('../views/ProceedingsView.vue'),
@@ -43,11 +38,6 @@ const router = createRouter({
       path: '/wahltermine',
       name: 'wahltermine',
       component: () => import('../views/ElectionDates.vue'),
-    },
-    {
-      path: '/waehlendenverzeichnisse',
-      name: 'waehlendenverzeichnisse',
-      component: () => import('../views/ElectoralRegistersView.vue'),
     },
     {
       path: '/diff/:dateStart/:dateEnd?',

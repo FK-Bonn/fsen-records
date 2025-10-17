@@ -291,22 +291,6 @@ export interface IDocumentReference {
     date_end: string | null
 }
 
-export interface IElectoralRegistersStatus {
-    last_successful_run: string
-    last_data_change: string
-    unassigned_faks: string[]
-}
-
-export interface IElectoralRegisterDownloadData {
-    timestamp: string
-    username: string
-    filepath: string
-}
-
-export interface IElectoralRegistersIndex {
-    [key: string]: string[]
-}
-
 export interface IElectionData {
     election_id: string
     fs: string
@@ -325,17 +309,4 @@ export interface IElectionData {
 export interface IElectionDataWithMeta extends IElectionData {
     last_modified_timestamp: string
     last_modified_by: string
-}
-
-export interface Fraction {
-    numerator: number
-    denominator: number
-}
-
-export interface IFundsDistributions {
-    [key: string]: IFundsDistribution
-}
-
-export interface IFundsDistribution {
-    [key: string]: Fraction
 }
