@@ -8,6 +8,7 @@ import {usePayoutRequestStore} from "@/stores/payoutRequest";
 import PayoutRequestTable from "@/components/payoutrequest/PayoutRequestTable.vue";
 import RequestStatusOptions from "@/components/payoutrequest/RequestStatusOptions.vue";
 import RequestCategoryOptions from "@/components/payoutrequest/RequestCategoryOptions.vue";
+import ValidVorankuendigungSemesters from "@/components/payoutrequest/ValidVorankuendigungSemesters.vue";
 
 const props = defineProps<{
   fsName: string,
@@ -24,16 +25,11 @@ const message: Ref<null | string> = ref(null);
 
 const semesterId = ref('');
 const category = ref('');
-const request_date = ref('');
-const status = ref('');
-const status_date = ref('');
 const amount_cents = ref(0);
 const title = ref('');
 const description = ref('');
 const participantscount: Ref<string | number> = ref('');
-const fid = ref('');
 const comment = ref('');
-const completion_deadline = ref('');
 const reference = ref('');
 
 
@@ -58,19 +54,43 @@ function moneyInputHandler(e: KeyboardEvent) {
 }
 
 const parseNumber = (value: string) => {
-  return parseFloat(value.replace(/[^\d,]/, '').replace(',', '.'))
+  return parseFloat(value.replace(/[^\d,]/g, '').replace(',', '.'))
+}
+
+const missingFields = () => {
+  const fieldNames = [];
+  if (!semesterId.value) {
+    fieldNames.push('Semester');
+  }
+  if (!category.value) {
+    fieldNames.push('Kategorie');
+  }
+  if (!amount_cents.value) {
+    fieldNames.push('Betrag');
+  }
+  if (!title.value) {
+    fieldNames.push('Titel');
+  }
+  if (fieldNames.length > 0) {
+    alert('Die folgenden Felder müssen mindestens noch ausgefüllt werden: ' + fieldNames.join(', '));
+    return true;
+  }
+  return false;
 }
 
 const yeetRequest = () => {
+  if (missingFields()) {
+    return;
+  }
   const commentField = JSON.stringify({
     title: title.value,
     description: description.value,
     participantscount: participantscount.value,
-    fid: fid.value,
+    fid: '',
     comment: comment.value,
   });
-  createVorankuendigungPayoutRequest(props.fsId, semesterId.value, category.value, amount_cents.value, status.value, status_date.value,
-      commentField, completion_deadline.value, reference.value, request_date.value, token.token()).then(value => {
+  createVorankuendigungPayoutRequest(props.fsId, semesterId.value, category.value, amount_cents.value,
+      commentField, reference.value, token.token()).then(value => {
     if (value) {
       message.value = value.message;
       completedRequest.value = value.payoutRequest;
@@ -123,9 +143,7 @@ const reloadPayoutRequestData = () => {
                     <div class="control">
                       <div class="select">
                         <select class="select" id="semesterId" v-model="semesterId">
-                          <option value='2024-WiSe'>2024-WiSe</option>
-                          <option value='2025-SoSe'>2025-SoSe</option>
-                          <option value='2025-WiSe'>2025-WiSe</option>
+                          <ValidVorankuendigungSemesters/>
                         </select>
                       </div>
                     </div>
@@ -144,34 +162,6 @@ const reloadPayoutRequestData = () => {
                   </div>
                 </div>
               </div>
-              <div class="columns">
-                <div class="column">
-                  <div class="field">
-                    <label class="label" for="status">Status</label>
-                    <div class="control">
-                      <select class="select" id="status" v-model="status">
-                        <RequestStatusOptions type="vorankuendigung"/>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                <div class="column">
-                  <div class="field">
-                    <label class="label" for="statusDate">Status-Datum</label>
-                    <div class="control">
-                      <input class="input" id="statusDate" type="date" v-model="status_date">
-                    </div>
-                  </div>
-                </div>
-                <div class="column">
-                  <div class="field">
-                    <label class="label" for="requestDate">Antragsdatum</label>
-                    <div class="control">
-                      <input class="input" id="requestDate" type="date" v-model="request_date">
-                    </div>
-                  </div>
-                </div>
-              </div>
 
               <div class="field">
                 <label class="label" for="valueFormatted">Betrag*</label>
@@ -180,7 +170,7 @@ const reloadPayoutRequestData = () => {
                 </div>
               </div>
               <div class="field">
-                <label class="label" for="title">Titel</label>
+                <label class="label" for="title">Titel*</label>
                 <div class="control">
                   <input class="input" id="title" type="text" v-model="title">
                 </div>
@@ -202,9 +192,9 @@ const reloadPayoutRequestData = () => {
                 </div>
                 <div class="column">
                   <div class="field">
-                    <label class="label" for="fid">FID zur Abstimmung</label>
+                    <label class="label" for="reference">Referenz</label>
                     <div class="control">
-                      <input class="input" id="fid" type="text" v-model="fid">
+                      <input class="input" id="reference" type="text" v-model="reference">
                     </div>
                   </div>
                 </div>
@@ -213,24 +203,6 @@ const reloadPayoutRequestData = () => {
                 <label class="label" for="comment">Kommentar</label>
                 <div class="control">
                   <textarea class="textarea" id="comment" type="text" v-model="comment" rows="2"></textarea>
-                </div>
-              </div>
-              <div class="columns">
-                <div class="column">
-                  <div class="field">
-                    <label class="label" for="reference">Referenz</label>
-                    <div class="control">
-                      <input class="input" id="reference" type="text" v-model="reference">
-                    </div>
-                  </div>
-                </div>
-                <div class="column">
-                  <div class="field">
-                    <label class="label" for="completionDeadline">Frist zur Vervollständigung</label>
-                    <div class="control">
-                      <input class="input" id="completionDeadline" type="date" v-model="completion_deadline">
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>

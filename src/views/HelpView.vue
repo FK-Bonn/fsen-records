@@ -59,6 +59,14 @@ onBeforeMount(() => {
         <dd>Über den "Antrag stellen"-Knopf im jeweiligen Semester-Feld deiner Fachschaft.<br>
           Damit der Knopf erscheint, musst du eingeloggt sein und die Berechtigung haben, Anträge zu stellen.</dd>
 
+        <dt>Wie stelle ich einen BFSG-Antrag?</dt>
+        <dd>Über den "Antrag stellen"-Knopf für BFSG-Anträge im Abschnitt "BFSG" deiner Fachschaft.<br>
+          Damit der Knopf erscheint, musst du eingeloggt sein und die Berechtigung haben, Anträge zu stellen.</dd>
+
+        <dt>Wie stelle ich eine Vorankündigung?</dt>
+        <dd>Über den "Antrag stellen"-Knopf für Vorankündigungen im Abschnitt "BFSG" deiner Fachschaft.<br>
+          Damit der Knopf erscheint, musst du eingeloggt sein und die Berechtigung haben, Anträge zu stellen.</dd>
+
         <dt>Wie erhalte ich einen Account?</dt>
         <dd>Du kannst dich folgendermaßen über Shibboleth mit deiner Uni-ID anmelden:
           <ol>

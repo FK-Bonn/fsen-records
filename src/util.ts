@@ -38,6 +38,7 @@ export const PERMISSIONS: (IPermissionKey)[] = [
     'submit_payout_request',
     'upload_proceedings',
     'delete_proceedings',
+    'upload_documents',
 ]
 
 export const stringToDate = (input: string) => {
@@ -452,9 +453,7 @@ export const createPayoutRequest = async (fs: string, semester: string | undefin
 }
 
 export const createBfsgPayoutRequest = async (fs: string, semester: string, category: string, amount_cents: number,
-                                              status: string, status_date: string, comment: string,
-                                              completion_deadline: string, reference: string, request_date: string,
-                                              tokenPromise: Promise<string | null>): Promise<{
+                                              comment: string, reference: string, tokenPromise: Promise<string | null>): Promise<{
     payoutRequest: INewPayoutRequestData | null,
     message: string | null
 } | undefined> => {
@@ -463,23 +462,11 @@ export const createBfsgPayoutRequest = async (fs: string, semester: string, cate
         return;
     }
     const body: any = {fs, semester, category, amount_cents};
-    if (status) {
-        body.status = status;
-    }
-    if (status_date) {
-        body.status_date = status_date;
-    }
     if (comment) {
         body.comment = comment;
     }
-    if (completion_deadline) {
-        body.completion_deadline = completion_deadline;
-    }
     if (reference) {
         body.reference = reference;
-    }
-    if (request_date) {
-        body.request_date = request_date;
     }
     return fetch(import.meta.env.VITE_API_URL + '/payout-request/bfsg/create',
         {
@@ -502,9 +489,8 @@ export const createBfsgPayoutRequest = async (fs: string, semester: string, cate
 
 
 export const createVorankuendigungPayoutRequest = async (fs: string, semester: string, category: string,
-                                                         amount_cents: number, status: string, status_date: string,
-                                                         comment: string, completion_deadline: string, reference: string,
-                                                         request_date: string, tokenPromise: Promise<string | null>): Promise<{
+                                                         amount_cents: number, comment: string, reference: string,
+                                                         tokenPromise: Promise<string | null>): Promise<{
     payoutRequest: INewPayoutRequestData | null,
     message: string | null
 } | undefined> => {
@@ -516,20 +502,11 @@ export const createVorankuendigungPayoutRequest = async (fs: string, semester: s
     if (status) {
         body.status = status;
     }
-    if (status_date) {
-        body.status_date = status_date;
-    }
     if (comment) {
         body.comment = comment;
     }
-    if (completion_deadline) {
-        body.completion_deadline = completion_deadline;
-    }
     if (reference) {
         body.reference = reference;
-    }
-    if (request_date) {
-        body.request_date = request_date;
     }
     return fetch(import.meta.env.VITE_API_URL + '/payout-request/vorankuendigung/create',
         {
@@ -1246,6 +1223,8 @@ export const permissionToString = (key: keyof IPermission) => {
             return '📃 Protokolle hochladen';
         case 'delete_proceedings':
             return '🚮️ Protokolle löschen';
+        case 'upload_documents':
+            return '⬆️ Dokumente hochladen';
         case 'locked':
             return '🔒 Rechte-Bearbeitung nur durch FSK';
     }
