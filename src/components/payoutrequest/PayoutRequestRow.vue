@@ -105,6 +105,11 @@ const commentFields = computed(() => parseCommentFields(props.payoutRequest.comm
       <button v-if="account.user?.admin" class="button is-small" @click.stop="showEditModal" title="Antrag bearbeiten">
         ✏️
       </button>
+      <RouterLink class="button is-small"
+                  :to="{name: 'payout-request', params: {requestId: payoutRequest.request_id}}"
+                  title="Detailseite anzeigen">
+        ↗️
+      </RouterLink>
     </td>
   </tr>
   <tr v-if="showFull" class="selected-tr-bottom">

@@ -95,6 +95,11 @@ const router = createRouter({
       component: () => import('../views/RequestDeleteView.vue'),
     },
     {
+      path: '/payout-request/:requestId',
+      name: 'payout-request',
+      component: () => import('../views/SinglePayoutRequestView.vue'),
+    },
+    {
       path: '/document/:filename',
       name: 'single-document',
       component: () => import('../views/SingleDocumentView.vue'),
