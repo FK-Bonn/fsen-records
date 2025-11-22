@@ -83,6 +83,11 @@ const isRequestAllowed = computed(() => fixedDate.date === null && isBeforeOrOnL
       <button v-if="account.user?.admin && !fixedDate.date" class="button is-small" @click.stop="showEditModal" title="Antrag bearbeiten">
         ✏️
       </button>
+      <RouterLink class="button is-small"
+                  :to="{name: 'payout-request', params: {requestId: payoutRequest.request_id}}"
+                  title="Detailseite anzeigen">
+        ↗️
+      </RouterLink>
     </div>
   </template>
   <template v-else-if="isRequestAllowed">
