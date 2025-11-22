@@ -121,12 +121,13 @@ export interface IPermission {
     submit_payout_request: boolean
     upload_proceedings: boolean
     delete_proceedings: boolean
+    upload_documents: boolean
     locked: boolean
 }
 
 export type IPermissionKey = 'read_permissions' | 'write_permissions' | 'read_files' | 'read_public_data' |
     'write_public_data' | 'read_protected_data' | 'write_protected_data' | 'submit_payout_request' |
-    'upload_proceedings' | 'delete_proceedings' | 'locked'
+    'upload_proceedings' | 'delete_proceedings' | 'upload_documents' | 'locked'
 
 
 export interface IPayoutRequestDiff {

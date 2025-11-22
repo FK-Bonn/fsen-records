@@ -7,6 +7,7 @@ import PayoutRequestsTable from "@/components/payoutrequest/PayoutRequestsTable.
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
 import BfsgRequestModal from "@/components/payoutrequest/BfsgRequestModal.vue";
 import VorankuendigungRequestModal from "@/components/payoutrequest/VorankuendigungRequestModal.vue";
+import {hasFsPermission} from "@/util";
 
 const props = defineProps<{
   baseData: IBaseFsData,
@@ -35,7 +36,7 @@ const toggle = () => {
 
 const vorankuendigungPayoutRequests = computed(() => payoutRequests.vorankuendigung?.get(props.baseData.fs_id))
 const bfsgPayoutRequests = computed(() => payoutRequests.bfsg?.get(props.baseData.fs_id))
-
+const isRequestAllowed = computed(() => (account.user?.admin || hasFsPermission(account.user?.permissions, props.baseData.fs_id, 'submit_payout_request')));
 </script>
 
 <template>
@@ -51,7 +52,7 @@ const bfsgPayoutRequests = computed(() => payoutRequests.bfsg?.get(props.baseDat
     <div v-if="opened" class="card-content">
       <div class="content">
         <h3 class="heading is-3">Vorankündigungen</h3>
-        <button v-if="account.user?.admin" class="button is-small" @click.stop="showVorankuendigungModal">
+        <button v-if="isRequestAllowed" class="button is-small" @click.stop="showVorankuendigungModal">
           Antrag stellen
         </button>
         <PayoutRequestsTable v-if="vorankuendigungPayoutRequests" :singleFS="true"
@@ -60,7 +61,7 @@ const bfsgPayoutRequests = computed(() => payoutRequests.bfsg?.get(props.baseDat
         <p v-else class="has-text-grey-dark">Keine vorhanden.</p>
 
         <h3 class="heading is-3">BFSG-Anträge</h3>
-        <button v-if="account.user?.admin" class="button is-small" @click.stop="showBfsgModal">
+        <button v-if="isRequestAllowed" class="button is-small" @click.stop="showBfsgModal">
           Antrag stellen
         </button>
         <PayoutRequestsTable v-if="bfsgPayoutRequests" :singleFS="true" :bfsgPayoutRequests="bfsgPayoutRequests"
