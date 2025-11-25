@@ -17,7 +17,9 @@ const props = defineProps<{
   fs: string,
   document: IDocumentData,
 }>()
-
+const emit = defineEmits<{
+  deleted: []
+}>()
 const deleteModal = defineModel<boolean>({required: true})
 
 const token = useTokenStore();
@@ -39,8 +41,8 @@ const reloadDocuments = () => {
 
 const yeetRequest = () => {
   const target: IDocumentReference = {
-    category: 'AFSG',
-    request_id: '',
+    category: props.document.category,
+    request_id: props.document.request_id,
     base_name: props.document.base_name,
     date_start: props.document.date_start || null,
     date_end: props.document.date_end || null,
@@ -48,6 +50,7 @@ const yeetRequest = () => {
   return deleteDocument(props.fs, target, token.token()).then(() => {
     message.value = 'Datei(version) gelöscht';
     reloadDocuments();
+    emit('deleted');
   }).catch(reason => {
     message.value = 'Ein Fehler beim Löschen ist aufgetreten: ' + reason;
   })

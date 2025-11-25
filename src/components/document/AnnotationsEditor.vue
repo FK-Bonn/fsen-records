@@ -38,6 +38,7 @@ const overallAnnotation = computed(()=>getWorstDocumentAnnotationLevel(annotatio
             <option :value="AnnotationLevel.Error">{{ AnnotationLevel.Error }}</option>
             <option :value="AnnotationLevel.Info">{{ AnnotationLevel.Info }}</option>
             <option :value="AnnotationLevel.Unchecked">{{ AnnotationLevel.Unchecked }}</option>
+            <option :value="AnnotationLevel.Obsolete">{{ AnnotationLevel.Obsolete }}</option>
           </select>
         </span>
         </p>

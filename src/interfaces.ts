@@ -4,6 +4,7 @@ export enum AnnotationLevel {
     Info = "Info",
     Unchecked = "Unchecked",
     Ok = "Ok",
+    Obsolete = "Obsolete",
 }
 
 export interface IAnnotation {

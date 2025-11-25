@@ -2,25 +2,29 @@
 
 import {useRoute} from "vue-router";
 import {computed, onMounted, ref, type Ref, watch} from "vue";
-import type {IFullPayoutRequestData} from "@/interfaces";
-import {deletePayoutRequest, getPayoutRequestData, getPayoutRequestHistory, payoutRequestToMarkdown} from "@/util";
+import {AnnotationLevel, type IDocumentData, type IFullPayoutRequestData} from "@/interfaces";
+import {getDocumentsForPayoutRequest, getPayoutRequestHistory, hasFsPermission} from "@/util";
 import {useTokenStore} from "@/stores/token";
 import PayoutRequestTable from "@/components/payoutrequest/PayoutRequestTable.vue";
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
-import {useFixedDateStore} from "@/stores/fixedDate";
 import RequestEditModal from "@/components/payoutrequest/RequestEditModal.vue";
 import {useAccountStore} from "@/stores/account";
+import BVDocumentUploadForm from "@/components/document/BVDocumentUploadForm.vue";
+import SingleBVDocument from "@/components/document/SingleBVDocument.vue";
 
 const route = useRoute();
 const token = useTokenStore();
 const account = useAccountStore();
 const payoutRequests = usePayoutRequestStore();
 
-const completedRequest: Ref<IFullPayoutRequestData[] | null> = ref(null);
-const message: Ref<string | null> = ref(null);
+const completedHistoryRequest: Ref<IFullPayoutRequestData[] | null> = ref(null);
+const historyMessage: Ref<string | null> = ref(null);
+const completedDocumentsRequest: Ref<IDocumentData[] | null> = ref(null);
+const documentsMessage: Ref<string | null> = ref(null);
 const requestId = route.params.requestId as string;
 const type_ = computed(() => requestId.startsWith('A') ? 'afsg' : requestId.startsWith('B') ? 'bfsg' : requestId.startsWith('V') ? 'vorankuendigung' : 'error');
 const editModal = ref(false);
+const showObsoleteFiles = ref(false);
 const thisPayoutRequest = computed(() => {
   let requests = null;
   if (type_.value === "afsg") {
@@ -43,15 +47,36 @@ const thisPayoutRequest = computed(() => {
   }
   return null;
 })
-
+const showUploadForm = computed(() => account.user?.admin || thisPayoutRequest.value && hasFsPermission(account.user?.permissions, thisPayoutRequest.value.fs, 'upload_documents'))
+const hasNoObsoleteAnnotation = (document: IDocumentData) => {
+  return !(document.annotations || []).some(annotation => annotation.level === AnnotationLevel.Obsolete);
+}
+const filteredDocuments = computed(() => {
+  if(completedDocumentsRequest.value) {
+    if (showObsoleteFiles.value) {
+      return completedDocumentsRequest.value;
+    }
+    return completedDocumentsRequest.value.filter(hasNoObsoleteAnnotation)
+  }
+  return [];
+})
 
 const loadHistory = () => {
   getPayoutRequestHistory(requestId, type_.value, token.token())
       .then(data => {
         if (data) {
-          completedRequest.value = data;
+          completedHistoryRequest.value = data;
         }
-      }).catch(reason => message.value = reason);
+      }).catch(reason => historyMessage.value = reason);
+}
+
+const loadDocuments = () => {
+  getDocumentsForPayoutRequest(requestId, token.token())
+      .then(data => {
+        if (data) {
+          completedDocumentsRequest.value = data;
+        }
+      }).catch(reason => documentsMessage.value = reason);
 }
 
 const showEditModal = () => {
@@ -60,6 +85,7 @@ const showEditModal = () => {
 
 onMounted(() => {
   loadHistory();
+  loadDocuments();
 })
 
 watch(thisPayoutRequest, async () => {
@@ -70,6 +96,7 @@ watch(thisPayoutRequest, async () => {
 
 <template>
   <div class="section">
+    <div class="content">
     <h1 class="title is-1">Antrag {{ requestId }}</h1>
 
     <h2 class="title is-2">Aktueller Antrag</h2>
@@ -85,16 +112,46 @@ watch(thisPayoutRequest, async () => {
 
     <hr>
 
-    <template v-if="message">
-      <p>{{ message }} 😵‍💫</p>
-    </template>
-    <template v-else-if="completedRequest">
-      <h2 class="title is-2">Bearbeitungsverlauf</h2>
+      <template v-if="['bfsg', 'vorankuendigung'].includes(type_)">
+        <h2 class="title is-2">Zugehörige Dateien</h2>
 
-      <template v-for="(requestState, i) in completedRequest" :key="i">
+        <template v-if="showUploadForm && thisPayoutRequest">
+          <BVDocumentUploadForm :fs="thisPayoutRequest.fs" :category="type_.toUpperCase()" :requestId="requestId"
+                                @reload-documents="loadDocuments()"/>
+        </template>
+
+
+        <template v-if="documentsMessage">
+          <p>{{ documentsMessage }} 😵‍💫</p>
+        </template>
+        <template v-else-if="completedDocumentsRequest && thisPayoutRequest">
+          <p v-if="completedDocumentsRequest.length === 0">Keine Dateien vorhanden.</p>
+          <template v-else>
+            <ul>
+              <li v-for="document in filteredDocuments" :key="document.sha256hash">
+                <SingleBVDocument :document="document" :fsId="thisPayoutRequest.fs" @reload-documents="loadDocuments()"/>
+              </li>
+            </ul>
+            <label for="showObsoleteFiles">
+              <input type="checkbox" id="showObsoleteFiles" v-model="showObsoleteFiles"/>
+              Obsolete Dateien anzeigen
+            </label>
+          </template>
+        </template>
+    </template>
+
+      <hr>
+
+      <h2 class="title is-2">Bearbeitungsverlauf</h2>
+      <template v-if="historyMessage">
+        <p>{{ historyMessage }} 😵‍💫</p>
+      </template>
+      <template v-else-if="completedHistoryRequest">
+
+        <template v-for="(requestState, i) in completedHistoryRequest" :key="i">
         <PayoutRequestTable
             :payoutRequest="requestState"
-            :previous="i===(completedRequest.length-1)?null:completedRequest[i+1]"
+            :previous="i===(completedHistoryRequest.length-1)?null:completedHistoryRequest[i+1]"
         />
         <RouterLink v-if="account.user?.admin && i === 0"
                     :to="{name: 'delete-request', params: {requestId: requestId}}">
@@ -103,8 +160,8 @@ watch(thisPayoutRequest, async () => {
         <hr>
       </template>
 
-      <template v-if="editModal && completedRequest[0]">
-        <RequestEditModal :payoutRequest="completedRequest[0]" :type="type_" v-model="editModal"/>
+        <template v-if="editModal && completedHistoryRequest[0]">
+          <RequestEditModal :payoutRequest="completedHistoryRequest[0]" :type="type_" v-model="editModal"/>
       </template>
 
     </template>
@@ -113,8 +170,13 @@ watch(thisPayoutRequest, async () => {
     </template>
 
   </div>
+  </div>
 </template>
 
 <style scoped>
-
+ul, ul:not(:last-child) {
+  list-style: none !important;
+  margin-top: .2em !important;
+  margin-bottom: .1em;
+}
 </style>

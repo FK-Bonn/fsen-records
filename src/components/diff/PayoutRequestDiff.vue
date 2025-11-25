@@ -20,10 +20,10 @@ const referenceClass = computed(()=>(props.before?.reference !== props.after?.re
 const parsedCommentBefore = computed(()=>parseCommentFields(props.before?.comment))
 const parsedCommentAfter = computed(()=>parseCommentFields(props.after?.comment))
 const titleClass = computed(()=>(parsedCommentBefore.value.title !== parsedCommentAfter.value.title) ? 'tag is-warning' : 'tag');
-const descriptionClass = computed(()=>(parsedCommentBefore.value.description !== parsedCommentAfter.value.description) ? 'tag is-warning' : 'tag');
+const descriptionClass = computed(()=>(parsedCommentBefore.value.description !== parsedCommentAfter.value.description) ? 'tag long is-warning' : 'tag long');
 const participantscountClass = computed(()=>(parsedCommentBefore.value.participantscount !== parsedCommentAfter.value.participantscount) ? 'tag is-warning' : 'tag');
 const fidClass = computed(()=>(parsedCommentBefore.value.fid !== parsedCommentAfter.value.fid) ? 'tag is-warning' : 'tag');
-const commentClass = computed(()=>(parsedCommentBefore.value.comment !== parsedCommentAfter.value.comment) ? 'tag is-warning' : 'tag');
+const commentClass = computed(()=>(parsedCommentBefore.value.comment !== parsedCommentAfter.value.comment) ? 'tag long is-warning' : 'tag long');
 </script>
 
 <template>
@@ -68,5 +68,9 @@ const commentClass = computed(()=>(parsedCommentBefore.value.comment !== parsedC
 </template>
 
 <style scoped>
-
+.tag.long {
+  white-space: break-spaces;
+  height: auto;
+  min-height: 2em;
+}
 </style>
