@@ -124,7 +124,14 @@ const reloadPayoutRequestData = () => {
                   {{ message }}
                 </div>
               </article>
-              <PayoutRequestTable v-if="completedRequest" :payoutRequest="completedRequest" :previous="null"/>
+              <template v-if="completedRequest">
+                <p>
+                  <RouterLink :to="{name: 'payout-request', params: {requestId: completedRequest.request_id}}">
+                    Antrag öffnen, um Dateien hochzuladen
+                  </RouterLink>
+                </p>
+                <PayoutRequestTable :payoutRequest="completedRequest" :previous="null"/>
+              </template>
             </div>
           </div>
           <footer class="card-footer">
@@ -134,7 +141,12 @@ const reloadPayoutRequestData = () => {
         <template v-else>
           <div class="card-content">
             <div class="content">
-              BFSG-Antrag für die Fachschaft <b>{{ fsName }}</b> stellen?
+              <p>BFSG-Antrag für die Fachschaft <b>{{ fsName }}</b> stellen?</p>
+
+              <div class="notification is-info">
+                Nachdem der Antrag gestellt wurde, können Dokumente für den Antrag hochgeladen werden.
+              </div>
+
               <div class="columns">
                 <div class="column">
                   <div class="field">

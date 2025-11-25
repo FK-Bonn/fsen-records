@@ -7,6 +7,7 @@ import {annotateDocument, uploadDocument} from "@/util";
 import ReferencesEditor from "@/components/document/ReferencesEditor.vue";
 import AnnotationsEditor from "@/components/document/AnnotationsEditor.vue";
 import type {IAnnotation, IDocumentReference} from "@/interfaces";
+import TagListInput from "@/components/document/TagListInput.vue";
 
 const props = defineProps<{
   fs: string,
@@ -68,16 +69,6 @@ const showUrl = computed(() => {
   return ['Wahlergebnis'].includes(base_name.value);
 });
 
-
-const addTag = (tag: string) => {
-  const items = tags.value.split(',').map(value => value.trim());
-  if (!items.includes(tag)) {
-    items.push(tag);
-  }
-  tags.value = items.filter(value => value !== '').join(', ');
-}
-
-
 const onFileSelected = (x: Event) => {
   const element = x.target as HTMLInputElement;
   if (element.files) {
@@ -90,7 +81,7 @@ const upload = () => {
   success.value = null;
   annotateError.value = null;
   annotateSuccess.value = null;
-  if (file.value && mandatoryFields) {
+  if (file.value && mandatoryFields.value) {
     const target: IDocumentReference = {
       category: 'AFSG',
       request_id: '',
@@ -219,31 +210,7 @@ const upload = () => {
 
           <hr>
 
-          <div class="field is-horizontal">
-            <div class="field-label is-normal">
-              <label class="label">Schlagwörter</label>
-            </div>
-            <div class="field-body">
-              <div class="field">
-                <div class="control">
-                  <input class="input" type="text" placeholder="HHP, Wahl KP, … (optional)" v-model="tags">
-                </div>
-                <p class="help">
-                  <button class="button is-small" @click.prevent="()=>addTag('Konsti')" title="Konstituierende Sitzung">
-                    Konsti
-                  </button>
-                  <button class="button is-small" @click.prevent="()=>addTag('HHP')" title="Haushaltsplan">HHP</button>
-                  <button class="button is-small" @click.prevent="()=>addTag('NHHP')"
-                          title="Nachtragshaushaltsplan">NHHP</button>
-                  <button class="button is-small" @click.prevent="()=>addTag('NHHP2')"
-                          title="Nachtragshaushaltsplan">NHHP2</button>
-                  <button class="button is-small" @click.prevent="()=>addTag('Wahl KP')"
-                          title="Wahl von Kassenprüfer*innen">Wahl KP
-                  </button>
-                </p>
-              </div>
-            </div>
-          </div>
+          <TagListInput type="AFSG" v-model="tags"/>
 
           <div class="field is-horizontal" v-if="showUrl">
             <div class="field-label is-normal">

@@ -4,6 +4,7 @@ import IconQuestionmark from "@/components/icons/IconQuestionmark.vue";
 import IconWarning from "@/components/icons/IconWarning.vue";
 import IconCross from "@/components/icons/IconCross.vue";
 import IconInfo from "@/components/icons/IconInfo.vue";
+import IconObsolete from "@/components/icons/IconObsolete.vue";
 import {AnnotationLevel} from "@/interfaces";
 
 defineProps<{
@@ -19,6 +20,7 @@ defineProps<{
   <IconInfo v-else-if="level === AnnotationLevel.Info" :title="title"/>
   <IconWarning v-else-if="level === AnnotationLevel.Warning" :title="title"/>
   <IconCross v-else-if="level === AnnotationLevel.Error" :title="title"/>
+  <IconObsolete v-else-if="level === AnnotationLevel.Obsolete" :title="title"/>
   <template v-else>?</template>
 </template>
 

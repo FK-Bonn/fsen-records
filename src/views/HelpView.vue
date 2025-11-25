@@ -31,21 +31,19 @@ onBeforeMount(() => {
         <dt>Kann ich Vorankündigungen stellen, obwohl meine Fachschaft aktuell nicht auszahlungsfähig ist?</dt>
         <dd>Ja.</dd>
 
-        <dt>Wo kann ich Dokumente für Anträge hochladen?</dt>
+        <dt>Wo kann ich Dokumente für AFSG-Anträge hochladen?</dt>
         <dd>Gar nicht. Sendet die bitte per E-Mail an das
           <a href="https://asta-bonn.de/de/referate/fachschaftenreferat">Fachschaftenreferat</a>.</dd>
 
-        <dt>Wo kann ich Sitzungsprotokolle hochladen?</dt>
-        <dd>Direkt auf der <RouterLink :to="{name: 'sitzungsprotokolle'}">Sitzungsprotokolle-Seite</RouterLink>.
-          Du benötigst dafür die Berechtigung "📃 Protokolle hochladen".</dd>
+        <dt>Wo kann ich Dokumente für BFSG-Anträge hochladen?</dt>
+        <dd>Auf der Detailseite für den entsprechenden BFSG-Antrag.
+        Du erreichst die Seite, indem du auf den Knopf
+          <button class="button is-small">↗️</button> in der Antragsliste klickst.</dd>
 
-        <dt>Wie kann ich die Schlagwörter eines Sitzungsprotokolls ändern?</dt>
-        <dd>Lade das Sitzungsprotokoll erneut hoch und gib ihm die gewünschten Schlagwörter.
-          Die vorherige Version wird dann ersetzt.</dd>
-
-        <dt>Wie kann ich ein Sitzungsprotokoll durch eine neuere Version ersetzen?</dt>
-        <dd>Lade die neue Version des Sitzungsprotokolls hoch.
-          Die vorherige Version wird dann ersetzt.</dd>
+        <dt>Wo kann ich Dokumente für Vorankündigungen hochladen?</dt>
+        <dd>Auf der Detailseite für die entsprechende Vorankündigung.
+        Du erreichst die Seite, indem du auf den Knopf
+          <button class="button is-small">↗️</button> in der Antragsliste klickst.</dd>
 
         <dt>Wann bekommen wir unser Geld?</dt>
         <dd>Wenn die Fachschaft auszahlungsfähig ist, der Antrag vollständig bzw. beschlossen ist
@@ -107,13 +105,24 @@ onBeforeMount(() => {
           Rechte für deine Fachschaft zu bearbeiten, kannst du in der Liste der Personen auf "Rechte bearbeiten"
           klicken.</dd>
 
-
         <dt>Warum wird ein <IconCross/> angezeigt, obwohl eigentlich alles passt?</dt>
         <dd>Dann passt wohl doch noch nicht alles. Falls ihr das Problem nicht selbst erkennen könnt, fragt gerne
           per E-Mail beim <a href="https://asta-bonn.de/de/referate/fachschaftenreferat">Fachschaftenreferat</a> nach.</dd>
 
         <dt>Warum gibt es keinen Status <SimpleCopyableTag text="ÜBERWIESEN"/> mehr?</dt>
         <dd>Weil Luc ein lazy boi ist.</dd>
+
+        <dt>Wo kann ich Sitzungsprotokolle hochladen?</dt>
+        <dd>Direkt auf der <RouterLink :to="{name: 'sitzungsprotokolle'}">Sitzungsprotokolle-Seite</RouterLink>.
+          Du benötigst dafür die Berechtigung "📃 Protokolle hochladen".</dd>
+
+        <dt>Wie kann ich die Schlagwörter eines Sitzungsprotokolls ändern?</dt>
+        <dd>Lade das Sitzungsprotokoll erneut hoch und gib ihm die gewünschten Schlagwörter.
+          Die vorherige Version wird dann ersetzt.</dd>
+
+        <dt>Wie kann ich ein Sitzungsprotokoll durch eine neuere Version ersetzen?</dt>
+        <dd>Lade die neue Version des Sitzungsprotokolls hoch.
+          Die vorherige Version wird dann ersetzt.</dd>
 
         <dt>Was tue ich, wenn ich der Ansicht bin,
           dass eine auf dieser Webseite dargestellte Information falsch ist?</dt>

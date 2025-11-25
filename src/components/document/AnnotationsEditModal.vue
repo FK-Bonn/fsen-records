@@ -12,6 +12,7 @@ import {Interval} from "@/Calculator";
 import DateRange from "@/components/DateRange.vue";
 import DocumentName from "@/components/document/DocumentName.vue";
 import {usePageSettingsStore} from "@/stores/pageSettings";
+import TagListInput from "@/components/document/TagListInput.vue";
 
 const props = defineProps<{
   fs: string,
@@ -19,6 +20,10 @@ const props = defineProps<{
 }>()
 
 const editModal = defineModel<boolean>({required: true})
+
+const emit = defineEmits<{
+  saved: []
+}>()
 
 const token = useTokenStore();
 const documents = useDocumentsStore();
@@ -28,7 +33,7 @@ const settings = usePageSettingsStore();
 const tags = ref(props.document.tags ? props.document.tags.join(', ') : '');
 const url = ref(props.document.url || '');
 const references = ref([...props.document.references || []]);
-const annotations = ref([...props.document.annotations || []]);
+const annotations = ref(JSON.parse(JSON.stringify(props.document.annotations)) || []);
 
 const message: Ref<string | null> = ref(null);
 
@@ -40,14 +45,6 @@ const close = () => {
   editModal.value = false;
 }
 
-const addTag = (tag: string) => {
-  const items = tags.value.split(',').map(value => value.trim());
-  if (!items.includes(tag)) {
-    items.push(tag);
-  }
-  tags.value = items.filter(value => value !== '').join(', ');
-}
-
 const reloadDocuments = () => {
   getDocumentData(fixedDate.date).then(value => {
     documents.data = value;
@@ -56,8 +53,8 @@ const reloadDocuments = () => {
 
 const yeetRequest = () => {
   const target: IDocumentReference = {
-    category: 'AFSG',
-    request_id: '',
+    category: props.document.category,
+    request_id: props.document.request_id,
     base_name: props.document.base_name,
     date_start: props.document.date_start || null,
     date_end: props.document.date_end || null,
@@ -69,6 +66,7 @@ const yeetRequest = () => {
   return annotateDocument(props.fs, target, annotationsData, tagsData, referencesData, urlData, token.token()).then(() => {
     message.value = 'Annotationen aktualisiert';
     reloadDocuments();
+    emit('saved');
   }).catch(reason => {
     message.value = 'Ein Fehler beim Annotieren ist aufgetreten: ' + reason;
   })
@@ -125,35 +123,7 @@ const shortenedFilename = computed(() => shortenFilename(props.document?.filenam
 
               <hr>
 
-              <div class="field is-horizontal">
-                <div class="field-label is-normal">
-                  <label class="label">Schlagwörter</label>
-                </div>
-                <div class="field-body">
-                  <div class="field">
-                    <div class="control">
-                      <input class="input" type="text" placeholder="HHP, Wahl KP, … (optional)" v-model="tags">
-                    </div>
-                    <p class="help">
-                      <button class="button is-small" @click.prevent="()=>addTag('Konsti')"
-                              title="Konstituierende Sitzung">
-                        Konsti
-                      </button>
-                      <button class="button is-small" @click.prevent="()=>addTag('HHP')" title="Haushaltsplan">HHP
-                      </button>
-                      <button class="button is-small" @click.prevent="()=>addTag('NHHP1')"
-                              title="1. Nachtragshaushaltsplan">NHHP
-                      </button>
-                      <button class="button is-small" @click.prevent="()=>addTag('NHHP2')"
-                              title="2. Nachtragshaushaltsplan">NHHP2
-                      </button>
-                      <button class="button is-small" @click.prevent="()=>addTag('Wahl KP')"
-                              title="Wahl von Kassenprüfer*innen">Wahl KP
-                      </button>
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <TagListInput :type="document.category" v-model="tags"/>
 
               <div class="field is-horizontal" v-if="showUrl">
                 <div class="field-label is-normal">
