@@ -1296,6 +1296,8 @@ export const hasFsPermission = (permissions: IPermission[] | undefined, fs: stri
     return permissions.filter(p => p.fs === fs && p[key]).length > 0;
 }
 
+export const acceptsDocuments = (payoutRequestState: string) => ['GESTELLT'].includes(payoutRequestState);
+
 export const hasAnyPermission = (u: IUserWithPermissions) => {
     if (u.admin) {
         return true;

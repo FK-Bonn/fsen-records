@@ -3,7 +3,13 @@
 import {useRoute} from "vue-router";
 import {computed, onMounted, ref, type Ref, watch} from "vue";
 import {AnnotationLevel, type IDocumentData, type IFullPayoutRequestData} from "@/interfaces";
-import {getDocumentsForPayoutRequest, getPayoutRequestHistory, hasFsPermission, scrollToHashIfPresent} from "@/util";
+import {
+  acceptsDocuments,
+  getDocumentsForPayoutRequest,
+  getPayoutRequestHistory,
+  hasFsPermission,
+  scrollToHashIfPresent
+} from "@/util";
 import {useTokenStore} from "@/stores/token";
 import PayoutRequestTable from "@/components/payoutrequest/PayoutRequestTable.vue";
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
@@ -48,7 +54,8 @@ const thisPayoutRequest = computed(() => {
   }
   return null;
 })
-const showUploadForm = computed(() => account.user?.admin || thisPayoutRequest.value && hasFsPermission(account.user?.permissions, thisPayoutRequest.value.fs, 'upload_documents'))
+const showUploadForm = computed(() => thisPayoutRequest.value && acceptsDocuments(thisPayoutRequest.value.status)
+    && (account.user?.admin || hasFsPermission(account.user?.permissions, thisPayoutRequest.value.fs, 'upload_documents')))
 const hasNoObsoleteAnnotation = (document: IDocumentData) => {
   return !(document.annotations || []).some(annotation => annotation.level === AnnotationLevel.Obsolete);
 }
