@@ -62,8 +62,11 @@ const upload = () => {
       date_end: null,
     }
     uploadDocument(props.fs, file.value, props.category, base_name.value, null,
-        null, props.requestId, token.token()).catch(reason => {
-      error.value = 'Ein Fehler beim Hochladen ist aufgetreten: ' + reason.json();
+        null, props.requestId, token.token()).catch(reasonPromise => {
+      reasonPromise.then((reason: any) => {
+        error.value = 'Ein Fehler beim Hochladen ist aufgetreten: ' + reason;
+      });
+      return Promise.reject(Promise.resolve('Upload fehlgeschlagen'));
     }).then(() => {
       success.value = 'Upload erfolgreich';
       file.value = null;
@@ -83,8 +86,10 @@ const upload = () => {
       annotations.value = [];
       tags.value = '';
       emit('reloadDocuments');
-    }).catch(reason => {
-      annotateError.value = 'Ein Fehler beim Annotieren ist aufgetreten: ' + reason.json();
+    }).catch(reasonPromise => {
+      reasonPromise.then((reason: any) => {
+        annotateError.value = 'Ein Fehler beim Annotieren ist aufgetreten: ' + reason;
+      });
     })
   } else {
     error.value = 'Bitte alle Pflichtfelder ausfüllen!'
@@ -98,6 +103,7 @@ const upload = () => {
       <form class="box">
         <details>
           <summary>Neues Dokument hochladen</summary>
+
 
           <div class="field is-horizontal">
             <div class="field-label is-normal">
@@ -172,5 +178,9 @@ ul {
 
 h5 {
   margin: 1rem 0 .5rem 0;
+}
+
+summary {
+  cursor: pointer;
 }
 </style>

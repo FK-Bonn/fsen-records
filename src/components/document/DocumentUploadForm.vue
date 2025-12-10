@@ -90,8 +90,11 @@ const upload = () => {
       date_end: showDateEnd.value ? date_end.value : null,
     }
     uploadDocument(props.fs, file.value, 'AFSG', base_name.value, date_start.value,
-        showDateEnd.value ? date_end.value : null, null, token.token()).catch(reason => {
-      error.value = 'Ein Fehler beim Hochladen ist aufgetreten: ' + reason;
+        showDateEnd.value ? date_end.value : null, null, token.token()).catch(reasonPromise => {
+      reasonPromise.then((reason: any) => {
+        error.value = 'Ein Fehler beim Hochladen ist aufgetreten: ' + reason;
+      });
+      return Promise.reject(Promise.resolve('Upload fehlgeschlagen'));
     }).then(() => {
       success.value = 'Upload erfolgreich';
       file.value = null;
@@ -113,8 +116,10 @@ const upload = () => {
       references.value = [];
       url.value = '';
       emit('reloadDocuments');
-    }).catch(reason => {
-      annotateError.value = 'Ein Fehler beim Annotieren ist aufgetreten: ' + reason;
+    }).catch(reasonPromise => {
+      reasonPromise.then((reason: any) => {
+        annotateError.value = 'Ein Fehler beim Annotieren ist aufgetreten: ' + reason;
+      });
     })
   } else {
     error.value = 'Bitte alle Pflichtfelder ausfüllen!'
