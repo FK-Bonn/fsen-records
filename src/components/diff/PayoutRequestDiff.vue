@@ -14,8 +14,8 @@ const idClass = computed(()=>(props.before?.request_id !== props.after?.request_
 const categoryClass = computed(()=>(props.before?.category !== props.after?.category) ? 'tag is-warning' : 'tag');
 const statusClass = computed(()=>(props.before?.status !== props.after?.status) ? 'tag is-warning' : 'tag');
 const amountClass = computed(()=>(props.before?.amount_cents !== props.after?.amount_cents) ? 'tag is-warning' : 'tag');
-const dateClass = computed(()=>(props.before?.completion_deadline !== props.after?.completion_deadline) ? 'tag is-warning' : 'tag');
-const deadlineClass = computed(()=>(props.before?.comment !== props.after?.comment) ? 'tag is-warning' : 'tag');
+const dateClass = computed(()=>(props.before?.request_date !== props.after?.request_date) ? 'tag is-warning' : 'tag');
+const deadlineClass = computed(()=>(props.before?.completion_deadline !== props.after?.completion_deadline) ? 'tag is-warning' : 'tag');
 const referenceClass = computed(()=>(props.before?.reference !== props.after?.reference) ? 'tag is-warning' : 'tag');
 const parsedCommentBefore = computed(()=>parseCommentFields(props.before?.comment))
 const parsedCommentAfter = computed(()=>parseCommentFields(props.after?.comment))
@@ -54,7 +54,7 @@ const commentClass = computed(()=>(parsedCommentBefore.value.comment !== parsedC
       <li>Betrag: <span :class="amountClass">{{euroCents(after.amount_cents)}}</span></li>
       <li>Antragsdatum: <span :class="dateClass">{{after.request_date}}</span></li>
       <li>Deadline: <span :class="deadlineClass">{{after.completion_deadline}}</span></li>
-      <li>Kommentar: <span :class="commentClass">{{parsedCommentBefore.comment}}</span></li>
+      <li>Kommentar: <span :class="commentClass">{{parsedCommentAfter.comment}}</span></li>
       <template v-if="extraCommentFields">
         <li>Titel: <span :class="titleClass">{{parsedCommentAfter.title}}</span></li>
         <li>Beschreibung: <span :class="descriptionClass">{{parsedCommentAfter.description}}</span></li>
