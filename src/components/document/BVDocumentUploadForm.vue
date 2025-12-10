@@ -109,14 +109,15 @@ const upload = () => {
                   <label class="file-label">
                     <input class="file-input" type="file" accept=".pdf" ref="fileInput" @change="onFileSelected"/>
                     <span class="file-cta">
-            <span class="file-icon">
-              <i class="fas fa-upload"></i>
-            </span>
-            <span class="file-label"> Datei auswählen… </span>
-          </span>
+                      <span class="file-icon">
+                        <i class="fas fa-upload"></i>
+                      </span>
+                      <span class="file-label"> Datei auswählen… </span>
+                    </span>
                     <span class="file-name">{{ file?.name }}</span>
                   </label>
                 </div>
+                <p class="help">Maximale Dateigröße: 5 MiB</p>
               </div>
             </div>
           </div>
