@@ -277,7 +277,7 @@ export const loadLoggedInUser = async (tokenPromise: Promise<string | null>): Pr
 
 export const loadUsersList = async (tokenPromise: Promise<string | null>): Promise<Map<string, IUserWithPermissions> | null> => {
     const token = await tokenPromise;
-    if(!token){
+    if (!token) {
         return null;
     }
     return fetch(import.meta.env.VITE_API_URL + '/user', {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
@@ -563,7 +563,7 @@ export const formatDateTime = (date: DateTime): string => {
     return date.setLocale('de-DE').toLocaleString(formatDateOptions);
 }
 
-export const dateToDateTime = (date: Date):DateTime => {
+export const dateToDateTime = (date: Date): DateTime => {
     return DateTime.fromISO(date.toISOString(), {zone: 'utc'});
 }
 
@@ -849,7 +849,7 @@ export const approveProtectedFsData = async (id: number, tokenPromise: Promise<s
 export const getAllFsData = async (tokenPromise: Promise<string | null>, fixedDate: string | null = null): Promise<IAllFsData | null> => {
     let headers = {};
     const token = await tokenPromise;
-    if(token){
+    if (token) {
         headers = {'Authorization': `Bearer ${token}`};
     }
     let url = import.meta.env.VITE_API_URL + '/data';
@@ -869,7 +869,7 @@ export const getAllFsData = async (tokenPromise: Promise<string | null>, fixedDa
         })
         .catch(error => {
             console.log(error);
-            if (token){
+            if (token) {
                 return getAllFsData(new Promise(() => null), fixedDate);
             }
         });
@@ -1215,7 +1215,7 @@ export const transfer = async (token: string | null, kcTokenPromise: Promise<str
             if (resp.ok) {
                 return;
             } else {
-                return resp.json().then((json)=>Promise.reject(json.detail));
+                return resp.json().then((json) => Promise.reject(json.detail));
             }
         });
 }
@@ -1425,7 +1425,7 @@ export const shortenFilename = (filename: string | undefined): string | undefine
 
 
 export const getFinancialYearShort = (start?: string, end?: string): string => {
-    if(!start){
+    if (!start) {
         return '(?)';
     }
     const yearStart = start.substring(0, 4);
@@ -1480,29 +1480,29 @@ export const refKey = (reference: IDocumentReference) => reference.category + '-
     (reference.date_end ? ('--' + reference.date_end) : '') +
     (reference.request_id ? ('-' + reference.request_id) : '');
 
-export const payoutRequestToMarkdown = (payoutRequest: INewPayoutRequestData)=>{
+export const payoutRequestToMarkdown = (payoutRequest: INewPayoutRequestData) => {
     const parsedComment = parseCommentFields(payoutRequest.comment);
     const paddedAmount = euroCents(payoutRequest.amount_cents).padStart(10, ' ');
     let value = `1. FS ${payoutRequest.fs} | Semester: ${payoutRequest.semester}  
  **${payoutRequest.category}** · [\`${payoutRequest.request_id}\`](${window.location.href})  
  \`${paddedAmount}\`  `;
-    if (parsedComment.title){
+    if (parsedComment.title) {
         value += `
  **${parsedComment.title}**  `;
     }
-    if (parsedComment.description){
+    if (parsedComment.description) {
         value += `
  ${parsedComment.description}  `;
     }
-    if (parsedComment.participantscount){
+    if (parsedComment.participantscount) {
         value += `
  Anzahl Teilnehmende: \`${parsedComment.participantscount}\`  `;
     }
-    if (parsedComment.comment){
+    if (parsedComment.comment) {
         value += `
  _${parsedComment.comment}_  `;
     }
-    if (payoutRequest.reference){
+    if (payoutRequest.reference) {
         value += `
  (${payoutRequest.reference})  `;
     }
