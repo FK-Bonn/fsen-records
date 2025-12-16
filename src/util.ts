@@ -1383,9 +1383,14 @@ export const updatePageTitle = (title?: string) => {
     }
 }
 
-export const downloadFile = async (url: string, tokenPromise: Promise<string|null>) => {
+export const downloadFile = async (url: string, tokenPromise: Promise<string | null>) => {
     const token = await tokenPromise;
-    if(!token){
+    if (!token) {
+        return;
+    }
+    const newTab = window.open();
+    if (!newTab) {
+        alert('Hoppla! Konnte keinen neuen Tab öffnen');
         return;
     }
     return fetch(url, {method: 'GET', headers: {'Authorization': `Bearer ${token}`}})
@@ -1398,10 +1403,13 @@ export const downloadFile = async (url: string, tokenPromise: Promise<string|nul
         })
         .then(blob => {
             const url = URL.createObjectURL(blob);
-            window.open(url, '_blank');
+            newTab.location = url;
             return Promise.resolve();
         })
-        .catch(() => alert('Hoppla! Das hat leider nicht geklappt'));
+        .catch(() => {
+            newTab.close();
+            alert('Hoppla! Das hat leider nicht geklappt');
+        });
 }
 
 export const jsonRepresentationIsDifferent = (first: any, second: any) => {
