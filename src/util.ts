@@ -1284,7 +1284,10 @@ export const permissionsToString = (permission: IPermission) => {
     return `${permission.fs} (${permissions.join(', ')})`;
 }
 
-export const hasAnyFsPermission = (permissions: IPermission[], fs: string): boolean => {
+export const hasAnyFsPermission = (permissions: IPermission[] | undefined, fs: string): boolean => {
+    if (!permissions) {
+        return false;
+    }
     return permissions.filter(p => p.fs === fs).length > 0;
 }
 
