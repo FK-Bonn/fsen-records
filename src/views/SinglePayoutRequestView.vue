@@ -9,7 +9,8 @@ import {
   getPayoutRequestHistory,
   getStatusTagClass,
   hasAnyFsPermission,
-  hasFsPermission
+  hasFsPermission,
+  updatePageTitle
 } from "@/util";
 import {useTokenStore} from "@/stores/token";
 import PayoutRequestTable from "@/components/payoutrequest/PayoutRequestTable.vue";
@@ -101,6 +102,7 @@ const showEditModal = () => {
 onMounted(() => {
   loadHistory();
   loadDocuments();
+  updatePageTitle(requestId);
 })
 
 watch(thisPayoutRequest, async () => {
