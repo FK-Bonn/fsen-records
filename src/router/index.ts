@@ -111,6 +111,11 @@ const router = createRouter({
       name: 'single-document',
       component: () => import('../views/SingleDocumentView.vue'),
     },
+    {
+      path: '/uwu',
+      name: 'uwu',
+      component: () => import('../views/HHPView.vue'),
+    },
   ]
 })
 

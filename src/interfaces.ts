@@ -355,3 +355,26 @@ export interface ISGliedSStatusData {
     needs_assignment_in_sglieds: ICrmLine[]
     last_run: string
 }
+
+export interface IHHPItem {
+    nr: number[]
+    text: string
+    centValues: (number|null)[]
+}
+export interface IHHPSide {
+    columnTitles: string[]
+    items: IHHPItem[]
+}
+
+export interface IHHP {
+    title: string
+    financialYearTitle: string
+    financialYearStart: string
+    financialYearEnd: string
+    financialYearStatutesLocation: string
+    passedCommittee: string
+    passedDate: string
+    annotations: string[]
+    earnings: IHHPSide
+    expenses: IHHPSide
+}
