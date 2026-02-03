@@ -203,7 +203,7 @@ const reloadPayoutRequestData = () => {
                 </div>
                 <div class="column">
                   <div class="field">
-                    <label class="label" for="reference">Referenz</label>
+                    <label class="label" for="reference">Referenz/Vorankündigung</label>
                     <div class="control">
                       <input class="input" id="reference" type="text" v-model="reference">
                     </div>
