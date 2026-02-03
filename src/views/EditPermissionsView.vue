@@ -56,11 +56,16 @@ const updatePermission = (fs: string, permission: IPermissionKey, value: boolean
 
 const editPermissionsWithData = async () => {
   permissionsMessage.value = null;
+  let filteredPermissions = editPermissionsPermissions.value;
+  if (!account.user?.admin) {
+    const fsenWithEditPermissions = fsen.value.filter(fs => hasFsPermission(account.user?.permissions, fs, 'write_permissions'))
+    filteredPermissions = editPermissionsPermissions.value.filter(permission => fsenWithEditPermissions.includes(permission.fs));
+  }
   const editResult = await editPermissions(
       account.user?.admin,
       editPermissionsUsername.value,
       editPermissionsAdmin.value,
-      editPermissionsPermissions.value,
+      filteredPermissions,
       token.token(),
   );
   permissionsMessage.value = editResult?.message || null;
@@ -85,7 +90,7 @@ onBeforeMount(async () => {
   }
 })
 
-onBeforeMount(()=>{
+onBeforeMount(() => {
   updatePageTitle('Berechtigungen bearbeiten');
 });
 
