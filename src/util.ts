@@ -1487,7 +1487,7 @@ export const payoutRequestToMarkdown = (payoutRequest: INewPayoutRequestData) =>
     const parsedComment = parseCommentFields(payoutRequest.comment);
     const paddedAmount = euroCents(payoutRequest.amount_cents).padStart(10, ' ');
     let value = `1. FS ${payoutRequest.fs} | Semester: ${payoutRequest.semester}  
- **${payoutRequest.category}** · [\`${payoutRequest.request_id}\`](${window.location.href})  
+ **${payoutRequest.category}** · [\`${payoutRequest.request_id}\`](${window.location.protocol}//${window.location.host}/payout-request/${payoutRequest.request_id})  
  \`${paddedAmount}\`  `;
     if (parsedComment.title) {
         value += `
