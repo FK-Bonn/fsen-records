@@ -2,19 +2,24 @@
 import {useTokenStore} from "@/stores/token";
 import {useAccountStore} from "@/stores/account";
 import ColourSchemeSwitcher from "@/components/ColourSchemeSwitcher.vue";
+import UserInfo from "@/components/UserInfo.vue";
 
 const token = useTokenStore();
 const account = useAccountStore();
 </script>
 
 <template>
-  <span class="tag is-primary" v-if="token.isLoggedIn()">
-    Hallo,&thinsp;<b>{{ account.user?.full_name }}</b>!
-  </span>
-  <code>{{ account.user?.username }}</code>
-  <span class="tag is-info ml-1" v-if="account.user?.admin">
-    Admin
-  </span>
+  <template v-if="token.isLoggedIn()">
+    <span class="tag is-primary">
+      Hallo,&thinsp;<b>{{ account.user?.full_name }}</b>!
+    </span>
+      <UserInfo/>
+    <span class="tag is-info ml-1" v-if="account.user?.admin">
+      Admin
+    </span>
+    <template v-else>
+    </template>
+  </template>
   <p class="menu-label">
     Finanzen &amp; Daten
   </p>
