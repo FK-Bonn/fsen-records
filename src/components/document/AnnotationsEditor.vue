@@ -22,7 +22,7 @@ const overallAnnotation = computed(()=>getWorstDocumentAnnotationLevel(annotatio
 
 <template>
   <ul>
-    <li>Gesamtbewertung: <IconForLevel :level="overallAnnotation"/></li>
+    <li class="is-flex">Gesamtbewertung: <IconForLevel :level="overallAnnotation" class="ml-1"/></li>
     <li v-for="(annotation, i) in annotations" :key="i">
       <div class="field has-addons">
         <p class="control has-icon">
