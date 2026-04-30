@@ -32,6 +32,11 @@ const router = createRouter({
       component: () => import('../views/FinancialStatusView.vue'),
     },
     {
+      path: '/anweisung',
+      name: 'anweisung',
+      component: () => import('../views/PaymentOrderView.vue'),
+    },
+    {
       path: '/hhp',
       name: 'hhp',
       component: () => import('../views/BudgetView.vue'),

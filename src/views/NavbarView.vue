@@ -33,6 +33,9 @@ const account = useAccountStore();
     <li>
       <RouterLink :to="{name: 'bfsg'}">BFSG-Anträge</RouterLink>
     </li>
+    <li v-if="account.user?.admin">
+      <RouterLink :to="{name: 'anweisung'}">Anweisung</RouterLink>
+    </li>
     <li>
       <RouterLink :to="{name: 'finanzuebersicht'}">Antrags-Finanzübersicht</RouterLink>
     </li>
