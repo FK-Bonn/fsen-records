@@ -355,3 +355,11 @@ export interface ISGliedSStatusData {
     needs_assignment_in_sglieds: ICrmLine[]
     last_run: string
 }
+
+export interface IPaymentOrderLineData {
+    fs: string
+    iban: string
+    bic: string
+    request_ids: string[]
+    amounts_cents: number[]
+}

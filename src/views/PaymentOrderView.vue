@@ -3,12 +3,15 @@ import {computed, onBeforeMount} from "vue";
 import FixedDateBanner from "@/components/FixedDateBanner.vue";
 import {euroCents, parseCommentFields, saveCSV, updatePageTitle} from "@/util";
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
-import {AnnotationLevel, type INewPayoutRequestData} from "@/interfaces";
+import {AnnotationLevel, type INewPayoutRequestData, type IPaymentOrderLineData} from "@/interfaces";
 import {useFixedDateStore} from "@/stores/fixedDate";
 import {useDocumentsStore} from "@/stores/documents";
 import {CurrentlyCanBePaidCalculator} from "@/Calculator";
 import {useAllFsData} from "@/stores/allFsData";
 import {META} from "@/meta";
+
+// https://hilfe.starmoney.de/hc/de/articles/360016426753-Import-von-Zahlungsverkehrsauftr%C3%A4gen-in-StarMoney-Business
+const MAX_NUMBER_OF_TEXT_LINES = 14;
 
 onBeforeMount(() => {
   updatePageTitle('Anweisung');
@@ -32,6 +35,7 @@ const getIban = (fsId: string) => {
   }
   return 'IBAN';
 }
+
 const getBIC = (fsId: string) => {
   if (allFsData.data && Object.prototype.hasOwnProperty.call(allFsData.data, fsId)) {
     const fsData = allFsData.data[fsId];
@@ -45,6 +49,7 @@ const getBIC = (fsId: string) => {
   }
   return 'BIC';
 }
+
 const getFsName = (fsId: string) => {
   if (allFsData.data && Object.prototype.hasOwnProperty.call(allFsData.data, fsId)) {
     const fsData = allFsData.data[fsId];
@@ -104,50 +109,85 @@ const bfsg = computed(() => {
   }
   return includedRequests;
 })
-
 const formatEuroCentsForExport = (value: number | undefined): string => {
   if (value === undefined) {
     return '';
   }
+
   const formatter = new Intl.NumberFormat('de-DE', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
     useGrouping: false,
   });
-
   return formatter.format(value / 100);
 }
 
-const toLineAFSG = (payoutRequest: INewPayoutRequestData) => {
-  const recipient = ('Fachschaft ' + getFsName(payoutRequest.fs)).substring(0, 35);
-  const iban = getIban(payoutRequest.fs);
-  const bic = getBIC(payoutRequest.fs);
-  const amount = formatEuroCentsForExport(payoutRequest.amount_cents);
-  const text1 = 'Antrag ' + payoutRequest.request_id;
-  const text2 = 'vom ' + payoutRequest.request_date;
-  const text3 = '';
-  const type_ = 'CCS';
-  return [recipient, iban, bic, amount, text1, text2, text3, type_].join(';')
+const sum = (arr: number[]) => {
+  return arr.reduce((acc, element) => acc + element);
 }
-const toLineBFSG = (payoutRequest: INewPayoutRequestData) => {
-  const commentParsed = parseCommentFields(payoutRequest.comment);
-  const recipient = ('Fachschaft ' + getFsName(payoutRequest.fs)).substring(0, 35);
-  const iban = getIban(payoutRequest.fs);
-  const bic = getBIC(payoutRequest.fs);
-  const amount = formatEuroCentsForExport(payoutRequest.amount_cents);
-  const text1 = 'Antrag ' + payoutRequest.request_id;
-  const text2 = 'abg. ' + payoutRequest.status_date + ' FID ' + commentParsed.fid;
-  const text3 = (commentParsed.title || payoutRequest.category).substring(0, 27);
-  const type_ = 'CCS';
-  return [recipient, iban, bic, amount, text1, text2, text3, type_].join(';')
-}
-const downloadCSV = () => {
-  const lines = ['Begünstigter;IBAN des Begünstigten;BIC des Begünstigten;Betrag;Verwendungszweckzeile 1;Verwendungszweckzeile 2;Verwendungszweckzeile 3;Art'];
-  for (const payoutRequest of afsg.value) {
-    lines.push(toLineAFSG(payoutRequest));
+
+const toCsvLine = (fsData: IPaymentOrderLineData, textLinesCount: number) => {
+  const recipient = ('FS ' + getFsName(fsData.fs)).substring(0, 35);
+  const iban = fsData.iban
+  const bic = fsData.bic
+  const amount = formatEuroCentsForExport(sum(fsData.amounts_cents));
+  const textLines = [];
+  for (let i = 0; i < textLinesCount; i++) {
+    textLines.push('');
   }
-  for (const payoutRequest of bfsg.value) {
-    lines.push(toLineBFSG(payoutRequest));
+  for (let i = 0; i < fsData.request_ids.length; i = i + 2) {
+    if (i + 1 === fsData.request_ids.length) {
+      textLines[i / 2] = fsData.request_ids[i];
+    } else {
+      textLines[i / 2] = fsData.request_ids[i] + ' ' + fsData.request_ids[i + 1];
+    }
+  }
+  const type_ = 'CCS';
+  return [recipient, iban, bic, amount, ...textLines, type_].join(';')
+}
+
+function collectItemsForFs() {
+  const itemsForFs: IPaymentOrderLineData[] = [];
+  for (const payoutRequest of [...afsg.value, ...bfsg.value]) {
+    let found = false;
+    for (const line of itemsForFs) {
+      if (line.fs === payoutRequest.fs) {
+        line.request_ids.push(payoutRequest.request_id);
+        line.amounts_cents.push(payoutRequest.amount_cents);
+        found = true;
+      }
+    }
+    if (!found) {
+      itemsForFs.push({
+        fs: payoutRequest.fs,
+        iban: getIban(payoutRequest.fs),
+        bic: getBIC(payoutRequest.fs),
+        request_ids: [payoutRequest.request_id],
+        amounts_cents: [payoutRequest.amount_cents],
+      })
+    }
+  }
+  return itemsForFs;
+}
+
+function calculateNumberOfTextLines(itemsForFs: IPaymentOrderLineData[]) {
+  // request_ids are XXXX-XXXX, we can fit 2 per line of max length 27
+  const maxNumberOfRequestIds = Math.max(...itemsForFs.map(value => value.request_ids.length));
+  const requiredNumberOfTextLines = Math.ceil(maxNumberOfRequestIds / 2);
+  return Math.min(MAX_NUMBER_OF_TEXT_LINES, requiredNumberOfTextLines);
+}
+
+const downloadCSV = () => {
+  const itemsForFs = collectItemsForFs();
+  const textLinesCount = calculateNumberOfTextLines(itemsForFs)
+  const textLines = []
+  for (let i = 0; i < textLinesCount; i++) {
+    textLines.push(`Verwendungszweckzeile ${i + 1}`)
+  }
+  const firstLineItems = ['Begünstigter', 'IBAN des Begünstigten', 'BIC des Begünstigten', 'Betrag', ...textLines, 'Art'];
+  const lines = [firstLineItems.join(';')]
+  for (const fsData of itemsForFs) {
+    lines.push(toCsvLine(fsData, textLinesCount));
   }
   const today = fixedDate.date ? fixedDate.date : (new Date()).toISOString().substring(0, 10);
   saveCSV(lines.join('\n'), 'anweisung-fsen-' + today + '.csv');
@@ -164,6 +204,9 @@ const downloadCSV = () => {
     <div class="content">
       <p>
         <button class="button is-primary" @click="downloadCSV">CSV-Export für Kasse herunterladen</button>
+        <br>
+        <em>Im CSV-Export ist eine Überweisung pro Fachschaft enthalten, bei der die Beträge aller Anträge aufsummiert
+          sind.</em>
       </p>
 
       <p>Copy-paste ↓</p>
@@ -215,7 +258,7 @@ const downloadCSV = () => {
         <tr v-for="(x, index) in afsg2" :key="x.request_id">
           <td>{{ index + 1 }}</td>
           <td>{{ META.budgetTitles[x.semester] || '?' }}</td>
-          <td>{{getFsName(x.fs) }}</td>
+          <td>{{ getFsName(x.fs) }}</td>
           <td>{{ x.request_id }}</td>
           <td>{{ x.request_date }}</td>
           <td>{{ euroCents(x.amount_cents).slice(0, -2) }}</td>
