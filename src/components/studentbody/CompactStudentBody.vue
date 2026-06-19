@@ -4,7 +4,7 @@ import {computed} from "vue";
 import {CurrentlyCanBePaidCalculator, SemesterCalculator} from "@/Calculator";
 import IconPeople from "@/components/icons/IconPeople.vue";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
-import {calculateSemesterId, getCurrentAndPastSemesters, semestersToIntervals} from "@/util";
+import {calculateSemesterId, deNow, getCurrentAndPastSemesters, parseDEDate, semestersToIntervals} from "@/util";
 import {useFixedDateStore} from "@/stores/fixedDate";
 import {useDocumentsStore} from "@/stores/documents";
 import {usePageSettingsStore} from "@/stores/pageSettings";
@@ -25,7 +25,8 @@ const shouldDisplay = (value: INewPayoutRequestData) => settings.displayAllAfsgS
 
 const semesters = computed(() => {
   const relevantSemesters = payoutRequests.afsg?.get(props.baseData.fs_id)?.filter(shouldDisplay).map((value) => value.semester) || []
-  const requiredSemesters = getCurrentAndPastSemesters(new Date(), 6, relevantSemesters);
+  const today = fixedDate.date ? parseDEDate(fixedDate.date) : deNow();
+  const requiredSemesters = getCurrentAndPastSemesters(today, 6, relevantSemesters);
   return semestersToIntervals(requiredSemesters).reverse();
 })
 

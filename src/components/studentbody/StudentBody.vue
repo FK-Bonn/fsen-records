@@ -10,7 +10,8 @@ import IconPeople from "@/components/icons/IconPeople.vue";
 import {usePageSettingsStore} from "@/stores/pageSettings";
 import CompactStudentBody from "@/components/studentbody/CompactStudentBody.vue";
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
-import {getCurrentAndPastSemesters, semestersToIntervals} from "@/util";
+import {deNow, getCurrentAndPastSemesters, parseDEDate, semestersToIntervals} from "@/util";
+import {useFixedDateStore} from "@/stores/fixedDate";
 
 const props = defineProps<{
   baseData: IBaseFsData,
@@ -18,12 +19,14 @@ const props = defineProps<{
 
 const settings = usePageSettingsStore();
 const payoutRequests = usePayoutRequestStore();
+const fixedDate = useFixedDateStore();
 
 const shouldDisplay = (value: INewPayoutRequestData) => settings.displayAllAfsgSemesters ? true : !['ANGEWIESEN', 'FAILED'].includes(value.status)
 
 const semesters = computed(() => {
   const relevantSemesters = payoutRequests.afsg?.get(props.baseData.fs_id)?.filter(shouldDisplay).map((value) => value.semester) || []
-  const requiredSemesters = getCurrentAndPastSemesters(new Date(), 6, relevantSemesters);
+  const today = fixedDate.date ? parseDEDate(fixedDate.date) : deNow();
+  const requiredSemesters = getCurrentAndPastSemesters(today, 6, relevantSemesters);
   return semestersToIntervals(requiredSemesters);
 })
 

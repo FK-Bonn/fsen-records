@@ -154,10 +154,12 @@ export const calculateSemesterName = (interval?: Interval) => {
     if (!interval) {
         return '?';
     }
-    if (interval.start.getFullYear() === interval.end.getFullYear()) {
+    if (interval.start.getMonth() === 3) {
         return 'Sommersemester ' + interval.start.getFullYear();
-    } else {
+    } else if (interval.start.getMonth() === 9) {
         return 'Wintersemester ' + interval.start.getFullYear() + '/' + interval.end.getFullYear().toString().substring(2, 4);
+    } else {
+        return 'Haushaltsjahr ' + interval.start.getFullYear() + '/' + interval.end.getFullYear().toString().substring(2, 4);
     }
 }
 
@@ -165,10 +167,12 @@ export const calculateSemesterId = (interval?: Interval) => {
     if (!interval) {
         return undefined;
     }
-    if (interval.start.getFullYear() === interval.end.getFullYear()) {
+    if (interval.start.getMonth() === 3) {
         return '' + interval.start.getFullYear() + '-SoSe';
-    } else {
+    } else if (interval.start.getMonth() === 9) {
         return '' + interval.start.getFullYear() + '-WiSe';
+    } else {
+        return '' + interval.start.getFullYear() + '-HHJ';
     }
 }
 
@@ -206,13 +210,13 @@ export const copyToClipboard = (str: string) => {
     return Promise.reject('The Clipboard API is not available.');
 };
 
-export const getCurrentAndPastSemesters = (start: Date, count: number, mandatoryIncludes: string[]) => {
+export const getCurrentAndPastSemesters = (start: DateTime, count: number, mandatoryIncludes: string[]) => {
     if (count <= 0) {
         return [];
     }
     const semesters: string[] = []
-    let currentYear = start.getFullYear();
-    const currentMonth = start.getMonth();
+    let currentYear = start.year;
+    const currentMonth = start.month;
     let currentType = '';
     if (currentMonth < 3) {
         currentYear = currentYear - 1;
@@ -223,7 +227,8 @@ export const getCurrentAndPastSemesters = (start: Date, count: number, mandatory
         currentType = 'SoSe';
     }
     semesters.push(`${currentYear}-${currentType}`)
-    while (semesters.length < count || !mandatoryIncludes.every(value => semesters.includes(value))) {
+    const mandatorySemesters = mandatoryIncludes.filter(value => value.endsWith('WiSe') || value.endsWith('SoSe'));
+    while (semesters.length < count || !mandatorySemesters.every(value => semesters.includes(value))) {
         if (currentType === 'WiSe') {
             currentType = 'SoSe';
             semesters.push(`${currentYear}-${currentType}`)
@@ -233,7 +238,19 @@ export const getCurrentAndPastSemesters = (start: Date, count: number, mandatory
             semesters.push(`${currentYear}-${currentType}`)
         }
     }
-    return semesters;
+
+    const hhjs: string[] = [];
+    currentYear = start.year;
+    if (currentMonth < 7) {
+        currentYear = currentYear - 1;
+    }
+    hhjs.push(`${currentYear}-HHJ`);
+    const mandatoryHHJs = mandatoryIncludes.filter(value => value.endsWith('HHJ'));
+    while (hhjs.length < count || !mandatoryHHJs.every(value => hhjs.includes(value))) {
+        currentYear = currentYear - 1;
+        hhjs.push(`${currentYear}-HHJ`);
+    }
+    return [...hhjs.filter(value => value >= '2026-HHJ'), ...semesters.filter(value => value <= '2026-SoSe')];
 }
 
 export const semesterToInterval = (semester: string) => {
@@ -241,8 +258,10 @@ export const semesterToInterval = (semester: string) => {
     const year = parseInt(semester.substring(0, 4));
     if (semesterType === 'WiSe') {
         return new Interval(new Date(year, 9, 1), new Date(year + 1, 2, 31));
-    } else {
+    } else if (semesterType === 'SoSe') {
         return new Interval(new Date(year, 3, 1), new Date(year, 8, 30));
+    } else {
+        return new Interval(new Date(year, 6, 1), new Date(year + 1, 5, 30));
     }
 }
 
@@ -1323,6 +1342,9 @@ export const hasAnyPermission = (u: IUserWithPermissions) => {
 }
 
 export const getLastDayForSubmission = (interval: Interval): DateTime => {
+    if (interval.start.getMonth() === 6) {
+        return dateToDateTime(interval.end).setZone('Europe/Berlin');
+    }
     return dateToDateTime(interval.end).plus({years: 1}).setZone('Europe/Berlin');
 }
 

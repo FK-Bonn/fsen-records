@@ -38,6 +38,10 @@ const getLastDayForCompletion = (interval: Interval): DateTime => {
       return DateTime.fromISO(completionDeadlineOverrides[key]);
     }
   }
+  if (interval.start.getMonth() === 6) {
+    return DateTime.fromISO(interval.end.toISOString(), {zone: 'utc'})
+        .setZone('Europe/Berlin')
+  }
   return DateTime.fromISO(interval.end.toISOString(), {zone: 'utc'})
       .setZone('Europe/Berlin')
       .plus({years: 2});
