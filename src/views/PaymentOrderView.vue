@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import {computed, onBeforeMount} from "vue";
+import {computed, onBeforeMount, ref} from "vue";
 import FixedDateBanner from "@/components/FixedDateBanner.vue";
-import {euroCents, parseCommentFields, saveCSV, updatePageTitle} from "@/util";
+import {editPayoutRequest, euroCents, parseCommentFields, saveCSV, updatePageTitle} from "@/util";
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
 import {AnnotationLevel, type INewPayoutRequestData, type IPaymentOrderLineData} from "@/interfaces";
 import {useFixedDateStore} from "@/stores/fixedDate";
@@ -9,6 +9,8 @@ import {useDocumentsStore} from "@/stores/documents";
 import {CurrentlyCanBePaidCalculator} from "@/Calculator";
 import {useAllFsData} from "@/stores/allFsData";
 import {META} from "@/meta";
+import {useTokenStore} from "@/stores/token";
+import SimpleCopyableTag from "@/components/SimpleCopyableTag.vue";
 
 // https://hilfe.starmoney.de/hc/de/articles/360016426753-Import-von-Zahlungsverkehrsauftr%C3%A4gen-in-StarMoney-Business
 const MAX_NUMBER_OF_TEXT_LINES = 14;
@@ -21,6 +23,10 @@ const fixedDate = useFixedDateStore();
 const documents = useDocumentsStore();
 const payoutRequests = usePayoutRequestStore();
 const allFsData = useAllFsData();
+const token = useTokenStore();
+
+const fatFingerCheckboxValue = ref<boolean>(false);
+const updateResult = ref<{ request_id: string | null, message: string | null }[]>([]);
 
 const getIban = (fsId: string) => {
   if (allFsData.data && Object.prototype.hasOwnProperty.call(allFsData.data, fsId)) {
@@ -192,6 +198,30 @@ const downloadCSV = () => {
   const today = fixedDate.date ? fixedDate.date : (new Date()).toISOString().substring(0, 10);
   saveCSV(lines.join('\n'), 'anweisung-fsen-' + today + '.csv');
 }
+
+const updateAllStatuses = async () => {
+  if (!fatFingerCheckboxValue.value) {
+    alert('Hast du dicke Finger?');
+    return;
+  }
+  if (updateResult.value.length) {
+    alert('Hast du doch schon geklickt? Warum nochmal?');
+    return;
+  }
+  const today = (new Date()).toISOString().substring(0, 10);
+  const payload = {status: 'ANGEWIESEN', status_date: today}
+
+  for (const afsgRequest of afsg.value) {
+    const result = await editPayoutRequest(afsgRequest.request_id, 'afsg', payload, token.token());
+    updateResult.value.push({request_id: afsgRequest.request_id, message: result?.message || null});
+  }
+  for (const bfsgRequest of bfsg.value) {
+    const result = await editPayoutRequest(bfsgRequest.request_id, 'bfsg', payload, token.token());
+    updateResult.value.push({request_id: bfsgRequest.request_id, message: result?.message || null});
+  }
+  updateResult.value.push({request_id: null, message: 'Abgeschlossen.'})
+}
+
 </script>
 
 <template>
@@ -297,6 +327,28 @@ const downloadCSV = () => {
       </table>
       <hr>
       <p>Copy-paste ↑</p>
+
+      <div class="columns" v-if="!fixedDate.date">
+        <div class="column is-narrow">
+          <button class="button" @click="updateAllStatuses">Alle diese Anträge auf ANGEWIESEN stellen</button>
+        </div>
+        <div class="column">
+        </div>
+        <div class="column is-narrow">
+          <label class="checkbox" for="fatfinger">
+            <input type="checkbox" id="fatfinger" v-model="fatFingerCheckboxValue">
+            Ich habe nicht aus Versehen auf den Knopf da drüben gedrückt
+          </label>
+        </div>
+      </div>
+      <div>
+        <ul>
+          <li v-for="(item, i) in updateResult" :key="i">
+            <SimpleCopyableTag v-if="item.request_id" :text="item.request_id"/>
+            {{ item.message }}
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
