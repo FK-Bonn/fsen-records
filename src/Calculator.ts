@@ -5,7 +5,14 @@ import {
     type IDocumentData,
     type IDocumentDataForFs
 } from "@/interfaces";
-import {getDocumentAnnotationLevel, getWorstAnnotationLevel, isReferenced, stringToDate} from "@/util";
+import {
+    formatIsoDate,
+    getDocumentAnnotationLevel,
+    getWorstAnnotationLevel,
+    is2026HHJ,
+    isReferenced,
+    stringToDate
+} from "@/util";
 
 export class Interval {
     start: Date
@@ -349,6 +356,13 @@ export class CurrentlyCanBePaidCalculator {
     }
 }
 
+const replaceSemesterFor2026HHJ = (semester: Interval) => {
+    if (is2026HHJ(semester)) {
+        return Interval.fromStrings('2027-07-01', '2028-06-30') as Interval;
+    }
+    return semester;
+}
+
 export class SemesterCalculator {
     private semester: Interval;
     private baseData: IBaseFsData;
@@ -360,15 +374,16 @@ export class SemesterCalculator {
     private cashAudits: IDocumentData[];
 
     constructor(baseData: IBaseFsData, semester: Interval, documents: IDocumentDataForFs | null) {
+        const actualSemester = replaceSemesterFor2026HHJ(semester);
         this.baseData = baseData;
-        this.semester = semester;
+        this.semester = actualSemester;
         this.documents = [];
         this.electionResults = [];
         this.proceedings = [];
         this.budgets = [];
         this.balances = [];
         this.cashAudits = [];
-        if(documents && baseData.fs_id in documents){
+        if (documents && baseData.fs_id in documents) {
             this.documents = documents[baseData.fs_id];
             this.electionResults = this.documents.filter(value => value.base_name === 'Wahlergebnis');
             this.proceedings = this.documents.filter(value => value.base_name === 'Prot');

@@ -9,6 +9,7 @@ import RelevantDocumentsWithProceedings from "@/components/document/RelevantDocu
 import IconCross from "@/components/icons/IconCross.vue";
 import {useDocumentsStore} from "@/stores/documents";
 import SingleDocument from "@/components/document/SingleDocument.vue";
+import {is2026HHJ} from "@/util";
 
 const props = defineProps<{
   baseData: IBaseFsData,
@@ -20,11 +21,19 @@ const documents = useDocumentsStore();
 
 const calculator = computed(() => new SemesterCalculator(props.baseData, props.semester, documents.data));
 const mostRecentElection = computed(() => calculator.value.getMostRecentElection());
+const displayRulesOverride = computed(() => is2026HHJ(props.semester));
 </script>
 
 <template>
   <div class="card-content">
     <div class="content">
+
+      <div class="notification is-link" v-if="displayRulesOverride">
+        Gemäß <a href="https://sp.uni-bonn.de/dokumente/idx/Satzungen/FSFS.html#%C2%A726a-2">§ 26a Absatz 2 FSFS</a>
+        müssen zur Anweisung des AFSG-Antrags für das Haushaltsjahr 2026/27
+        die Voraussetzungen für den AFSG-Antrag für das Haushaltsjahr 2027/28 erfüllt sein.
+      </div>
+
       <RelevantDocumentsWithProceedings
           title="Haushaltspläne"
           proceedingsTitle="Beschluss"

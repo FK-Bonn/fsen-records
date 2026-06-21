@@ -1343,6 +1343,9 @@ export const hasAnyPermission = (u: IUserWithPermissions) => {
 
 export const getLastDayForSubmission = (interval: Interval): DateTime => {
     if (interval.start.getMonth() === 6) {
+        if (interval.start.getFullYear() === 2026) {
+            return dateToDateTime(interval.end).plus({years: 1}).setZone('Europe/Berlin');
+        }
         return dateToDateTime(interval.end).setZone('Europe/Berlin');
     }
     return dateToDateTime(interval.end).plus({years: 1}).setZone('Europe/Berlin');
@@ -1598,4 +1601,8 @@ export const saveCSV = (content: string, filename: string) => {
     link.download = filename;
     link.click();
     URL.revokeObjectURL(link.href);
+}
+
+export const is2026HHJ = (semester: Interval) => {
+    return formatDate(semester.start) === '01.07.2026' && formatDate(semester.end) === '30.06.2027'
 }

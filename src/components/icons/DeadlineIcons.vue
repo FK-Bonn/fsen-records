@@ -39,6 +39,11 @@ const getLastDayForCompletion = (interval: Interval): DateTime => {
     }
   }
   if (interval.start.getMonth() === 6) {
+    if (interval.start.getFullYear() === 2026) {
+      return DateTime.fromISO(interval.end.toISOString(), {zone: 'utc'})
+          .setZone('Europe/Berlin')
+          .plus({years: 1});
+    }
     return DateTime.fromISO(interval.end.toISOString(), {zone: 'utc'})
         .setZone('Europe/Berlin')
   }
