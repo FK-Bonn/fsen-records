@@ -101,8 +101,8 @@ const afsg = computed(() => {
   return includedRequests;
 })
 
-const afsg1 = computed(() => afsg.value.filter(value => (META.budgetTitles[value.semester] || '?').startsWith('3.5.1')))
-const afsg2 = computed(() => afsg.value.filter(value => !(META.budgetTitles[value.semester] || '?').startsWith('3.5.1')))
+const afsg1 = computed(() => afsg.value.filter(value => (META.budgetTitles[value.semester] || '?').startsWith('3.9.6')))
+const afsg2 = computed(() => afsg.value.filter(value => !(META.budgetTitles[value.semester] || '?').startsWith('3.9.6')))
 
 const bfsg = computed(() => {
   const includedRequests: INewPayoutRequestData[] = [];
@@ -383,8 +383,8 @@ const updateAllStatuses = async () => {
 
       <p>Copy-paste ↓</p>
       <hr>
-      <p>Aus dem Haushaltstitel 3.5.1 (Allgemeine FS-Gelder (beantragbar)), nach §18 (4) der FSFS (01.07.2025),
-        erhält:</p>
+      <p>Aus dem Haushaltstitel 3.9.6 (Allgemeine Fachschaftengelder (traditionsreiches Modell)),
+        nach § 18 (4) der FSFS (07.06.2026), erhält:</p>
 
       <table class="table is-striped is-bordered is-fullwidth">
         <thead>
@@ -411,7 +411,7 @@ const updateAllStatuses = async () => {
         </tbody>
       </table>
 
-      <p>Aus dem Haushaltstitel 3.5.2 (Allgemeine FS-Gelder (vervollständigbar)), nach §18 (4) der FSFS (01.07.2025),
+      <p>Aus den Haushaltstiteln 3.9.1 bis 3.9.4 (Allgemeine Fachschaftengelder), nach § 18 (4) der FSFS (07.06.2026),
         erhält:</p>
 
       <table class="table is-striped is-bordered is-fullwidth">
@@ -429,7 +429,7 @@ const updateAllStatuses = async () => {
         <tbody>
         <tr v-for="(x, index) in afsg2" :key="x.request_id">
           <td>{{ index + 1 }}</td>
-          <td>{{ META.budgetTitles[x.semester] || '?' }}</td>
+          <td>{{ META.budgetTitles[x.semester] || META.afsgBudgetTitles[x.fs] || '?' }}</td>
           <td>{{ getFsName(x.fs) }}</td>
           <td>{{ x.request_id }}</td>
           <td>{{ x.request_date }}</td>
@@ -439,7 +439,7 @@ const updateAllStatuses = async () => {
         </tbody>
       </table>
 
-      <p>Aus dem Haushaltstitel 3.5.3 (Besondere FS-Gelder), nach §21 (2) der FSFS (01.07.2025), erhält:</p>
+      <p>Aus dem Haushaltstitel 3.9.7 (Besondere FS-Gelder), nach § 21 (2) der FSFS (07.06.2026), erhält:</p>
 
       <table class="table is-striped is-bordered is-fullwidth">
         <thead>
@@ -457,7 +457,7 @@ const updateAllStatuses = async () => {
         <tbody>
         <tr v-for="(x, index) in bfsg" :key="x.request_id">
           <td>{{ index + 1 }}</td>
-          <td>{{ META.budgetTitlesBfsg[x.semester] || '?' }}</td>
+          <td>{{ META.bfsgBudgetTitle || '?' }}</td>
           <td>{{ getFsName(x.fs) }}</td>
           <td>{{ x.request_id }}</td>
           <td>{{ parseCommentFields(x.comment).title || x.category }}</td>

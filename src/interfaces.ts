@@ -99,7 +99,8 @@ export interface ISemester {
 
 export interface IData {
     budgetTitles: { [semester: string]: string }
-    budgetTitlesBfsg: { [semester: string]: string }
+    afsgBudgetTitles: { [semester: string]: string }
+    bfsgBudgetTitle: string
 }
 
 export interface IUserWithPermissions {

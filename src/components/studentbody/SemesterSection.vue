@@ -38,7 +38,7 @@ const toggle = () => {
 const semesterName = computed(() => calculateSemesterName(props.semester))
 const semesterId = computed(() => calculateSemesterId(props.semester))
 const payoutRequestForSemester = computed(() => payoutRequests.afsg?.get(props.baseData.fs_id)?.find(value => value.semester === semesterId.value))
-const budgetTitle = computed(() => semesterId.value ? META.budgetTitles[semesterId.value] : null)
+const budgetTitle = computed(() => (semesterId.value ? META.budgetTitles[semesterId.value] : null) || META.afsgBudgetTitles[props.baseData.fs_id] || null)
 const level = computed(() => calculateLevel(props.baseData, props.semester))
 const displayStar = computed(() => shouldDisplayStar(level.value, payoutRequestForSemester.value))
 </script>

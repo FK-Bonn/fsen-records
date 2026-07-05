@@ -73,8 +73,7 @@ const toggleShowFull = () => {
 }
 
 const tagClass = computed(() => getStatusTagClass(props.payoutRequest));
-const budgetTitle = computed(() => META.budgetTitlesBfsg[props.payoutRequest.semester]);
-const tableLine = computed(() => getTableLine(fsData.data, props.payoutRequest, budgetTitle.value));
+const tableLine = computed(() => getTableLine(fsData.data, props.payoutRequest, META.bfsgBudgetTitle));
 const trClass = computed(() => showFull.value ? "selected-tr-top" : "");
 const commentFields = computed(() => parseCommentFields(props.payoutRequest.comment));
 </script>
