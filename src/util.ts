@@ -1594,9 +1594,9 @@ export const parseCommentFields = (commentString: string | undefined) => {
     }
 }
 
-export const saveCSV = (content: string, filename: string) => {
+export const saveTextAsFile = (content: string, filename: string, fileType: string) => {
     const link = document.createElement("a");
-    const file = new Blob([content], {type: 'text/csv'});
+    const file = new Blob([content], {type: fileType});
     link.href = URL.createObjectURL(file);
     link.download = filename;
     link.click();

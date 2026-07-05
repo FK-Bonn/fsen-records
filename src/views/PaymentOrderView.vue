@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed, onBeforeMount, ref} from "vue";
 import FixedDateBanner from "@/components/FixedDateBanner.vue";
-import {editPayoutRequest, euroCents, parseCommentFields, saveCSV, updatePageTitle} from "@/util";
+import {editPayoutRequest, euroCents, parseCommentFields, saveTextAsFile, updatePageTitle} from "@/util";
 import {usePayoutRequestStore} from "@/stores/payoutRequest";
 import {AnnotationLevel, type INewPayoutRequestData, type IPaymentOrderLineData} from "@/interfaces";
 import {useFixedDateStore} from "@/stores/fixedDate";
@@ -128,6 +128,19 @@ const formatEuroCentsForExport = (value: number | undefined): string => {
   return formatter.format(value / 100);
 }
 
+const formatEuroCentsForXml = (value: number | undefined): string => {
+  if (value === undefined) {
+    return '';
+  }
+
+  const formatter = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+    useGrouping: false,
+  });
+  return formatter.format(value / 100);
+}
+
 const sum = (arr: number[]) => {
   return arr.reduce((acc, element) => acc + element);
 }
@@ -150,6 +163,65 @@ const toCsvLine = (fsData: IPaymentOrderLineData, textLinesCount: number) => {
   }
   const type_ = 'CCS';
   return [recipient, iban, bic, amount, ...textLines, type_].join(';')
+}
+
+const REPLACEMENTS = [
+  ['Ä', 'Ae'],
+  ['Ö', 'Oe'],
+  ['Ü', 'Ue'],
+  ['ä', 'ae'],
+  ['ö', 'oe'],
+  ['ü', 'ue'],
+  ['ẞ', 'SS'],
+  ['ß', 'ss'],
+]
+const replaceUmlauts = (text: string) => {
+  for (const chars of REPLACEMENTS) {
+    text = text.replace(RegExp(chars[0], 'g'), chars[1])
+  }
+  return text;
+}
+
+const toXmlSnippet = (fsData: IPaymentOrderLineData) => {
+  const recipient = replaceUmlauts('FS ' + getFsName(fsData.fs)).substring(0, 70);
+  const iban = fsData.iban.replace(/ /g, '').trim()
+  const bic = fsData.bic.replace(/ /g, '').trim()
+  const amount = formatEuroCentsForXml(sum(fsData.amounts_cents));
+  const uuid = self.crypto.randomUUID().replace(/-/g, '');
+  let remittanceInformation = ''
+  for (const requestId of fsData.request_ids) {
+    const newRemittanceInformation = (remittanceInformation + ' ' + requestId).trim()
+    if (newRemittanceInformation.length <= 140) {
+      remittanceInformation = newRemittanceInformation;
+    } else {
+      break;
+    }
+  }
+  return `            <CdtTrfTxInf>
+                <PmtId>
+                    <EndToEndId>${uuid}</EndToEndId>
+                </PmtId>
+                <Amt>
+                    <InstdAmt Ccy="EUR">${amount}</InstdAmt>
+                </Amt>
+                <CdtrAgt>
+                    <FinInstnId>
+                        <BICFI>${bic}</BICFI>
+                    </FinInstnId>
+                </CdtrAgt>
+                <Cdtr>
+                    <Nm>${recipient}</Nm>
+                </Cdtr>
+                <CdtrAcct>
+                    <Id>
+                        <IBAN>${iban}</IBAN>
+                    </Id>
+                </CdtrAcct>
+                <RmtInf>
+                    <Ustrd>${remittanceInformation}</Ustrd>
+                </RmtInf>
+            </CdtTrfTxInf>
+`
 }
 
 function collectItemsForFs() {
@@ -196,7 +268,71 @@ const downloadCSV = () => {
     lines.push(toCsvLine(fsData, textLinesCount));
   }
   const today = fixedDate.date ? fixedDate.date : (new Date()).toISOString().substring(0, 10);
-  saveCSV(lines.join('\n'), 'anweisung-fsen-' + today + '.csv');
+  saveTextAsFile(lines.join('\n'), 'anweisung-fsen-' + today + '.csv', 'text/csv');
+}
+
+const downloadXML = () => {
+  const itemsForFs = collectItemsForFs();
+  const paymentSnippets = itemsForFs.map(toXmlSnippet);
+  let totalSum = 0;
+  for (const fsData of itemsForFs) {
+    totalSum += sum(fsData.amounts_cents);
+  }
+  const formattedTotalSum = formatEuroCentsForXml(totalSum);
+  const timestamp = fixedDate.date ? `${fixedDate.date}T00:00:00.000Z` : (new Date()).toISOString();
+  const today = timestamp.substring(0, 10);
+  const numberOfTransactions = itemsForFs.length
+  const uuid1 = self.crypto.randomUUID().replace(/-/g, '');
+  const uuid2 = self.crypto.randomUUID().replace(/-/g, '');
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.09"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.001.09pain.001.001.09.xsd">
+    <CstmrCdtTrfInitn>
+        <GrpHdr>
+            <MsgId>${uuid1}</MsgId>
+            <CreDtTm>${timestamp}</CreDtTm>
+            <NbOfTxs>${numberOfTransactions}</NbOfTxs>
+            <CtrlSum>${formattedTotalSum}</CtrlSum>
+            <InitgPty>
+                <Nm>AStA Allgemeiner Studierendenausschuß der Universität Bonn</Nm>
+            </InitgPty>
+        </GrpHdr>
+        <PmtInf>
+            <PmtInfId>${uuid2}</PmtInfId>
+            <PmtMtd>TRF</PmtMtd>
+            <BtchBookg>true</BtchBookg>
+            <NbOfTxs>${numberOfTransactions}</NbOfTxs>
+            <CtrlSum>${formattedTotalSum}</CtrlSum>
+            <PmtTpInf>
+                <SvcLvl>
+                    <Cd>SEPA</Cd>
+                </SvcLvl>
+            </PmtTpInf>
+            <ReqdExctnDt>
+                <Dt>${today}</Dt>
+            </ReqdExctnDt>
+            <Dbtr>
+                <Nm>AStA Allgemeiner Studierendenausschuß der Universität Bonn</Nm>
+            </Dbtr>
+            <DbtrAcct>
+                <Id>
+                    <IBAN>DE31370501980000038463</IBAN>
+                </Id>
+            </DbtrAcct>
+            <DbtrAgt>
+                <FinInstnId>
+                    <BICFI>COLSDE33XXX</BICFI>
+                </FinInstnId>
+            </DbtrAgt>
+            <ChrgBr>SLEV</ChrgBr>
+`
+  xml += paymentSnippets.join('\n')
+  xml += `        </PmtInf>
+    </CstmrCdtTrfInitn>
+</Document>
+`
+  saveTextAsFile(xml, 'anweisung-fsen-' + today + '.xml', 'text/xml');
 }
 
 const updateAllStatuses = async () => {
@@ -232,6 +368,12 @@ const updateAllStatuses = async () => {
 
 
     <div class="content">
+      <p>
+        <button class="button is-primary" @click="downloadXML">XML-Export für Kasse herunterladen</button>
+        <br>
+        <em>Im XML-Export ist eine Überweisung pro Fachschaft enthalten, bei der die Beträge aller Anträge aufsummiert
+          sind.</em>
+      </p>
       <p>
         <button class="button is-primary" @click="downloadCSV">CSV-Export für Kasse herunterladen</button>
         <br>
