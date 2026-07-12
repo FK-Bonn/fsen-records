@@ -176,6 +176,7 @@ const REPLACEMENTS = [
   ['ß', 'ss'],
 ]
 const replaceUmlauts = (text: string) => {
+  return text; // TODO remove this line if replacing umlauts is necessary
   for (const chars of REPLACEMENTS) {
     text = text.replace(RegExp(chars[0], 'g'), chars[1])
   }
