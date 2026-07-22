@@ -249,6 +249,20 @@ function collectItemsForFs() {
   return itemsForFs;
 }
 
+function collectIndividualItems() {
+  const individualItems: IPaymentOrderLineData[] = [];
+  for (const payoutRequest of [...afsg.value, ...bfsg.value]) {
+      individualItems.push({
+        fs: payoutRequest.fs,
+        iban: getIban(payoutRequest.fs),
+        bic: getBIC(payoutRequest.fs),
+        request_ids: [payoutRequest.request_id],
+        amounts_cents: [payoutRequest.amount_cents],
+      })
+  }
+  return individualItems;
+}
+
 function calculateNumberOfTextLines(itemsForFs: IPaymentOrderLineData[]) {
   // request_ids are XXXX-XXXX, we can fit 2 per line of max length 27
   const maxNumberOfRequestIds = Math.max(...itemsForFs.map(value => value.request_ids.length));
@@ -273,16 +287,16 @@ const downloadCSV = () => {
 }
 
 const downloadXML = () => {
-  const itemsForFs = collectItemsForFs();
-  const paymentSnippets = itemsForFs.map(toXmlSnippet);
+  const individualItems = collectIndividualItems();
+  const paymentSnippets = individualItems.map(toXmlSnippet);
   let totalSum = 0;
-  for (const fsData of itemsForFs) {
+  for (const fsData of individualItems) {
     totalSum += sum(fsData.amounts_cents);
   }
   const formattedTotalSum = formatEuroCentsForXml(totalSum);
   const timestamp = fixedDate.date ? `${fixedDate.date}T00:00:00.000Z` : (new Date()).toISOString();
   const today = timestamp.substring(0, 10);
-  const numberOfTransactions = itemsForFs.length
+  const numberOfTransactions = individualItems.length
   const uuid1 = self.crypto.randomUUID().replace(/-/g, '');
   const uuid2 = self.crypto.randomUUID().replace(/-/g, '');
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -372,8 +386,8 @@ const updateAllStatuses = async () => {
       <p>
         <button class="button is-primary" @click="downloadXML">XML-Export für Kasse herunterladen</button>
         <br>
-        <em>Im XML-Export ist eine Überweisung pro Fachschaft enthalten, bei der die Beträge aller Anträge aufsummiert
-          sind.</em>
+        <em>Im XML-Export ist eine Überweisung pro <del>Fachschaft enthalten, bei der die Beträge aller Anträge aufsummiert
+          sind.</del> Antrag enthalten.</em>
       </p>
       <p class="is-hidden">
         <button class="button is-primary" @click="downloadCSV">CSV-Export für Kasse herunterladen</button>
