@@ -375,7 +375,7 @@ const updateAllStatuses = async () => {
         <em>Im XML-Export ist eine Überweisung pro Fachschaft enthalten, bei der die Beträge aller Anträge aufsummiert
           sind.</em>
       </p>
-      <p>
+      <p class="is-hidden">
         <button class="button is-primary" @click="downloadCSV">CSV-Export für Kasse herunterladen</button>
         <br>
         <em>Im CSV-Export ist eine Überweisung pro Fachschaft enthalten, bei der die Beträge aller Anträge aufsummiert
