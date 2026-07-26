@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type {IBaseFsData} from "@/interfaces";
+import {AnnotationLevel, type IBaseFsData} from "@/interfaces";
 import {computed} from "vue";
 import {CurrentlyCanBePaidCalculator, Interval, VerdictCalculator} from "@/Calculator";
 import IconForLevel from "@/components/icons/IconForLevel.vue";
@@ -67,7 +67,12 @@ const mostRecentBudgetAsArray = computed(() => {
           <DateRange
               :interval="Interval.fromStrings(mostRecentInauguralMeetingProceedings?.date_start,
                 mostRecentInauguralMeetingProceedings?.date_start)"/>
-          nach letzter Wahl?
+          <span v-if="calculator.areProceedingsOfLastInauguralMeetingYoungerThanLastElectionLevel(mostRecentInauguralMeetingProceedings) === AnnotationLevel.Ok">
+            liegt nach der letzten Wahl
+          </span>
+          <span v-else>
+            liegt vor der letzten Wahl; das Protokoll der konstituierenden Sitzung nach der letzten Wahl fehlt noch.
+          </span>
         </li>
         <li>
           <SingleDocument :document="mostRecentInauguralMeetingProceedings" :fsId="baseData.fs_id"/>
