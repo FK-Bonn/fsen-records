@@ -55,9 +55,8 @@ const getReferencedDocument = (reference: IDocumentReference): IDocumentData | n
           </li>
           <li v-if="(document.references?.length || 0) === 0">
             <b>{{ proceedingsTitle }}:</b>
-            <IconCross v-if="document.annotations === null"/>
-            <IconQuestionmark v-else/>
-            ?
+            <IconCross/>
+            Keine Protokolle vorhanden.
           </li>
         </ul>
       </div>
