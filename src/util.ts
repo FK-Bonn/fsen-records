@@ -10,6 +10,8 @@ import type {
     IDocumentReference,
     IElectionData,
     IElectionDataWithMeta,
+    IEmailTemplateData,
+    IEmailTemplateDataWithMeta,
     IFullPayoutRequestData,
     INewPayoutRequestData,
     IPermission,
@@ -20,7 +22,8 @@ import type {
     IProtectedFsDataResponse,
     IPublicFsData,
     IPublicFsDataHistoryEntry,
-    IPublicFsDataResponse, ISGliedSStatusData,
+    IPublicFsDataResponse,
+    ISGliedSStatusData,
     IUserWithPermissions
 } from "@/interfaces";
 import {AnnotationLevel} from "@/interfaces";
@@ -1238,6 +1241,52 @@ export const transfer = async (token: string | null, kcTokenPromise: Promise<str
             }
         });
 }
+
+
+export const loadEmailTemplates = async (tokenPromise: Promise<string | null>): Promise<IEmailTemplateDataWithMeta[] | null> => {
+    const token = await tokenPromise;
+    if (!token) {
+        return null;
+    }
+    return fetch(import.meta.env.VITE_API_URL + '/emails/', {
+        method: 'GET',
+        headers: {'Authorization': `Bearer ${token}`}
+    })
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                return Promise.reject('An error occured');
+            }
+        })
+        .then(json => {
+            return json;
+        });
+}
+
+
+export const saveEmailTemplate = async (data: IEmailTemplateData, tokenPromise: Promise<string | null>): Promise<null> => {
+    const token = await tokenPromise;
+    if (!token) {
+        return null;
+    }
+    return fetch(import.meta.env.VITE_API_URL + '/emails/save', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+        body: JSON.stringify(data),
+    })
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                return Promise.reject('An error occured');
+            }
+        })
+        .then(json => {
+            return json;
+        });
+}
+
 
 export const permissionToString = (key: keyof IPermission) => {
     switch (key) {

@@ -53,7 +53,10 @@ export interface IStudentBody {
     statutes: string
     financialYearStart: string
     financialYearAnnotation: string
-    financialYearOverride: null | { current: { dateStart: string, dateEnd: string }, previous: { dateStart: string, dateEnd: string } }
+    financialYearOverride: null | {
+        current: { dateStart: string, dateEnd: string },
+        previous: { dateStart: string, dateEnd: string }
+    }
     proceedingsUrl: string | null | IProceedingsLocation[]
     // budgets: IAnnotatedDocument[]
     // balances: IAnnotatedDocument[]
@@ -363,4 +366,29 @@ export interface IPaymentOrderLineData {
     bic: string
     request_ids: string[]
     amounts_cents: number[]
+}
+
+export interface IMonthDay {
+    month: number
+    day: number
+
+}
+
+export interface IEmailTemplateMeta {
+    fixed_dates: IMonthDay[] | null
+    days_before: number | null
+    frequency: string | null
+    targets: string[]
+}
+
+export interface IEmailTemplateData {
+    template_id: string
+    meta: IEmailTemplateMeta
+    subject: string
+    body: string
+}
+
+export interface IEmailTemplateDataWithMeta extends IEmailTemplateData {
+    last_modified_timestamp: string
+    last_modified_by: string
 }

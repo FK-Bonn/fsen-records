@@ -92,6 +92,11 @@ const router = createRouter({
       component: () => import('../views/ChangePasswordView.vue'),
     },
     {
+      path: '/email-templates',
+      name: 'email-templates',
+      component: () => import('../views/EmailTemplatesView.vue'),
+    },
+    {
       path: '/logout',
       name: 'logout',
       component: () => import('../views/LogoutView.vue'),
