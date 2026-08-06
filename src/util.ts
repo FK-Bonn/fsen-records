@@ -10,6 +10,7 @@ import type {
     IDocumentReference,
     IElectionData,
     IElectionDataWithMeta,
+    IEmailQueues,
     IEmailTemplateData,
     IEmailTemplateDataWithMeta,
     IFullPayoutRequestData,
@@ -1248,7 +1249,7 @@ export const loadEmailTemplates = async (tokenPromise: Promise<string | null>): 
     if (!token) {
         return null;
     }
-    return fetch(import.meta.env.VITE_API_URL + '/emails/', {
+    return fetch(import.meta.env.VITE_API_URL + '/emails', {
         method: 'GET',
         headers: {'Authorization': `Bearer ${token}`}
     })
@@ -1286,6 +1287,28 @@ export const saveEmailTemplate = async (data: IEmailTemplateData, tokenPromise: 
             return json;
         });
 }
+
+export const loadEmailQueues = async (tokenPromise: Promise<string | null>): Promise<IEmailQueues | null> => {
+    const token = await tokenPromise;
+    if (!token) {
+        return null;
+    }
+    return fetch(import.meta.env.VITE_API_URL + '/emails/queues', {
+        method: 'GET',
+        headers: {'Authorization': `Bearer ${token}`}
+    })
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                return Promise.reject('An error occured');
+            }
+        })
+        .then(json => {
+            return json;
+        });
+}
+
 
 
 export const permissionToString = (key: keyof IPermission) => {

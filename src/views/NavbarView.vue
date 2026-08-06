@@ -83,6 +83,7 @@ const account = useAccountStore();
       </li>
       <li v-if="account.user?.admin">
         <RouterLink :to="{name: 'email-templates'}">E-Mail-Vorlagen</RouterLink>
+        <RouterLink :to="{name: 'email-queues'}">E-Mail-Versand</RouterLink>
       </li>
       <li v-if="account.user?.admin">
         <RouterLink :to="{name: 'change-password'}">Passwort ändern</RouterLink>

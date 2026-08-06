@@ -97,6 +97,11 @@ const router = createRouter({
       component: () => import('../views/EmailTemplatesView.vue'),
     },
     {
+      path: '/email-queues',
+      name: 'email-queues',
+      component: () => import('../views/EmailQueuesView.vue'),
+    },
+    {
       path: '/logout',
       name: 'logout',
       component: () => import('../views/LogoutView.vue'),

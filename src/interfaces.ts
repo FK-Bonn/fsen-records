@@ -392,3 +392,21 @@ export interface IEmailTemplateDataWithMeta extends IEmailTemplateData {
     last_modified_timestamp: string
     last_modified_by: string
 }
+
+export interface IQueuedEmailMessage {
+    to: string[]
+    subject: string
+    body: string
+    template_id: string
+    created: string
+    not_before: string | null
+}
+
+export interface ISentEmailMessage extends IQueuedEmailMessage {
+    sent: string
+}
+
+export interface IEmailQueues {
+    outbox: IQueuedEmailMessage[]
+    sent: ISentEmailMessage[]
+}
