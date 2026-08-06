@@ -45,6 +45,7 @@ const setStatusDateToToday = () => {
 
 watch(status, async () => {
   setStatusDateToToday();
+  updateCompletionDeadlineForAcceptedBfsg();
 })
 
 const yeetRequest = () => {
@@ -113,6 +114,38 @@ const reloadPayoutRequestData = () => {
         });
   }
 }
+
+const updateCompletionDeadlineForAcceptedBfsg = () => {
+  if (props.type !== 'bfsg' || status.value !== 'ANGENOMMEN') {
+    return;
+  }
+  const year = parseInt(props.payoutRequest.semester.substring(0, 4));
+  const type = props.payoutRequest.semester.substring(5);
+  if (type === 'WiSe') {
+    // 2020-WiSe x
+    // 2021-SoSe 1
+    // 2021-WiSe 2
+    // 2022-SoSe 3
+    // 2022-WiSe 4
+    // 2023-SoSe 5
+    // 2023-WiSe 6
+    // → 2024-03-31
+    completion_deadline.value = `${year + 4}-03-31`;
+  } else if (type === 'SoSe') {
+    // 2021-SoSe x
+    // 2021-WiSe 1
+    // 2022-SoSe 2
+    // 2022-WiSe 3
+    // 2023-SoSe 4
+    // 2023-WiSe 5
+    // 2024-SoSe 6
+    // → 2024-09-30
+    completion_deadline.value = `${year + 3}-09-30`;
+  } else {
+    console.log(`Ungültiger Semestertyp: ${type}`);
+  }
+}
+
 
 </script>
 
@@ -196,7 +229,7 @@ const reloadPayoutRequestData = () => {
                   <tr>
                     <th>Beschreibung</th>
                     <td>
-                      <textarea class="textarea" type="text" v-model="description"></textarea>
+                      <textarea class="textarea" v-model="description"></textarea>
                     </td>
                   </tr>
                   <tr>
@@ -215,11 +248,11 @@ const reloadPayoutRequestData = () => {
                 <tr>
                   <th>Kommentar</th>
                   <td>
-                    <textarea class="textarea" type="text" rows="2" v-model="comment"></textarea>
+                    <textarea class="textarea" rows="2" v-model="comment"></textarea>
                   </td>
                 </tr>
                 <tr>
-                  <th>Frist zur Vervollständigung</th>
+                  <th>Ablauf-Frist</th>
                   <td>
                     <input class="input" type="date" v-model="completion_deadline">
                   </td>
