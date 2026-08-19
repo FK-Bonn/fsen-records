@@ -114,7 +114,8 @@ onBeforeMount(() => {
       <thead>
       <tr>
         <th>ID</th>
-        <th>Meta</th>
+        <th>An</th>
+        <th>Zeitplan</th>
         <th>Betreff</th>
         <th>Letzte Änderung</th>
         <th></th>
@@ -127,7 +128,7 @@ onBeforeMount(() => {
       </tbody>
       <tbody v-else>
       <tr>
-        <td colspan="5">Wird geladen…</td>
+        <td colspan="6">Wird geladen…</td>
       </tr>
       </tbody>
     </table>
