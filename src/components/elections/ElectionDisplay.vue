@@ -27,6 +27,13 @@ const smh = computed(() => (props.election.electoral_register_request_date
 
 <template>
   <div class="columns">
+    <div class="column is-narrow">
+      <RouterLink class="is-size-1"
+                  :to="{name: 'single-election', params: {electionId: election.election_id}}"
+                  title="Auf eigener Seite anzeigen">
+        🗳️
+      </RouterLink>
+    </div>
     <div class="column">
       <h4 class="subtitle is-4">
         <b>{{ election.committee || '???' }}</b>-Wahl {{ fsName }}
@@ -37,7 +44,7 @@ const smh = computed(() => (props.election.electoral_register_request_date
           }}</span>
       </h3>
     </div>
-    <div class="column">
+    <div class="column is-narrow">
       <p class="has-text-right">{{ election.election_method }}</p>
     </div>
   </div>

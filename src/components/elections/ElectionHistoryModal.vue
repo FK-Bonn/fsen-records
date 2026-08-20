@@ -48,7 +48,7 @@ onMounted(() => {
           </p>
         </header>
         <div class="card-content">
-          <div class="content">
+          <div>
             <article v-if="message" class="message">
               <div class="message-body">
                 {{ message }}

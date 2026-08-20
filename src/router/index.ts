@@ -52,6 +52,11 @@ const router = createRouter({
       component: () => import('../views/ElectionDates.vue'),
     },
     {
+      path: '/wahltermine/:electionId',
+      name: 'single-election',
+      component: () => import('../views/SingleElection.vue'),
+    },
+    {
       path: '/sglieds',
       name: 'sglieds',
       component: () => import('../views/SGliedSView.vue'),
