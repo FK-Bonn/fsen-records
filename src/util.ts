@@ -14,6 +14,7 @@ import type {
     IEmailTemplateData,
     IEmailTemplateDataWithMeta,
     IFullPayoutRequestData,
+    IMessageData,
     INewPayoutRequestData,
     IPermission,
     IPermissionKey,
@@ -720,6 +721,45 @@ export const getDocumentsForPayoutRequest = async (request_id: string, tokenProm
         });
 }
 
+export const getMessagesForPayoutRequest = async (request_id: string, type: string, tokenPromise: Promise<string | null>): Promise<IMessageData[] | undefined> => {
+    const token = await tokenPromise;
+    const headers = token ? {'Authorization': `Bearer ${token}`} : undefined;
+    const url = import.meta.env.VITE_API_URL + `/payout-request/${type}/${request_id}/messages`;
+    return fetch(url, {method: 'GET', headers})
+        .then(response => {
+            if (response.ok) {
+                return response.json()
+            } else {
+                return response.json().then(content => Promise.reject(content.detail))
+            }
+        }, () => {
+            return Promise.reject("Fetching data failed");
+        })
+        .then(rawdata => {
+            return rawdata;
+        });
+}
+
+export const addMessageToPayoutRequest = async (message: string, previous_id: string | null, request_id: string, type: string, tokenPromise: Promise<string | null>): Promise<void> => {
+    const token = await tokenPromise;
+    if (!token) {
+        return;
+    }
+    const url = import.meta.env.VITE_API_URL + `/payout-request/${type}/${request_id}/messages`;
+    return fetch(url, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+        body: JSON.stringify({message, previous_id})
+    })
+        .then(resp => {
+            if (resp.ok) {
+                return;
+            } else {
+                return Promise.reject('An error occured');
+            }
+        });
+}
+
 export const deletePayoutRequest = async (request_id: string, type: string, tokenPromise: Promise<string | null>): Promise<string | null> => {
     const token = await tokenPromise;
     if (!token) {
@@ -1308,7 +1348,6 @@ export const loadEmailQueues = async (tokenPromise: Promise<string | null>): Pro
             return json;
         });
 }
-
 
 
 export const permissionToString = (key: keyof IPermission) => {

@@ -95,6 +95,20 @@ export interface IFullPayoutRequestData extends INewPayoutRequestData {
     last_modified_by?: string
 }
 
+export interface IMessagePostData {
+    message: string
+    previous_id: string
+}
+
+export interface IMessageData {
+    message: string
+    author: string
+    message_id: string
+    timestamp: string
+    username?: string
+}
+
+
 export interface ISemester {
     start: string
     end: string
