@@ -5,14 +5,7 @@ import {
     type IDocumentData,
     type IDocumentDataForFs
 } from "@/interfaces";
-import {
-    formatIsoDate,
-    getDocumentAnnotationLevel,
-    getWorstAnnotationLevel,
-    is2026HHJ,
-    isReferenced,
-    stringToDate
-} from "@/util";
+import {getDocumentAnnotationLevel, getWorstAnnotationLevel, is2026HHJ, isReferenced, stringToDate} from "@/util";
 
 export class Interval {
     start: Date
@@ -363,8 +356,15 @@ const replaceSemesterFor2026HHJ = (semester: Interval) => {
     return semester;
 }
 
+const getPreviousPeriod = (period: Interval) => {
+    const start = new Date(period.start.getFullYear() - 1, period.start.getMonth(), period.start.getDate());
+    const end = new Date(period.end.getFullYear() - 1, period.end.getMonth(), period.end.getDate());
+    return new Interval(start, end);
+}
+
 export class SemesterCalculator {
-    private semester: Interval;
+    private period: Interval;
+    private previousPeriod: Interval;
     private baseData: IBaseFsData;
     private documents: IDocumentData[];
     private electionResults: IDocumentData[];
@@ -374,9 +374,11 @@ export class SemesterCalculator {
     private cashAudits: IDocumentData[];
 
     constructor(baseData: IBaseFsData, semester: Interval, documents: IDocumentDataForFs | null) {
-        const actualSemester = replaceSemesterFor2026HHJ(semester);
+        const actualPeriod = replaceSemesterFor2026HHJ(semester);
+        const previousPeriod = getPreviousPeriod(actualPeriod);
         this.baseData = baseData;
-        this.semester = actualSemester;
+        this.period = actualPeriod;
+        this.previousPeriod = previousPeriod;
         this.documents = [];
         this.electionResults = [];
         this.proceedings = [];
@@ -391,6 +393,12 @@ export class SemesterCalculator {
             this.balances = this.documents.filter(value => value.base_name === 'HHR');
             this.cashAudits = this.documents.filter(value => value.base_name === 'KP');
         }
+    }
+
+    public isFullYear(): boolean {
+        const oneDay = 1000 * 60 * 60 * 24;
+        const days = Math.round((this.period.end.getTime() - this.period.start.getTime()) / oneDay);
+        return days >= 365 && days <= 366;
     }
 
 
@@ -419,7 +427,7 @@ export class SemesterCalculator {
     }
 
     public isSemesterCoveredByBudgets(): boolean {
-        return this.semester.isCoveredBy(this.budgets);
+        return this.period.isCoveredBy(this.budgets);
     }
 
     public getBalanceLevel(): AnnotationLevel {
@@ -427,7 +435,7 @@ export class SemesterCalculator {
     }
 
     public isSemesterCoveredByBalances(): boolean {
-        return this.semester.isCoveredBy(this.balances);
+        return this.period.isCoveredBy(this.balances);
     }
 
     public getCashAuditLevel(): AnnotationLevel {
@@ -435,15 +443,15 @@ export class SemesterCalculator {
     }
 
     public isSemesterCoveredByCashAudits(): boolean {
-        return this.semester.isCoveredBy(this.cashAudits);
+        return this.period.isCoveredBy(this.cashAudits);
     }
 
     private getLevelForDocuments(documents: IDocumentData[], requireReference: boolean = false): AnnotationLevel {
         const allowedLevels = [];
         for (const level of [AnnotationLevel.Ok, AnnotationLevel.Warning, AnnotationLevel.Unchecked]) {
             allowedLevels.push(level);
-            const budgets = this.semester.getOverlapping(this.getDocumentsWithLevels(documents, allowedLevels, requireReference));
-            if (this.semester.isCoveredBy(budgets)) {
+            const budgets = this.period.getOverlapping(this.getDocumentsWithLevels(documents, allowedLevels, requireReference));
+            if (this.period.isCoveredBy(budgets)) {
                 return level;
             }
         }
@@ -462,8 +470,31 @@ export class SemesterCalculator {
         return documentsWithLevels;
     }
 
+    private getCoveredSemestersInterval(period: Interval): Interval {
+        let start = period.start;
+        if (start.getMonth() < 4) {
+            start = new Date(start.getFullYear() - 1, 10, 1);
+        } else if (start.getMonth() < 10) {
+            start = new Date(start.getFullYear(), 4, 1);
+        } else {
+            start = new Date(start.getFullYear(), 10, 1);
+        }
+        let end = period.end;
+        if (end.getMonth() < 4) {
+            end = new Date(end.getFullYear(), 3, 31);
+        } else if (end.getMonth() < 10) {
+            end = new Date(end.getFullYear(), 9, 30);
+        } else {
+            end = new Date(end.getFullYear() + 1, 3, 31);
+        }
+        return new Interval(start, end);
+    }
+
     public getMostRecentElection(): IDocumentData | null {
-        const searchArea = new Interval(new Date(this.semester.end.getFullYear() - 1, this.semester.end.getMonth(), this.semester.end.getDate() + 1), this.semester.end);
+        let searchArea = new Interval(new Date(this.period.end.getFullYear() - 1, this.period.end.getMonth(), this.period.end.getDate() + 1), this.period.end);
+        if (this.isFullYear()) {
+            searchArea = this.getCoveredSemestersInterval(this.previousPeriod);
+        }
         let mostRecentElection = null;
         for (const electionResult of searchArea.getOverlapping(this.electionResults)) {
             if (!mostRecentElection || (electionResult.date_end && mostRecentElection.date_end && (electionResult.date_end > mostRecentElection.date_end))) {
@@ -474,14 +505,20 @@ export class SemesterCalculator {
     }
 
     public getRelevantBudgets(): IDocumentData[] {
-        return this.semester.getOverlapping(this.budgets);
+        return this.period.getOverlapping(this.budgets);
     }
 
     public getRelevantBalances(): IDocumentData[] {
-        return this.semester.getOverlapping(this.balances);
+        if (this.isFullYear()) {
+            return this.previousPeriod.getOverlapping(this.balances);
+        }
+        return this.period.getOverlapping(this.balances);
     }
 
     public getRelevantCashAudits(): IDocumentData[] {
-        return this.semester.getOverlapping(this.cashAudits);
+        if (this.isFullYear()) {
+            return this.previousPeriod.getOverlapping(this.cashAudits);
+        }
+        return this.period.getOverlapping(this.cashAudits);
     }
 }
