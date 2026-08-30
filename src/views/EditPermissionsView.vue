@@ -100,78 +100,52 @@ onBeforeMount(() => {
   <div class="section">
 
     <h1 class="title is-1">Berechtigungen bearbeiten</h1>
-
-    <div class="field">
-      <label class="label" for="create-account-username">Login-Name</label>
-      <div class="control">
-        <input class="input" id="edit-permissions-username" type="text" placeholder="vorname.nachname" readonly
-               v-model="editPermissionsUsername">
-      </div>
-      <p v-if="!editPermissionsUsername" class="help is-danger">
-        Öffne diese Seite über den Rechte-Bearbeiten-Link in der Accountliste, um Berechtigungen für einen Account zu
-        bearbeiten.
+    <template v-if="account.user === null">
+      <p>
+        Hier gibt es nichts für dich zu tun.
+        <RouterLink :to="{name: 'login'}">Melde dich an</RouterLink> und versuche es erneut.
       </p>
-    </div>
-    <template v-if="editPermissionsUsername">
-      <template v-if="account.user?.admin">
-        <div class="field">
-          <label class="checkbox" for="create-account-admin">
-            <input type="checkbox" id="edit-permissions-admin" v-model="editPermissionsAdmin">
-            Admin
-          </label>
+    </template>
+    <template v-else>
+      <div class="field">
+        <label class="label" for="create-account-username">Login-Name</label>
+        <div class="control">
+          <input class="input" id="edit-permissions-username" type="text" placeholder="vorname.nachname" readonly
+                 v-model="editPermissionsUsername">
         </div>
+        <p v-if="!editPermissionsUsername" class="help is-danger">
+          Öffne diese Seite über den Rechte-Bearbeiten-Link in der Accountliste, um Berechtigungen für einen Account zu
+          bearbeiten.
+        </p>
+      </div>
+      <template v-if="editPermissionsUsername">
+        <template v-if="account.user?.admin">
+          <div class="field">
+            <label class="checkbox" for="create-account-admin">
+              <input type="checkbox" id="edit-permissions-admin" v-model="editPermissionsAdmin">
+              Admin
+            </label>
+          </div>
 
-        <hr>
+          <hr>
 
-        <template v-for="fs in fsen" :key="fs">
-          <details :open="hasAnyFsPermission(editPermissionsPermissions, fs)">
-            <summary>{{ fs }}</summary>
-            <ul>
-              <li v-for="permission in PERMISSIONS" :key="permission">
-                <label class="checkbox">
-                  <input type="checkbox"
-                         :checked="hasFsPermission(editPermissionsPermissions, fs, permission)"
-                         @click="(event)=>updatePermission(fs, permission, (event.target as HTMLInputElement).checked)">
-                  {{ permissionToString(permission) }}
-                </label>
-              </li>
-              <li>
-                <label class="checkbox">
-                  <input type="checkbox"
-                         :checked="hasFsPermission(editPermissionsPermissions, fs, 'locked')"
-                         @click="(event)=>updatePermission(fs, 'locked', (event.target as HTMLInputElement).checked)">
-                  {{ permissionToString('locked') }}
-                </label>
-              </li>
-            </ul>
-          </details>
-        </template>
-      </template>
-      <template v-else>
-        <hr>
-
-        <b>Berechtigungen:</b>
-
-        <template v-for="p in account.user?.permissions" :key="p.fs">
-          <template v-if="p.write_permissions">
-            <details open>
-              <summary>{{ p.fs }}</summary>
+          <template v-for="fs in fsen" :key="fs">
+            <details :open="hasAnyFsPermission(editPermissionsPermissions, fs)">
+              <summary>{{ fs }}</summary>
               <ul>
-                <template v-for="permission in PERMISSIONS" :key="permission">
-                  <li>
-                    <label class="checkbox">
-                      <input type="checkbox"
-                             :disabled="hasFsPermission(editPermissionsPermissions, p.fs, 'locked')"
-                             :checked="hasFsPermission(editPermissionsPermissions, p.fs, permission)"
-                             @click="(event)=>updatePermission(p.fs, permission, (event.target as HTMLInputElement).checked)">
-                      {{ permissionToString(permission) }}
-                    </label>
-                  </li>
-                </template>
+                <li v-for="permission in PERMISSIONS" :key="permission">
+                  <label class="checkbox">
+                    <input type="checkbox"
+                           :checked="hasFsPermission(editPermissionsPermissions, fs, permission)"
+                           @click="(event)=>updatePermission(fs, permission, (event.target as HTMLInputElement).checked)">
+                    {{ permissionToString(permission) }}
+                  </label>
+                </li>
                 <li>
-                  <label class="checkbox" disabled>
-                    <input type="checkbox" disabled
-                           :checked="hasFsPermission(editPermissionsPermissions, p.fs, 'locked')">
+                  <label class="checkbox">
+                    <input type="checkbox"
+                           :checked="hasFsPermission(editPermissionsPermissions, fs, 'locked')"
+                           @click="(event)=>updatePermission(fs, 'locked', (event.target as HTMLInputElement).checked)">
                     {{ permissionToString('locked') }}
                   </label>
                 </li>
@@ -179,16 +153,49 @@ onBeforeMount(() => {
             </details>
           </template>
         </template>
+        <template v-else>
+          <hr>
+
+          <b>Berechtigungen:</b>
+
+          <template v-for="p in account.user?.permissions" :key="p.fs">
+            <template v-if="p.write_permissions">
+              <details open>
+                <summary>{{ p.fs }}</summary>
+                <ul>
+                  <template v-for="permission in PERMISSIONS" :key="permission">
+                    <li>
+                      <label class="checkbox">
+                        <input type="checkbox"
+                               :disabled="hasFsPermission(editPermissionsPermissions, p.fs, 'locked')"
+                               :checked="hasFsPermission(editPermissionsPermissions, p.fs, permission)"
+                               @click="(event)=>updatePermission(p.fs, permission, (event.target as HTMLInputElement).checked)">
+                        {{ permissionToString(permission) }}
+                      </label>
+                    </li>
+                  </template>
+                  <li>
+                    <label class="checkbox" disabled>
+                      <input type="checkbox" disabled
+                             :checked="hasFsPermission(editPermissionsPermissions, p.fs, 'locked')">
+                      {{ permissionToString('locked') }}
+                    </label>
+                  </li>
+                </ul>
+              </details>
+            </template>
+          </template>
+        </template>
+
+        <button class="button is-primary" @click="editPermissionsWithData">Rechte speichern</button>
       </template>
 
-      <button class="button is-primary" @click="editPermissionsWithData">Rechte speichern</button>
+      <article v-if="permissionsMessage" class="message">
+        <div class="message-body">
+          {{ permissionsMessage }}
+        </div>
+      </article>
     </template>
-
-    <article v-if="permissionsMessage" class="message">
-      <div class="message-body">
-        {{ permissionsMessage }}
-      </div>
-    </article>
 
   </div>
 </template>
