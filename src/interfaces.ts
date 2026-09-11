@@ -424,3 +424,9 @@ export interface IEmailQueues {
     outbox: IQueuedEmailMessage[]
     sent: ISentEmailMessage[]
 }
+
+export interface IAllocation {
+    fs: string
+    period: string
+    amount_cents: number
+}

@@ -1,5 +1,6 @@
 import type {
     IAllFsData,
+    IAllocation,
     IAnnotation,
     IBaseFsData,
     IBaseFsDataHistoryEntry,
@@ -1052,6 +1053,39 @@ export const putProtectedFsData = async (fs: string, data: IProtectedFsData, tok
         method: 'PUT',
         headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
         body: JSON.stringify(data)
+    })
+        .then(resp => {
+            if (resp.ok) {
+                return;
+            } else {
+                return Promise.reject('An error occured');
+            }
+        });
+}
+
+export const loadAllocations = async (): Promise<IAllocation[] | null> => {
+    return fetch(import.meta.env.VITE_API_URL + '/data/allocation')
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                return Promise.reject('An error occured');
+            }
+        })
+        .then(json => {
+            return json;
+        });
+}
+
+export const putAllocation = async (allocation: IAllocation, tokenPromise: Promise<string | null>): Promise<void> => {
+    const token = await tokenPromise;
+    if (!token) {
+        return;
+    }
+    return fetch(import.meta.env.VITE_API_URL + `/data/allocation/${allocation.fs}/${allocation.period}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+        body: JSON.stringify({"amount_cents": allocation.amount_cents})
     })
         .then(resp => {
             if (resp.ok) {
