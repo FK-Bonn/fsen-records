@@ -117,6 +117,10 @@ const showEditModal = () => {
 
 const yeet = async () => {
   const message = messageContent.value;
+  if (!message) {
+    alert("Bitte eine Nachricht eingeben!");
+    return;
+  }
   const previousId = (completedMessagesRequest.value && completedMessagesRequest.value.length) ? completedMessagesRequest.value[0].message_id : null;
   try {
     await addMessageToPayoutRequest(message, previousId, requestId, type_.value, token.token());
