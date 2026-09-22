@@ -81,6 +81,7 @@ const upload = () => {
                 <span class="file-name">{{ file?.name }}</span>
               </label>
             </div>
+            <p class="help">Maximale Dateigröße: 5 MiB</p>
           </div>
         </div>
       </div>
