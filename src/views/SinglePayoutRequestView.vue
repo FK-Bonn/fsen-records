@@ -194,7 +194,7 @@ const showMessageInputBox = computed(() => (account.user?.admin
               </template>
               <div class="mb-3" v-if="showMessageInputBox">
                 <div class="field">
-                  <label class="label">Nachricht hinzufügen</label>
+                  <label class="label">Öffentliche Nachricht hinzufügen</label>
                   <div class="control">
                     <textarea class="textarea" placeholder="Nachricht hier eingeben" rows="2"
                               v-model="messageContent"></textarea>
